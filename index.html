@@ -163,11 +163,11 @@
 
             <!-- Compact Controls: Theme + WakeLock + Clock -->
             <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="toggleOutdoorTheme()" id="theme-toggle-btn" title="Ganti Tema Siang (Outdoor) / Malam" class="w-8 h-8 rounded-xl bg-navy-950 border border-slate-800 flex items-center justify-center text-amber-400 hover:border-sky-500 transition">
+                <button type="button" onclick="toggleOutdoorTheme()" id="theme-toggle-btn" title="Ganti Tema Siang (Outdoor) / Malam" class="w-8 h-8 rounded-xl bg-navy-950 border border-slate-800 flex items-center justify-center text-amber-400 hover:border-sky-500 transition">
                     <i id="theme-toggle-icon" class="fa-solid fa-sun text-xs"></i>
                 </button>
 
-                <button onclick="toggleWakeLockManual()" id="wakelock-badge" title="Kunci Layar Tetap Nyala" class="h-8 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center gap-1.5 transition">
+                <button type="button" onclick="toggleWakeLockManual()" id="wakelock-badge" title="Kunci Layar Tetap Nyala" class="h-8 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center gap-1.5 transition">
                     <span id="wakelock-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                     <span id="wakelock-text" class="text-[10px] font-extrabold text-amber-400 tracking-wide">ON</span>
                 </button>
@@ -181,15 +181,15 @@
 
         <!-- 3-Step Mobile Navigation Tabs -->
         <nav class="px-3 pb-2 grid grid-cols-3 gap-1.5">
-            <button onclick="switchTab('setup')" id="tab-btn-setup" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all bg-sky-500 text-navy-950 shadow-md">
+            <button type="button" onclick="switchTab('setup')" id="tab-btn-setup" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all bg-sky-500 text-navy-950 shadow-md">
                 <i class="fa-solid fa-sliders"></i>
                 <span>1. Setup</span>
             </button>
-            <button onclick="switchTab('observe')" id="tab-btn-observe" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+            <button type="button" onclick="switchTab('observe')" id="tab-btn-observe" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
                 <i class="fa-solid fa-stopwatch"></i>
                 <span>2. Rekam</span>
             </button>
-            <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+            <button type="button" onclick="switchTab('report')" id="tab-btn-report" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
                 <i class="fa-solid fa-file-code"></i>
                 <span>3. Sandi</span>
             </button>
@@ -245,11 +245,11 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-1.5 pt-0.5">
-                            <button onclick="activateRealSensors()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
+                            <button type="button" onclick="activateRealSensors()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
                                 <i class="fa-solid fa-satellite-dish"></i>
                                 <span>Aktifkan</span>
                             </button>
-                            <button onclick="calibrateZeroOffset()" class="bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
+                            <button type="button" onclick="calibrateZeroOffset()" class="bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
                                 <i class="fa-solid fa-crosshairs"></i>
                                 <span>Set Nol</span>
                             </button>
@@ -271,7 +271,7 @@
                         <i class="fa-solid fa-clipboard-list text-sky-400"></i>
                         <h2 class="font-bold text-sm text-white">Parameter Pengamatan PIBAL</h2>
                     </div>
-                    <button onclick="autoDetectSynoptic()" class="text-[11px] bg-navy-800 hover:bg-slate-700 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-700 font-bold transition">
+                    <button type="button" onclick="autoDetectSynoptic()" class="text-[11px] bg-navy-800 hover:bg-slate-700 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-700 font-bold transition">
                         <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Auto Jam
                     </button>
                 </div>
@@ -322,20 +322,10 @@
                         </select>
                     </div>
 
-                    <!-- Elevasi Stasiun (MSL) & Alasan Berhenti untuk PDF Laporan -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Elevasi MSL (Meter)</label>
+                    <!-- Elevasi Stasiun (MSL) -->
+                    <div class="col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Elevasi Stasiun MSL (Meter)</label>
                         <input type="number" step="0.1" id="obs-msl" value="1.3" onchange="saveToLocalStorage();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan Akhir Pengamatan</label>
-                        <select id="obs-reason" onchange="saveToLocalStorage();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-amber-400 focus:outline-none focus:border-sky-500">
-                            <option value="BB" selected>BB (Balon Pecah / Burst)</option>
-                            <option value="AW">AW (Masuk Awan)</option>
-                            <option value="HL">HL (Hilang Pandangan)</option>
-                            <option value="KT">KT (Ketinggian Tercapai)</option>
-                        </select>
                     </div>
                 </div>
 
@@ -357,7 +347,7 @@
                     </div>
                 </div>
 
-                <button onclick="onObserverNameCommit(); switchTab('observe');" class="w-full bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-sm py-3.5 rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition">
+                <button type="button" onclick="onObserverNameCommit(); switchTab('observe');" class="w-full bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-sm py-3.5 rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition">
                     <span>Mulai Pengamatan Lapangan</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -375,7 +365,7 @@
                     <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-stopwatch mr-1 text-amber-400"></i>Timer Pembacaan</span>
                     <div class="flex items-center gap-2">
                         <span class="text-[11px] font-bold text-sky-400">Target: Bacaan <span id="target-minute-label">1</span> (<span id="target-time-label">01:30</span>)</span>
-                        <button onclick="toggleAudioMute()" id="btn-audio-toggle" class="text-[11px] bg-navy-950 border border-slate-700 px-2 py-0.5 rounded-lg text-emerald-400 font-bold flex items-center gap-1">
+                        <button type="button" onclick="toggleAudioMute()" id="btn-audio-toggle" class="text-[11px] bg-navy-950 border border-slate-700 px-2 py-0.5 rounded-lg text-emerald-400 font-bold flex items-center gap-1">
                             <i class="fa-solid fa-volume-high"></i>
                             <span>Beep</span>
                         </button>
@@ -389,19 +379,19 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        <button onclick="startTimer()" id="btn-timer-start" class="bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition">
+                        <button type="button" onclick="startTimer()" id="btn-timer-start" class="bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-play"></i>
                             <span>LEPAS BALON</span>
                         </button>
-                        <button onclick="pauseTimer()" id="btn-timer-pause" class="hidden bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg flex items-center gap-1.5 transition">
+                        <button type="button" onclick="pauseTimer()" id="btn-timer-pause" class="hidden bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-pause"></i>
                             <span>PAUSE</span>
                         </button>
-                        <button onclick="stopAndFinishObservation()" id="btn-timer-stop" title="Selesai Merekam & Buka Sandi" class="hidden bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-rose-500/20 flex items-center gap-1.5 transition">
+                        <button type="button" onclick="stopAndFinishObservation()" id="btn-timer-stop" title="Selesai Merekam & Buka Sandi" class="hidden bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-rose-500/20 flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-flag-checkered"></i>
                             <span>SELESAI</span>
                         </button>
-                        <button onclick="resetTimerConfirm()" title="Reset Timer" class="bg-navy-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-400 border border-slate-700 font-bold text-xs p-3 rounded-xl transition">
+                        <button type="button" onclick="resetTimerConfirm()" title="Reset Timer" class="bg-navy-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-400 border border-slate-700 font-bold text-xs p-3 rounded-xl transition">
                             <i class="fa-solid fa-rotate-left"></i>
                         </button>
                     </div>
@@ -415,11 +405,11 @@
 
             <!-- Mode Toggle Switch (Auto Sensor HP vs Input Manual) -->
             <div class="bg-navy-900 border border-slate-800 rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 shadow-lg">
-                <button onclick="setRecordMode('auto')" id="mode-btn-auto" class="py-2.5 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-navy-950 shadow-md">
+                <button type="button" onclick="setRecordMode('auto')" id="mode-btn-auto" class="py-2.5 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-navy-950 shadow-md">
                     <i class="fa-solid fa-satellite-dish"></i>
                     <span>Auto Sensor HP</span>
                 </button>
-                <button onclick="setRecordMode('manual')" id="mode-btn-manual" class="py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+                <button type="button" onclick="setRecordMode('manual')" id="mode-btn-manual" class="py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
                     <i class="fa-solid fa-keyboard"></i>
                     <span>Input Manual</span>
                 </button>
@@ -450,11 +440,11 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="skipFirstReading9999()" title="Isi Bacaan 1 dengan 9999 (seperti BMKGSatu)" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-[11px] py-3 px-2 rounded-xl transition flex items-center justify-center gap-1">
+                    <button type="button" onclick="skipFirstReading9999()" title="Isi Bacaan 1 dengan 9999" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-[11px] py-3 px-2 rounded-xl transition flex items-center justify-center gap-1">
                         <i class="fa-solid fa-forward-step"></i>
                         <span>Skip 1 (9999)</span>
                     </button>
-                    <button onclick="triggerAutoRecordNow(true)" class="col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="triggerAutoRecordNow(true)" class="col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-camera"></i>
                         <span>Rekam Sekarang (Bacaan <span id="btn-auto-now-min">1</span>)</span>
                     </button>
@@ -469,9 +459,9 @@
                         <span class="text-[11px] text-slate-400 font-mono" id="input-height-preview">500 ft</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="skipFirstReading9999()" class="px-2 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-amber-400 text-[10px] font-bold border border-slate-700 mr-1">9999</button>
-                        <button onclick="changeEditingMinute(-1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button onclick="changeEditingMinute(1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button type="button" onclick="skipFirstReading9999()" class="px-2 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-amber-400 text-[10px] font-bold border border-slate-700 mr-1">9999</button>
+                        <button type="button" onclick="changeEditingMinute(-1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button type="button" onclick="changeEditingMinute(1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
 
@@ -494,24 +484,24 @@
 
                 <!-- Large Anti-Typo Numpad -->
                 <div class="grid grid-cols-4 gap-1.5">
-                    <button onclick="numpadPress('7')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">7</button>
-                    <button onclick="numpadPress('8')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">8</button>
-                    <button onclick="numpadPress('9')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">9</button>
-                    <button onclick="numpadBackspace()" class="numpad-btn bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 font-bold text-base py-3 rounded-xl border border-rose-800/50 flex items-center justify-center"><i class="fa-solid fa-delete-left"></i></button>
+                    <button type="button" onclick="numpadPress('7')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">7</button>
+                    <button type="button" onclick="numpadPress('8')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">8</button>
+                    <button type="button" onclick="numpadPress('9')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">9</button>
+                    <button type="button" onclick="numpadBackspace()" class="numpad-btn bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 font-bold text-base py-3 rounded-xl border border-rose-800/50 flex items-center justify-center"><i class="fa-solid fa-delete-left"></i></button>
 
-                    <button onclick="numpadPress('4')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">4</button>
-                    <button onclick="numpadPress('5')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">5</button>
-                    <button onclick="numpadPress('6')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">6</button>
-                    <button onclick="numpadClear()" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] py-3 rounded-xl border border-slate-700">CLEAR</button>
+                    <button type="button" onclick="numpadPress('4')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">4</button>
+                    <button type="button" onclick="numpadPress('5')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">5</button>
+                    <button type="button" onclick="numpadPress('6')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">6</button>
+                    <button type="button" onclick="numpadClear()" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] py-3 rounded-xl border border-slate-700">CLEAR</button>
 
-                    <button onclick="numpadPress('1')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">1</button>
-                    <button onclick="numpadPress('2')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">2</button>
-                    <button onclick="numpadPress('3')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">3</button>
-                    <button onclick="switchActiveField()" class="numpad-btn bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 font-bold text-[11px] py-3 rounded-xl border border-sky-700/50">NEXT <i class="fa-solid fa-arrow-right-arrow-left ml-0.5"></i></button>
+                    <button type="button" onclick="numpadPress('1')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">1</button>
+                    <button type="button" onclick="numpadPress('2')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">2</button>
+                    <button type="button" onclick="numpadPress('3')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">3</button>
+                    <button type="button" onclick="switchActiveField()" class="numpad-btn bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 font-bold text-[11px] py-3 rounded-xl border border-sky-700/50">NEXT <i class="fa-solid fa-arrow-right-arrow-left ml-0.5"></i></button>
 
-                    <button onclick="numpadPress('0')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">0</button>
-                    <button onclick="numpadPress('.')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">.</button>
-                    <button onclick="saveMinuteReading()" class="numpad-btn col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                    <button type="button" onclick="numpadPress('0')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">0</button>
+                    <button type="button" onclick="numpadPress('.')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">.</button>
+                    <button type="button" onclick="saveMinuteReading()" class="numpad-btn col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-check"></i>
                         <span>SIMPAN BACAAN <span id="btn-save-min-num">1</span></span>
                     </button>
@@ -526,10 +516,10 @@
                         <h3 class="font-bold text-xs text-white">Hasil Rekam (<span id="total-minutes-count">0</span> Bacaan)</h3>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <button onclick="loadSampleData()" class="text-[10px] bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg font-bold transition">
+                        <button type="button" onclick="loadSampleData()" class="text-[10px] bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg font-bold transition">
                             Muat Contoh
                         </button>
-                        <button onclick="clearAllReadings()" class="text-[10px] bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 px-2 py-1 rounded-lg font-bold transition">
+                        <button type="button" onclick="clearAllReadings()" class="text-[10px] bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 px-2 py-1 rounded-lg font-bold transition">
                             Hapus
                         </button>
                     </div>
@@ -551,7 +541,14 @@
                         <tbody id="plotting-table-body" class="divide-y divide-slate-800/70"></tbody>
                     </table>
                 </div>
-                <p class="text-[10px] text-slate-400">* Arah &amp; kecepatan angin (`dddff`) dihitung setiap 2 kali pembacaan (kelipatan 1.000 ft).</p>
+
+                <div class="flex items-center justify-between pt-1">
+                    <p class="text-[10px] text-slate-400">* `dddff` dihitung setiap 2 kali pembacaan (1.000 ft).</p>
+                    <button type="button" onclick="stopAndFinishObservation()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-[11px] py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition shrink-0">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        <span>Selesai &amp; Sandi</span>
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -572,20 +569,33 @@
 
                 <textarea id="pilot-code-output" rows="8" readonly class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3 font-mono text-xs sm:text-sm font-bold text-emerald-400 leading-relaxed focus:outline-none"></textarea>
 
+                <!-- Alasan Akhir Pengamatan (Diisi setelah selesai merekam sebelum Unduh PDF) -->
+                <div class="bg-navy-950/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between gap-2">
+                    <label for="obs-reason" class="text-[11px] font-bold text-slate-300 shrink-0">
+                        <i class="fa-solid fa-flag-checkered text-amber-400 mr-1"></i>Alasan Selesai:
+                    </label>
+                    <select id="obs-reason" onchange="saveToLocalStorage();" class="flex-1 bg-navy-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-amber-400 focus:outline-none focus:border-sky-500">
+                        <option value="BB" selected>BB (Balon Pecah / Burst)</option>
+                        <option value="AW">AW (Masuk Awan)</option>
+                        <option value="HL">HL (Hilang Pandangan)</option>
+                        <option value="KT">KT (Ketinggian Tercapai)</option>
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-copy"></i>
                         <span>Salin Sandi</span>
                     </button>
-                    <button onclick="shareToWhatsApp()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="shareToWhatsApp()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-brands fa-whatsapp text-sm"></i>
                         <span>WA Az &amp; El</span>
                     </button>
-                    <button onclick="exportToCSV()" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="exportToCSV()" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-csv"></i>
                         <span>Unduh CSV</span>
                     </button>
-                    <button onclick="exportToPDF()" class="bg-navy-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="exportToPDF()" class="bg-navy-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-pdf text-rose-400"></i>
                         <span>Unduh PDF</span>
                     </button>
@@ -605,11 +615,11 @@
                     Ketuk <b>Kirim Script ke WA</b> untuk langsung mengirim kode otomatis ke WhatsApp. Di PC, isi dulu Observer/Tanggal/Jam di BMKGSoft, buka WA Web → salin kode tersebut → tekan <b>F12 → Console</b> → tempel (<b>Ctrl+V</b>) → <b>Enter</b>.
                 </p>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="sendBMKGSoftScriptToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="sendBMKGSoftScriptToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-brands fa-whatsapp text-sm"></i>
                         <span>Kirim Script ke WA</span>
                     </button>
-                    <button onclick="copyAzElTabular()" class="bg-navy-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="copyAzElTabular()" class="bg-navy-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-table-columns"></i>
                         <span>Salin Data Az &amp; El</span>
                     </button>
@@ -674,14 +684,23 @@
 
     </main>
 
-    <!-- Custom Confirmation Modal -->
+    <!-- Custom Confirmation Modal (Mendukung pilihan Alasan Selesai saat mengakhiri pengamatan) -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
             <h3 id="modal-title" class="text-base font-extrabold text-white">Konfirmasi</h3>
             <p id="modal-message" class="text-xs text-slate-300 leading-relaxed"></p>
+            <div id="modal-reason-box" class="hidden space-y-1.5">
+                <label for="modal-reason-select" class="block text-[11px] font-bold text-amber-400">Pilih Alasan Selesai Pengamatan:</label>
+                <select id="modal-reason-select" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-sky-500">
+                    <option value="BB">BB (Balon Pecah / Burst)</option>
+                    <option value="AW">AW (Masuk Awan)</option>
+                    <option value="HL">HL (Hilang Pandangan)</option>
+                    <option value="KT">KT (Ketinggian Tercapai)</option>
+                </select>
+            </div>
             <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="closeModal()" class="py-2.5 px-3 rounded-xl bg-navy-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">Batal</button>
-                <button id="modal-confirm-btn" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs transition">Ya, Lanjutkan</button>
+                <button type="button" onclick="closeModal()" class="py-2.5 px-3 rounded-xl bg-navy-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">Batal</button>
+                <button type="button" id="modal-confirm-btn" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs transition">Ya, Lanjutkan</button>
             </div>
         </div>
     </div>
@@ -794,7 +813,7 @@
             wrapper.classList.remove('hidden');
             container.innerHTML = list.map(name => {
                 const isSelected = currentVal && name.toLowerCase() === currentVal;
-                const safeArg = name.replace(/\/g, '\\').replace(/'/g, "\'");
+                const safeArg = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 const activeClasses = isSelected
                     ? 'bg-sky-500 text-navy-950 border-sky-400 font-extrabold shadow-sm'
                     : 'bg-navy-800 hover:bg-slate-700 text-slate-200 border-slate-700 font-semibold';
@@ -817,8 +836,7 @@
         let readings = [];
         let computedRows = [];
         let standardLayers = [];
-        let hodographRows = []; // Termasuk baris 0 (Surface) + lapisan 1, 2, ... lengkap dengan U, V, V/B, Adveksi
-        let isSessionCompleted = false;
+        let hodographRows = [];
 
         let timerInterval = null;
         let elapsedSeconds = 0;
@@ -1256,7 +1274,6 @@
             if (isTimerRunning) return;
             onObserverNameCommit();
             isTimerRunning = true;
-            isSessionCompleted = false;
             requestScreenWakeLock(false);
 
             document.getElementById('btn-timer-start').classList.add('hidden');
@@ -1318,30 +1335,38 @@
         }
 
         function stopAndFinishObservation() {
-            openModal('Selesai Merekam', 'Akhiri pengamatan balon saat ini, simpan ke riwayat, dan lihat hasil Sandi PILOT?', () => {
-                onObserverNameCommit();
-                isTimerRunning = false;
-                clearInterval(timerInterval);
-                elapsedSeconds = 0;
-                updateTimerDisplay();
+            openModal(
+                'Selesai Pengamatan',
+                'Pilih alasan selesainya pengamatan balon, lalu simpan ke riwayat dan buka hasil Sandi PILOT:',
+                () => {
+                    const modalReason = document.getElementById('modal-reason-select')?.value || 'BB';
+                    const reportReason = document.getElementById('obs-reason');
+                    if (reportReason) reportReason.value = modalReason;
 
-                document.getElementById('btn-timer-pause').classList.add('hidden');
-                document.getElementById('btn-timer-stop').classList.add('hidden');
-                document.getElementById('btn-timer-start').classList.remove('hidden');
-                document.getElementById('btn-timer-start').innerHTML = '<i class="fa-solid fa-play"></i><span>LEPAS BALON</span>';
-                document.getElementById('timer-status-text').textContent = 'Pengamatan Selesai — Siap Sesi Baru';
-                document.getElementById('timer-status-text').className = 'text-[11px] font-bold text-sky-400 mt-0.5';
-                document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
+                    onObserverNameCommit();
+                    isTimerRunning = false;
+                    clearInterval(timerInterval);
+                    elapsedSeconds = 0;
+                    updateTimerDisplay();
 
-                if (readings.length > 0) {
-                    saveSessionToHistory();
-                }
+                    document.getElementById('btn-timer-pause').classList.add('hidden');
+                    document.getElementById('btn-timer-stop').classList.add('hidden');
+                    document.getElementById('btn-timer-start').classList.remove('hidden');
+                    document.getElementById('btn-timer-start').innerHTML = '<i class="fa-solid fa-play"></i><span>LEPAS BALON</span>';
+                    document.getElementById('timer-status-text').textContent = 'Pengamatan Selesai — Siap Sesi Baru';
+                    document.getElementById('timer-status-text').className = 'text-[11px] font-bold text-sky-400 mt-0.5';
+                    document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
 
-                isSessionCompleted = true;
-                saveToLocalStorage();
-                switchTab('report');
-                showToast('Pengamatan selesai & tersimpan ke riwayat!', 'success');
-            });
+                    if (readings.length > 0) {
+                        saveSessionToHistory();
+                    }
+
+                    saveToLocalStorage();
+                    switchTab('report');
+                    showToast(`Selesai (${modalReason}) & tersimpan ke riwayat!`, 'success');
+                },
+                true
+            );
         }
 
         function resetTimerConfirm() {
@@ -1358,7 +1383,7 @@
                 document.getElementById('timer-status-text').textContent = 'Siap Lepas Balon (Bacaan 1 di 01:30)';
                 document.getElementById('timer-status-text').className = 'text-[11px] font-semibold text-slate-400 mt-0.5';
                 document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
-            });
+            }, false);
         }
 
         function updateTimerDisplay() {
@@ -1534,7 +1559,6 @@
         }
 
         function upsertReading(minute, azimuth, elevation, skipped = false) {
-            isSessionCompleted = false;
             const idx = readings.findIndex(r => r.minute === minute);
             const entry = { minute, azimuth, elevation, skipped: skipped || (azimuth === 9999 && elevation === 9999) };
             if (idx >= 0) {
@@ -1563,7 +1587,7 @@
                 updateNumpadUI();
                 recalculateAll();
                 showToast('Semua data pengamatan dihapus.', 'info');
-            });
+            }, false);
         }
 
         function loadSampleData() {
@@ -1590,7 +1614,6 @@
             document.getElementById('surface-dir').value = '0';
             document.getElementById('surface-spd').value = '0';
             editingMinute = 19;
-            isSessionCompleted = false;
             saveToLocalStorage();
             updateNumpadUI();
             recalculateAll();
@@ -1711,7 +1734,6 @@
                 }
             });
 
-            // Bangun baris tabel Hodograph lengkap (No 0 = Surface, No 1..N = kelipatan 1000 ft)
             const surfRoundedDir = Math.round(surfSpd) === 0 ? 0 : roundToNearest5(surfDir);
             const surfSpdInt = Math.round(surfSpd);
             const surfUV = computeUVComponents(surfRoundedDir, surfSpdInt);
@@ -1730,13 +1752,11 @@
             standardLayers.forEach((l, idx) => {
                 const uv = computeUVComponents(l.dir, l.speedKt);
                 const prev = hodographRows[hodographRows.length - 1];
-                // Beda arah terpendek: > 0 searah jarum jam (veering), < 0 berlawanan jarum jam (backing)
                 let diff = ((l.dir - prev.dir + 540) % 360) - 180;
                 if (prev.speedKt === 0 && l.dir > 0) {
                     diff = l.dir <= 180 ? l.dir : l.dir - 360;
                 }
                 const vb = diff >= 0 ? 'veering' : 'backing';
-                // Di Belahan Bumi Selatan (BBS - Bima): backing = Adveksi Hangat, veering = Adveksi Dingin
                 const adveksi = vb === 'backing' ? 'Adveksi Hangat' : 'Adveksi Dingin';
 
                 hodographRows.push({
@@ -1752,7 +1772,7 @@
             });
 
             renderPlottingTable();
-            generatePilotCodeAndLevels(surfRoundedDir, surfSpdInt);
+            generatePilotCodeAndLevels();
         }
 
         function renderPlottingTable() {
@@ -1782,7 +1802,7 @@
                         <td class="py-2 px-2 font-extrabold text-sky-400">${dirDisp}</td>
                         <td class="py-2 px-2 font-extrabold text-amber-400">${spdDisp}</td>
                         <td class="py-2 px-1.5 text-center">
-                            <button onclick="deleteReading(${row.minute})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                            <button type="button" onclick="deleteReading(${row.minute})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1808,8 +1828,7 @@
             const layer5000 = standardLayers.find(l => l.levelFt === 5000);
             const layer10000 = standardLayers.find(l => l.levelFt === 10000);
 
-            let ppaaBody = `PPAA ${YY}${GG}${a4}
-${wmo} `;
+            let ppaaBody = `PPAA ${YY}${GG}${a4}\n${wmo} `;
             if (layer5000 && layer10000) {
                 ppaaBody += `55185 ${layer5000.dddff} 55170 ${layer10000.dddff} 77999=`;
             } else if (layer5000) {
@@ -1863,16 +1882,10 @@ ${wmo} `;
                 surfDDDFF,
                 surfSlash: formatDDD_Slash_FF(surfRoundedDir, surfSpd),
                 ppaaText: ppaaBody,
-                ppbbText: `${ppbbHeader}
-${ppbbFullTokens}`,
+                ppbbText: `${ppbbHeader}\n${ppbbFullTokens}`,
                 ppaaSingleLine: `PPAA ${YY}${GG}${a4} ${wmo} ${layer5000 ? '55185 ' + layer5000.dddff + (layer10000 ? ' 55170 ' + layer10000.dddff : '') : '55/// /////'} 77999=`,
                 ppbbSingleLine: `PPBB ${YY}${GG}${a4} ${ppbbFullTokens}`,
-                fullDisplayCode: `UPID53 WADB ${DD}${GG}00
-${ppaaBody}
-
-UGID53 WADB ${DD}${GG}00
-${ppbbHeader}
-${ppbbFullTokens}`
+                fullDisplayCode: `UPID53 WADB ${DD}${GG}00\n${ppaaBody}\n\nUGID53 WADB ${DD}${GG}00\n${ppbbHeader}\n${ppbbFullTokens}`
             };
         }
 
@@ -1915,13 +1928,10 @@ ${ppbbFullTokens}`
                 return;
             }
 
-            // Arah angin meteorologi (dari mana angin bertiup):
-            // 0° = Utara (atas, -Y), 90° = Timur (kanan, +X), 180° = Selatan (bawah, +Y), 270° = Barat (kiri, -X)
             const rad = (dirDeg * Math.PI) / 180;
             const dx = Math.sin(rad);
             const dy = -Math.cos(rad);
 
-            // Titik stasiun (cx, cy) ke ujung ekor angin (tipX, tipY)
             const tipX = cx + dx * shaftLen;
             const tipY = cy + dy * shaftLen;
 
@@ -1930,17 +1940,15 @@ ${ppbbFullTokens}`
             ctx.lineTo(tipX, tipY);
             ctx.stroke();
 
-            // Untuk Belahan Bumi Selatan (BBS), bulu angin mengarah ke KIRI jika menghadap ke arah datangnya angin
-            // Vektor tegak lurus ke sisi BBS:
+            // Sisi Belahan Bumi Selatan (BBS)
             const perpX = -dy;
             const perpY = dx;
 
             let rem = Math.round(speedKt / 5) * 5;
-            let pos = 0; // jarak dari ujung tip ke arah pangkal
+            let pos = 0;
             const barbLen = 9;
             const step = 4.2;
 
-            // Bendera 50 knot (segitiga penuh)
             while (rem >= 50) {
                 const bx1 = tipX - dx * pos;
                 const by1 = tipY - dy * pos;
@@ -1960,7 +1968,6 @@ ${ppbbFullTokens}`
                 pos += 7.5;
             }
 
-            // Garis panjang 10 knot
             while (rem >= 10) {
                 const bx = tipX - dx * pos;
                 const by = tipY - dy * pos;
@@ -1976,9 +1983,8 @@ ${ppbbFullTokens}`
                 pos += step;
             }
 
-            // Garis setengah 5 knot
             if (rem >= 5) {
-                if (pos === 0) pos = step; // Jika hanya 5 knot, geser sedikit dari ujung agar tidak tampak seperti 10 kt
+                if (pos === 0) pos = step;
                 const bx = tipX - dx * pos;
                 const by = tipY - dy * pos;
                 const px = bx + perpX * (barbLen * 0.55) + dx * 1.4;
@@ -1999,11 +2005,9 @@ ${ppbbFullTokens}`
             const ctx = canvas.getContext('2d');
             ctx.scale(dpr, dpr);
 
-            // Latar belakang putih bersih
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, widthPx, heightPx);
 
-            // Area kiri: Kotak Hodograph persegi
             const padTop = 18;
             const padBottom = 26;
             const padLeft = 18;
@@ -2014,20 +2018,17 @@ ${ppbbFullTokens}`
             const midX = boxX + boxSize / 2;
             const midY = boxY + boxSize / 2;
 
-            // Tentukan skala maksimum dinamis kelipatan 11 (persis 11, 22, 33, 44, 55 seperti contoh)
             const maxAbsUV = Math.max(
                 45,
                 ...hodographRows.map(r => Math.max(Math.abs(r.u), Math.abs(r.v)))
             );
             const stepVal = Math.max(11, Math.ceil(maxAbsUV / 5 / 11) * 11);
-            const maxAxis = stepVal * 5; // misal 55
+            const maxAxis = stepVal * 5;
 
-            // Bingkai luar Hodograph
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 1.2;
             ctx.strokeRect(boxX, boxY, boxSize, boxSize);
 
-            // Sumbu X (U) & Sumbu Y (V) melewati (0,0)
             ctx.beginPath();
             ctx.moveTo(boxX, midY);
             ctx.lineTo(boxX + boxSize, midY);
@@ -2035,7 +2036,6 @@ ${ppbbFullTokens}`
             ctx.lineTo(midX, boxY + boxSize);
             ctx.stroke();
 
-            // Ticks & angka skala pada sumbu X dan Y
             ctx.fillStyle = '#0f172a';
             ctx.font = '9px Arial, sans-serif';
             for (let i = -5; i <= 5; i++) {
@@ -2043,13 +2043,11 @@ ${ppbbFullTokens}`
                 const px = midX + (i / 5) * (boxSize / 2);
                 const py = midY - (i / 5) * (boxSize / 2);
 
-                // Tick X
                 ctx.beginPath();
                 ctx.moveTo(px, midY - 2.5);
                 ctx.lineTo(px, midY + 2.5);
                 ctx.stroke();
 
-                // Tick Y
                 ctx.beginPath();
                 ctx.moveTo(midX - 2.5, py);
                 ctx.lineTo(midX + 2.5, py);
@@ -2066,13 +2064,11 @@ ${ppbbFullTokens}`
                 }
             }
 
-            // Label HODOGRAPH di bawah kotak
             ctx.font = 'bold 11px Arial, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillStyle = '#0f172a';
             ctx.fillText('HODOGRAPH', midX, boxY + boxSize + 15);
 
-            // Plot titik & garis penghubung Hodograph (U, V)
             if (hodographRows.length > 0) {
                 ctx.strokeStyle = '#3b82f6';
                 ctx.lineWidth = 1.5;
@@ -2101,9 +2097,6 @@ ${ppbbFullTokens}`
                 });
             }
 
-            // =====================================================================
-            // Panel Kanan: Skala Vertikal KM (0..6) & FT (x1000) (0..20) + Wind Barbs
-            // =====================================================================
             const axisX = boxX + boxSize + 24;
             const axisTop = boxY + 12;
             const axisBottom = boxY + boxSize;
@@ -2125,7 +2118,6 @@ ${ppbbFullTokens}`
             ctx.lineTo(axisX, axisBottom);
             ctx.stroke();
 
-            // Ticks FT (x1000) dari 0 sampai 20
             const maxK = Math.round(maxFtScale / 1000);
             ctx.font = '7.5px Arial, sans-serif';
             for (let k = 0; k <= maxK; k++) {
@@ -2138,7 +2130,6 @@ ${ppbbFullTokens}`
                 ctx.fillText(String(k), axisX + 5, py + 2.5);
             }
 
-            // Ticks KM dari 0 sampai 6
             const maxKmInt = Math.floor(maxKmScale);
             for (let km = 0; km <= maxKmInt; km++) {
                 const ftEq = km / 0.0003048;
@@ -2151,7 +2142,6 @@ ${ppbbFullTokens}`
                 ctx.fillText(String(km), axisX - 5, py + 2.5);
             }
 
-            // Gambar Wind Barb di sebelah kanan skala FT
             const barbColX = axisX + 52;
             hodographRows.forEach(pt => {
                 const py = axisBottom - (pt.heightFt / maxFtScale) * axisH;
@@ -2217,30 +2207,17 @@ ${ppbbFullTokens}`
                 const az = r.skipped ? '9999' : r.azimuth.toFixed(1);
                 const el = r.skipped ? '9999' : r.elevation.toFixed(1);
                 return `${String(r.minute).padStart(2, '0')}. Az: *${az}* | El: *${el}*`;
-            }).join('
-');
+            }).join('\n');
 
-            const msg = `*DATA PENGAMATAN PIBAL (BMKGSOFT)*
-` +
-                `Stamet Sultan Muhammad Salahuddin Bima
-` +
-                `Tanggal: ${dateVal} | Jam: ${hourVal} UTC
-` +
-                `Observer: ${obsName}
-` +
-                `Angin Permukaan: ${surfDir}° / ${surfSpd} kt
-
-` +
-                `*PEMBACAAN AZIMUTH & ELEVASI:*
-` +
-                `${azElLines || '(Belum ada data)'}
-
-` +
-                `*SANDI PILOT (PPAA & PPBB):*
-` +
-                `\`\`\`
-${code}
-\`\`\``;
+            const msg = `*DATA PENGAMATAN PIBAL (BMKGSOFT)*\n` +
+                `Stamet Sultan Muhammad Salahuddin Bima\n` +
+                `Tanggal: ${dateVal} | Jam: ${hourVal} UTC\n` +
+                `Observer: ${obsName}\n` +
+                `Angin Permukaan: ${surfDir}° / ${surfSpd} kt\n\n` +
+                `*PEMBACAAN AZIMUTH & ELEVASI:*\n` +
+                `${azElLines || '(Belum ada data)'}\n\n` +
+                `*SANDI PILOT (PPAA & PPBB):*\n` +
+                `\`\`\`\n${code}\n\`\`\``;
 
             const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
@@ -2252,20 +2229,18 @@ ${code}
             const hourStr = document.getElementById('obs-hour')?.value || '00';
             const fileName = `PIBAL-RM_BIMA_${wmo}_${dateStr}_${hourStr}UTC.csv`;
 
-            let csv = 'Pembacaan,Azimuth(deg),Elevasi(deg),Level(ft),ArahAngin(deg),Kecepatan(kt),Sandi_dddff
-';
+            let csv = 'Pembacaan,Azimuth(deg),Elevasi(deg),Level(ft),ArahAngin(deg),Kecepatan(kt),Sandi_dddff\n';
             computedRows.forEach(r => {
                 const az = r.skipped ? '9999' : r.azimuth;
                 const el = r.skipped ? '9999' : r.elevation;
                 const dir = r.dir !== null ? r.dir : '';
                 const spd = r.speedKt !== null ? r.speedKt : '';
                 const dddff = r.dddff || '';
-                csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}
-`;
+                csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
             });
 
             try {
-                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('﻿' + csv);
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
                 const link = document.createElement('a');
                 link.setAttribute('href', dataUri);
                 link.setAttribute('download', fileName);
@@ -2291,7 +2266,6 @@ ${code}
         }
 
         function formatPdfDateLong(dateStr) {
-            // 2026-11-26 -> 26 Nov 2026
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             const parts = (dateStr || '2026-11-26').split('-');
             const y = parts[0] || '2026';
@@ -2301,7 +2275,6 @@ ${code}
         }
 
         function formatPdfDateSlash(dateStr) {
-            // 2026-11-26 -> 26/11/2026
             const parts = (dateStr || '2026-11-26').split('-');
             const y = parts[0] || '2026';
             const m = String(parseInt(parts[1] || '1', 10)).padStart(2, '0');
@@ -2309,7 +2282,7 @@ ${code}
             return `${d}/${m}/${y}`;
         }
 
-        // Poin 1: Generator PDF Native jsPDF 3 Halaman Persis Seperti 2026112600_pibal.pdf
+        // Generator PDF Native jsPDF 3 Halaman Persis Seperti 2026112600_pibal.pdf
         async function exportToPDF() {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
@@ -2367,7 +2340,6 @@ ${code}
                 doc.text(`Alasan: ${reasonVal}`, 18, y); y += 5.5;
                 doc.text(`Observer: ${obsName}`, 18, y); y += 7;
 
-                // Sandi PPAA & PPBB
                 const ppaaLines = doc.splitTextToSize(parts.ppaaText, 175);
                 doc.text(ppaaLines, 18, y);
                 y += ppaaLines.length * 5 + 2;
@@ -2402,7 +2374,6 @@ ${code}
                 doc.text(ppbb2, 18, y2);
                 y2 += ppbb2.length * 4.5 + 5;
 
-                // Tabel Hodograph (8 kolom)
                 const colX = [18, 30, 48, 64, 78, 96, 114, 138, 192];
                 const hdrH = 12;
 
@@ -2411,11 +2382,9 @@ ${code}
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(8.5);
 
-                // Bingkai Header 2 tingkat
                 doc.rect(colX[0], y2, colX[8] - colX[0], hdrH);
                 for (let c = 1; c < 8; c++) {
                     if (c === 3) {
-                        // Garis pemisah Arah | Kec hanya di setengah bawah header "Angin"
                         doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
                     } else {
                         doc.line(colX[c], y2, colX[c], y2 + hdrH);
@@ -2469,7 +2438,6 @@ ${code}
                 const chartImgData = offCanvas.toDataURL('image/png');
                 doc.addImage(chartImgData, 'PNG', 12, 20, 186, 134);
 
-                // Simpan & unduh PDF langsung
                 doc.save(fileName);
                 showToast(`PDF ${fileName} (3 halaman) berhasil dibuat & diunduh!`, 'success');
             } catch (err) {
@@ -2503,9 +2471,8 @@ ${code}
             const lines = computedRows.map(r => {
                 const az = r.skipped ? '9999' : r.azimuth;
                 const el = r.skipped ? '9999' : r.elevation;
-                return `${r.minute}	${az}	${el}`;
-            }).join('
-');
+                return `${r.minute}\t${az}\t${el}`;
+            }).join('\n');
             copyToClipboardSafe(lines, 'Tabel Pembacaan, Azimuth & Elevasi berhasil disalin!');
         }
 
@@ -2566,11 +2533,11 @@ ${code}
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="restoreHistorySession(${item.id}, false)" title="Muat Data & Sandi" class="bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-bold text-[11px] py-2 px-2.5 rounded-xl transition flex items-center gap-1">
+                        <button type="button" onclick="restoreHistorySession(${item.id}, false)" title="Muat Data & Sandi" class="bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-bold text-[11px] py-2 px-2.5 rounded-xl transition flex items-center gap-1">
                             <i class="fa-solid fa-eye"></i>
                             <span>Buka</span>
                         </button>
-                        <button onclick="restoreHistorySession(${item.id}, true)" title="Unduh PDF Riwayat Ini" class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-[11px] py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1">
+                        <button type="button" onclick="restoreHistorySession(${item.id}, true)" title="Unduh PDF Riwayat Ini" class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-[11px] py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1">
                             <i class="fa-solid fa-file-pdf"></i>
                             <span>PDF</span>
                         </button>
@@ -2595,7 +2562,6 @@ ${code}
 
             readings = JSON.parse(JSON.stringify(item.readings));
             editingMinute = readings.length > 0 ? Math.max(...readings.map(r => r.minute)) + 1 : 1;
-            isSessionCompleted = false;
 
             renderObserverChips();
             recalculateAll();
@@ -2616,8 +2582,7 @@ ${code}
                     reason: document.getElementById('obs-reason')?.value || 'BB',
                     surfDir: document.getElementById('surface-dir').value,
                     surfSpd: document.getElementById('surface-spd').value,
-                    readings,
-                    isSessionCompleted
+                    readings
                 };
                 localStorage.setItem('pibal_rm_bima_state', JSON.stringify(state));
             } catch (e) {}
@@ -2635,20 +2600,12 @@ ${code}
                 }
                 if (state.msl && document.getElementById('obs-msl')) document.getElementById('obs-msl').value = state.msl;
                 if (state.reason && document.getElementById('obs-reason')) document.getElementById('obs-reason').value = state.reason;
-
-                if (state.isSessionCompleted) {
-                    readings = [];
-                    editingMinute = 1;
-                    isSessionCompleted = false;
-                    saveToLocalStorage();
-                } else {
-                    if (state.surfDir !== undefined) document.getElementById('surface-dir').value = state.surfDir;
-                    if (state.surfSpd !== undefined) document.getElementById('surface-spd').value = state.surfSpd;
-                    if (Array.isArray(state.readings)) {
-                        readings = state.readings;
-                        if (readings.length > 0) {
-                            editingMinute = Math.max(...readings.map(r => r.minute)) + 1;
-                        }
+                if (state.surfDir !== undefined) document.getElementById('surface-dir').value = state.surfDir;
+                if (state.surfSpd !== undefined) document.getElementById('surface-spd').value = state.surfSpd;
+                if (Array.isArray(state.readings)) {
+                    readings = state.readings;
+                    if (readings.length > 0) {
+                        editingMinute = Math.max(...readings.map(r => r.minute)) + 1;
                     }
                 }
             } catch (e) {}
@@ -2680,10 +2637,23 @@ ${code}
             }, 3000);
         }
 
-        function openModal(title, message, onConfirm) {
+        function openModal(title, message, onConfirm, showReasonPicker = false) {
             const modal = document.getElementById('custom-modal');
             document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-message').textContent = message;
+
+            const reasonBox = document.getElementById('modal-reason-box');
+            const reasonSel = document.getElementById('modal-reason-select');
+            const currentReason = document.getElementById('obs-reason')?.value || 'BB';
+            if (reasonBox && reasonSel) {
+                if (showReasonPicker) {
+                    reasonSel.value = currentReason;
+                    reasonBox.classList.remove('hidden');
+                } else {
+                    reasonBox.classList.add('hidden');
+                }
+            }
+
             const confirmBtn = document.getElementById('modal-confirm-btn');
             confirmBtn.onclick = () => {
                 closeModal();
