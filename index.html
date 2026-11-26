@@ -9,14 +9,15 @@
     <meta name="apple-mobile-web-app-title" content="PIBAL-RM BIMA">
     <title>PIBAL-RM BIMA | Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</title>
 
-    <!-- Dynamic PWA Manifest & Icon -->
-    <link id="pwa-manifest" rel="manifest" href="">
-    <link id="pwa-apple-icon" rel="apple-touch-icon" href="">
+    <!-- Static PWA Manifest & PNG Icons -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2pdf.js untuk ekspor PDF langsung di HP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- jsPDF untuk membuat PDF 3 Halaman (Laporan Hasil, Tabel Hodograph & Grafik Hodograph/Wind Barb) langsung di HP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -136,43 +137,6 @@
         html:not(.dark) .bg-gradient-to-br.from-sky-500.to-blue-700 i {
             color: #ffffff !important;
         }
-
-        /* Official Print Styles Fallback */
-        @media print {
-            body {
-                background: white !important;
-                color: black !important;
-                max-width: 100% !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-only {
-                display: block !important;
-            }
-            #tab-report {
-                display: block !important;
-            }
-            .print-card {
-                background: white !important;
-                border: 1px solid #94a3b8 !important;
-                color: black !important;
-                box-shadow: none !important;
-            }
-            textarea {
-                background: #f8fafc !important;
-                color: black !important;
-                border: 1px solid #64748b !important;
-            }
-            table th, table td {
-                border: 1px solid #64748b !important;
-                color: black !important;
-                padding: 4px 6px !important;
-                font-size: 11px !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-navy-950 text-slate-100 font-sans min-h-screen flex flex-col max-w-xl mx-auto shadow-2xl border-x border-slate-800/60">
@@ -180,19 +144,8 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 inset-x-3 z-50 flex flex-col items-center gap-2 pointer-events-none max-w-md mx-auto"></div>
 
-    <!-- Official Print Header (Only visible when printing via browser print) -->
-    <div class="hidden print-only border-b-2 border-black pb-3 mb-4 text-center">
-        <h2 class="text-xs font-bold uppercase tracking-wider">Badan Meteorologi, Klimatologi, dan Geofisika</h2>
-        <h1 class="text-base font-extrabold uppercase">Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</h1>
-        <p class="text-[11px]">Jl. Sultan Muhammad Salahuddin, Bandara Muhammad Salahuddin, Bima - NTB | WMO ID: <span id="print-wmo">97270</span></p>
-        <div class="mt-2 pt-2 border-t border-slate-400 flex justify-between text-xs font-bold">
-            <span>LAPORAN PENGAMATAN UDARA ATAS (PIBAL)</span>
-            <span id="print-meta-summary"></span>
-        </div>
-    </div>
-
     <!-- Mobile App Top Header -->
-    <header class="bg-navy-900 border-b border-slate-800 sticky top-0 z-40 shadow-md no-print">
+    <header class="bg-navy-900 border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div class="px-3.5 py-2.5 flex items-center justify-between gap-2">
             <!-- Branding -->
             <div class="flex items-center gap-2.5 min-w-0">
@@ -249,7 +202,7 @@
         <!-- ========================================================= -->
         <!-- TAB 1: SETUP & NIVO DIGITAL                               -->
         <!-- ========================================================= -->
-        <section id="tab-setup" class="space-y-3.5 no-print">
+        <section id="tab-setup" class="space-y-3.5">
 
             <!-- Digital Waterpass / Nivo Card -->
             <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
@@ -369,12 +322,19 @@
                         </select>
                     </div>
 
-                    <!-- Pengaturan Jeda Pembacaan Pertama -->
-                    <div class="col-span-2">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Waktu Pembacaan Pertama Setelah Lepas Balon</label>
-                        <select id="first-read-delay" onchange="saveToLocalStorage(); updateTimerDisplay();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-amber-400 focus:outline-none focus:border-sky-500">
-                            <option value="90" selected>01:30 (90 Detik - Jeda Awal, lanjut tiap 1 Menit)</option>
-                            <option value="60">01:00 (60 Detik - Standar BMKGSatu, lanjut tiap 1 Menit)</option>
+                    <!-- Elevasi Stasiun (MSL) & Alasan Berhenti untuk PDF Laporan -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Elevasi MSL (Meter)</label>
+                        <input type="number" step="0.1" id="obs-msl" value="1.3" onchange="saveToLocalStorage();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan Akhir Pengamatan</label>
+                        <select id="obs-reason" onchange="saveToLocalStorage();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-amber-400 focus:outline-none focus:border-sky-500">
+                            <option value="BB" selected>BB (Balon Pecah / Burst)</option>
+                            <option value="AW">AW (Masuk Awan)</option>
+                            <option value="HL">HL (Hilang Pandangan)</option>
+                            <option value="KT">KT (Ketinggian Tercapai)</option>
                         </select>
                     </div>
                 </div>
@@ -388,11 +348,11 @@
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label class="block text-[10px] text-slate-400 mb-1">Arah Angin (0 - 360°)</label>
-                            <input type="number" id="surface-dir" value="170" min="0" max="360" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                            <input type="number" id="surface-dir" value="0" min="0" max="360" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
                         </div>
                         <div>
                             <label class="block text-[10px] text-slate-400 mb-1">Kecepatan (Knot)</label>
-                            <input type="number" id="surface-spd" value="6" min="0" max="150" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                            <input type="number" id="surface-spd" value="0" min="0" max="150" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
                         </div>
                     </div>
                 </div>
@@ -401,32 +361,15 @@
                     <span>Mulai Pengamatan Lapangan</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
-
-                <!-- PWA Install App Card -->
-                <div id="install-app-card" class="bg-sky-950/70 border border-sky-500/40 rounded-xl p-3 flex items-center justify-between gap-2.5">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 shrink-0">
-                            <i class="fa-solid fa-mobile-screen-button text-base"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-xs font-extrabold text-white truncate">Pasang ke Layar Utama HP</div>
-                            <div class="text-[10px] text-slate-400 truncate">Tampilan layar penuh &amp; bisa offline</div>
-                        </div>
-                    </div>
-                    <button onclick="installPWAApp()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow shrink-0 flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Install App</span>
-                    </button>
-                </div>
             </div>
         </section>
 
         <!-- ========================================================= -->
         <!-- TAB 2: REKAM DATA (TIMER + AUTO/MANUAL + TABEL)           -->
         <!-- ========================================================= -->
-        <section id="tab-observe" class="hidden space-y-3.5 no-print">
+        <section id="tab-observe" class="hidden space-y-3.5">
 
-            <!-- Compact Stopwatch Card -->
+            <!-- Compact Stopwatch Card (Paten 90 detik awal -> 01:30, lalu tiap 1 menit) -->
             <div id="timer-box" class="bg-navy-900 border-2 border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-3 transition-colors duration-200">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-stopwatch mr-1 text-amber-400"></i>Timer Pembacaan</span>
@@ -442,7 +385,7 @@
                 <div class="flex items-center justify-between gap-3 bg-navy-950 border border-slate-800/80 rounded-xl px-3.5 py-2.5">
                     <div>
                         <div id="stopwatch-display" class="font-mono text-4xl font-extrabold text-white tracking-tight">00:00</div>
-                        <div id="timer-status-text" class="text-[11px] font-semibold text-slate-400 mt-0.5">Siap Lepas Balon</div>
+                        <div id="timer-status-text" class="text-[11px] font-semibold text-slate-400 mt-0.5">Siap Lepas Balon (Bacaan 1 di 01:30)</div>
                     </div>
 
                     <div class="flex items-center gap-1.5">
@@ -584,7 +527,7 @@
                     </div>
                     <div class="flex items-center gap-1.5">
                         <button onclick="loadSampleData()" class="text-[10px] bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg font-bold transition">
-                            Data BMKGSatu
+                            Muat Contoh
                         </button>
                         <button onclick="clearAllReadings()" class="text-[10px] bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 px-2 py-1 rounded-lg font-bold transition">
                             Hapus
@@ -608,7 +551,7 @@
                         <tbody id="plotting-table-body" class="divide-y divide-slate-800/70"></tbody>
                     </table>
                 </div>
-                <p class="text-[10px] text-slate-400">* Sesuai standar BMKGSatu, arah &amp; kecepatan angin (`dddff`) dihitung setiap 2 kali pembacaan (kelipatan 1.000 ft).</p>
+                <p class="text-[10px] text-slate-400">* Arah &amp; kecepatan angin (`dddff`) dihitung setiap 2 kali pembacaan (kelipatan 1.000 ft).</p>
             </div>
         </section>
 
@@ -618,7 +561,7 @@
         <section id="tab-report" class="hidden space-y-3.5">
 
             <!-- Sandi PILOT FM 32 Generator Card -->
-            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 print-card">
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-terminal text-emerald-400"></i>
@@ -629,7 +572,7 @@
 
                 <textarea id="pilot-code-output" rows="8" readonly class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3 font-mono text-xs sm:text-sm font-bold text-emerald-400 leading-relaxed focus:outline-none"></textarea>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 no-print">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-copy"></i>
                         <span>Salin Sandi</span>
@@ -649,8 +592,8 @@
                 </div>
             </div>
 
-            <!-- Auto-Input BMKGSoft / BMKGSatu Helper Card (Langsung Kirim Script ke WA) -->
-            <div class="bg-navy-900 border border-sky-500/40 rounded-2xl p-4 shadow-xl space-y-2.5 no-print">
+            <!-- Auto-Input BMKGSoft / BMKGSatu Helper Card -->
+            <div class="bg-navy-900 border border-sky-500/40 rounded-2xl p-4 shadow-xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-robot text-sky-400"></i>
@@ -659,7 +602,7 @@
                     <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">TANPA SEND</span>
                 </div>
                 <p class="text-[11px] text-slate-300 leading-relaxed">
-                    Ketuk <b>Kirim Script ke WA</b> untuk langsung mengirim kode otomatis ke WhatsApp. Di PC, buka WA Web → salin kode tersebut → buka halaman input PIBAL <b>BMKGSoft</b> → tekan <b>F12 → Console</b> → tempel (<b>Ctrl+V</b>) → <b>Enter</b>. Kolom Azimuth &amp; Elevasi otomatis terisi dan tombol <b>Submit</b> terklik (tombol <b>Send</b> tetap diklik observer).
+                    Ketuk <b>Kirim Script ke WA</b> untuk langsung mengirim kode otomatis ke WhatsApp. Di PC, isi dulu Observer/Tanggal/Jam di BMKGSoft, buka WA Web → salin kode tersebut → tekan <b>F12 → Console</b> → tempel (<b>Ctrl+V</b>) → <b>Enter</b>.
                 </p>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="sendBMKGSoftScriptToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
@@ -673,23 +616,26 @@
                 </div>
             </div>
 
-            <!-- Standard Aviation Levels Table (Tiap 2 Pembacaan / 1.000 ft) -->
-            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5 print-card">
+            <!-- Standard Aviation Levels Table + U, V, V/B, Adveksi -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-xs text-white flex items-center gap-1.5">
                         <i class="fa-solid fa-layer-group text-amber-400"></i>
-                        <span>Lapisan Ketinggian Standar (Tiap 2 Pembacaan)</span>
+                        <span>Tabel Lapisan Angin, U/V, V/B &amp; Adveksi (BBS)</span>
                     </h3>
                 </div>
                 <div class="overflow-x-auto rounded-xl border border-slate-800">
-                    <table class="w-full text-left border-collapse font-mono text-[11px]">
+                    <table class="w-full text-left border-collapse font-mono text-[10px]">
                         <thead>
-                            <tr class="bg-navy-950 text-slate-400 border-b border-slate-800 text-[10px]">
-                                <th class="py-2 px-2.5">Level</th>
-                                <th class="py-2 px-2.5">Bacaan</th>
-                                <th class="py-2 px-2.5 text-sky-400">Arah</th>
-                                <th class="py-2 px-2.5 text-amber-400">Kec</th>
-                                <th class="py-2 px-2.5 text-emerald-400">dddff</th>
+                            <tr class="bg-navy-950 text-slate-400 border-b border-slate-800">
+                                <th class="py-2 px-1.5">No</th>
+                                <th class="py-2 px-1.5">Height</th>
+                                <th class="py-2 px-1.5 text-sky-400">Arah</th>
+                                <th class="py-2 px-1.5 text-amber-400">Kec</th>
+                                <th class="py-2 px-1.5">U</th>
+                                <th class="py-2 px-1.5">V</th>
+                                <th class="py-2 px-1.5">V/B</th>
+                                <th class="py-2 px-1.5 text-emerald-400">Adveksi</th>
                             </tr>
                         </thead>
                         <tbody id="standard-levels-body" class="divide-y divide-slate-800/70"></tbody>
@@ -697,22 +643,22 @@
                 </div>
             </div>
 
-            <!-- Vertical Wind Profile Chart -->
-            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2 no-print">
+            <!-- Hodograph & Wind Barb Preview Chart -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-xs text-white flex items-center gap-1.5">
                         <i class="fa-solid fa-chart-line text-sky-400"></i>
-                        <span>Profil Angin Vertikal &amp; Vektor Arah</span>
+                        <span>Hodograph &amp; Profil Wind Barb (KM / FT)</span>
                     </h3>
-                    <span class="text-[10px] text-slate-400">Kecepatan (kt) vs Level (ft)</span>
+                    <span class="text-[10px] text-slate-400">Komponen U &amp; V (kt)</span>
                 </div>
-                <div class="w-full h-64 bg-navy-950 border border-slate-800 rounded-xl p-2">
+                <div class="w-full h-72 bg-white border border-slate-300 rounded-xl p-1.5">
                     <canvas id="wind-profile-canvas" class="w-full h-full block"></canvas>
                 </div>
             </div>
 
             <!-- Riwayat Pengamatan Sebelumnya (3 Sesi Terakhir) -->
-            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 no-print">
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
@@ -729,7 +675,7 @@
     </main>
 
     <!-- Custom Confirmation Modal -->
-    <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4 no-print">
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
             <h3 id="modal-title" class="text-base font-extrabold text-white">Konfirmasi</h3>
             <p id="modal-message" class="text-xs text-slate-300 leading-relaxed"></p>
@@ -741,107 +687,18 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-navy-900 border-t border-slate-800 py-3 px-4 text-center text-[11px] text-slate-500 no-print">
+    <footer class="bg-navy-900 border-t border-slate-800 py-3 px-4 text-center text-[11px] text-slate-500">
         <p>PIBAL-RM BIMA &bull; Operasional Pengamatan Udara Atas &bull; <span class="text-slate-400 font-semibold">Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</span></p>
     </footer>
 
     <!-- Application Logic -->
     <script>
         // =========================================================================
-        // 1. PWA MANIFEST, SVG ICON & OFFLINE SERVICE WORKER SETUP
+        // 1. STATIC PWA SERVICE WORKER SETUP
         // =========================================================================
-        let deferredPrompt = null;
-
         function initPWA() {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                <defs>
-                    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#0b1528"/>
-                        <stop offset="100%" stop-color="#0ea5e9"/>
-                    </linearGradient>
-                </defs>
-                <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-                <circle cx="256" cy="200" r="115" fill="#f59e0b"/>
-                <path d="M236 312 L276 312 L266 342 L246 342 Z" fill="#e2e8f0"/>
-                <line x1="256" y1="342" x2="256" y2="395" stroke="#94a3b8" stroke-width="6"/>
-                <rect x="234" y="395" width="44" height="32" rx="6" fill="#38bdf8"/>
-                <text x="256" y="476" font-family="sans-serif" font-weight="bold" font-size="38" fill="#ffffff" text-anchor="middle">PIBAL-RM</text>
-            </svg>`;
-            const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
-
-            const appleIconEl = document.getElementById('pwa-apple-icon');
-            if (appleIconEl) appleIconEl.href = iconUrl;
-
-            const manifestObj = {
-                name: 'PIBAL-RM BIMA - Stamet Sultan Muhammad Salahuddin Bima',
-                short_name: 'PIBAL-RM BIMA',
-                description: 'Aplikasi Pencatatan Data Pengamatan Udara Atas (PIBAL) Stasiun Meteorologi Sultan Muhammad Salahuddin Bima',
-                start_url: './',
-                display: 'standalone',
-                background_color: '#060c18',
-                theme_color: '#0b1528',
-                orientation: 'portrait',
-                icons: [
-                    { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-                    { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
-                ]
-            };
-
-            const manifestUrl = 'data:application/manifest+json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(manifestObj))));
-            const manifestEl = document.getElementById('pwa-manifest');
-            if (manifestEl) manifestEl.href = manifestUrl;
-
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                const swCode = `
-                    const CACHE_NAME = 'pibal-rm-bima-v4';
-                    self.addEventListener('install', (e) => self.skipWaiting());
-                    self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            fetch(e.request).then(res => {
-                                const resClone = res.clone();
-                                caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
-                                return res;
-                            }).catch(() => caches.match(e.request))
-                        );
-                    });
-                `;
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl).catch(() => {});
-            }
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                const card = document.getElementById('install-app-card');
-                if (card) card.classList.remove('hidden');
-            });
-
-            window.addEventListener('appinstalled', () => {
-                deferredPrompt = null;
-                const card = document.getElementById('install-app-card');
-                if (card) card.classList.add('hidden');
-                showToast('Aplikasi PIBAL-RM BIMA berhasil terpasang di HP!', 'success');
-            });
-
-            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-                const card = document.getElementById('install-app-card');
-                if (card) card.classList.add('hidden');
-            }
-        }
-
-        async function installPWAApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    const card = document.getElementById('install-app-card');
-                    if (card) card.classList.add('hidden');
-                }
-            } else {
-                showToast('Ketuk titik tiga (⋮) di pojok kanan atas Chrome lalu pilih "Tambahkan ke Layar Utama" / "Install app".', 'info');
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             }
         }
 
@@ -937,7 +794,7 @@
             wrapper.classList.remove('hidden');
             container.innerHTML = list.map(name => {
                 const isSelected = currentVal && name.toLowerCase() === currentVal;
-                const safeArg = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                const safeArg = name.replace(/\/g, '\\').replace(/'/g, "\'");
                 const activeClasses = isSelected
                     ? 'bg-sky-500 text-navy-950 border-sky-400 font-extrabold shadow-sm'
                     : 'bg-navy-800 hover:bg-slate-700 text-slate-200 border-slate-700 font-semibold';
@@ -960,6 +817,7 @@
         let readings = [];
         let computedRows = [];
         let standardLayers = [];
+        let hodographRows = []; // Termasuk baris 0 (Surface) + lapisan 1, 2, ... lengkap dengan U, V, V/B, Adveksi
         let isSessionCompleted = false;
 
         let timerInterval = null;
@@ -982,6 +840,7 @@
         let offsetSensor = { az: 0, pitch: 0, roll: 0 };
         let smoothedSensor = { az: 0, el: 0, pitch: 0, roll: 0 };
         const SMOOTHING_ALPHA = 0.15;
+        const FIRST_READ_DELAY_SEC = 90; // Paten 90 detik (01:30) untuk bacaan pertama, lalu tiap 1 menit
         const ASCENT_RATE_FT = 500;
         const ASCENT_RATE_M = 152.4;
 
@@ -1334,13 +1193,8 @@
         }
 
         // =========================================================================
-        // 8. STOPWATCH & AUTO-RECORD ENGINE (JEDA AWAL 01:30 / 90 DETIK)
+        // 8. STOPWATCH & AUTO-RECORD ENGINE (PATEN 90 DETIK / 01:30 AWAL, LALU 1 MENIT)
         // =========================================================================
-        function getFirstReadDelaySec() {
-            const sel = document.getElementById('first-read-delay');
-            return sel ? parseInt(sel.value, 10) || 90 : 90;
-        }
-
         function formatSecToMMSS(sec) {
             const m = Math.floor(sec / 60);
             const s = sec % 60;
@@ -1348,7 +1202,7 @@
         }
 
         function getNextTargetInfo(currentElapsedSec) {
-            const firstDelay = getFirstReadDelaySec();
+            const firstDelay = FIRST_READ_DELAY_SEC; // 90 detik (01:30)
             if (currentElapsedSec < firstDelay) {
                 return {
                     readNumber: 1,
@@ -1410,7 +1264,7 @@
             document.getElementById('btn-timer-stop').classList.remove('hidden');
 
             const statusEl = document.getElementById('timer-status-text');
-            statusEl.textContent = 'Balon Mengudara — Pengamatan Aktif';
+            statusEl.textContent = 'Balon Mengudara — Bacaan 1 di 01:30';
             statusEl.className = 'text-[11px] font-bold text-emerald-400 mt-0.5';
 
             playBeep(1046, 0.2);
@@ -1501,7 +1355,7 @@
                 const startBtn = document.getElementById('btn-timer-start');
                 startBtn.classList.remove('hidden');
                 startBtn.innerHTML = '<i class="fa-solid fa-play"></i><span>LEPAS BALON</span>';
-                document.getElementById('timer-status-text').textContent = 'Siap Lepas Balon';
+                document.getElementById('timer-status-text').textContent = 'Siap Lepas Balon (Bacaan 1 di 01:30)';
                 document.getElementById('timer-status-text').className = 'text-[11px] font-semibold text-slate-400 mt-0.5';
                 document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
             });
@@ -1522,16 +1376,11 @@
             const tTimeLabel = document.getElementById('target-time-label');
             const aBadge = document.getElementById('auto-next-min-badge');
             const bNow = document.getElementById('btn-auto-now-min');
-            const bannerSub = document.getElementById('auto-banner-sub');
 
             if (tLabel) tLabel.textContent = targetInfo.readNumber;
             if (tTimeLabel) tTimeLabel.textContent = formatSecToMMSS(targetInfo.targetSec);
             if (aBadge) aBadge.textContent = targetInfo.readNumber;
             if (bNow) bNow.textContent = targetInfo.readNumber;
-            if (bannerSub) {
-                const firstStr = formatSecToMMSS(getFirstReadDelaySec());
-                bannerSub.textContent = `Bacaan 1 di ${firstStr}, lalu otomatis tiap 1 menit berikutnya.`;
-            }
         }
 
         // =========================================================================
@@ -1563,7 +1412,7 @@
             currentInputs = { azimuth: '', elevation: '' };
             setActiveField('azimuth');
             updateNumpadUI();
-            showToast('Pembacaan 1 diisi 9999 (dilewati sesuai BMKGSatu).', 'info');
+            showToast('Pembacaan 1 diisi 9999 (dilewati).', 'info');
         }
 
         function triggerAutoRecordNow(isManualTrigger = false, explicitMinute = null) {
@@ -1719,34 +1568,37 @@
 
         function loadSampleData() {
             readings = [
-                { minute: 1, azimuth: 9999, elevation: 9999, skipped: true },
-                { minute: 2, azimuth: 348.4, elevation: 14.8, skipped: false },
-                { minute: 3, azimuth: 349.1, elevation: 14.9, skipped: false },
-                { minute: 4, azimuth: 349.9, elevation: 15.1, skipped: false },
-                { minute: 5, azimuth: 350.7, elevation: 15.8, skipped: false },
-                { minute: 6, azimuth: 352.6, elevation: 16.4, skipped: false },
-                { minute: 7, azimuth: 355.5, elevation: 17.7, skipped: false },
-                { minute: 8, azimuth: 358.3, elevation: 18.7, skipped: false },
-                { minute: 9, azimuth: 358.9, elevation: 19.3, skipped: false },
-                { minute: 10, azimuth: 0.5, elevation: 20.0, skipped: false },
-                { minute: 11, azimuth: 0.2, elevation: 20.7, skipped: false },
-                { minute: 12, azimuth: 35.1, elevation: 21.5, skipped: false },
-                { minute: 13, azimuth: 358.5, elevation: 22.2, skipped: false },
-                { minute: 14, azimuth: 355.1, elevation: 23.0, skipped: false },
-                { minute: 15, azimuth: 351.8, elevation: 22.1, skipped: false }
+                { minute: 1, azimuth: 8.1, elevation: 21.3, skipped: false },
+                { minute: 2, azimuth: 0.1, elevation: 18.6, skipped: false },
+                { minute: 3, azimuth: 359.2, elevation: 17.8, skipped: false },
+                { minute: 4, azimuth: 359.6, elevation: 17.9, skipped: false },
+                { minute: 5, azimuth: 359.6, elevation: 18.0, skipped: false },
+                { minute: 6, azimuth: 2.7, elevation: 19.4, skipped: false },
+                { minute: 7, azimuth: 5.7, elevation: 20.5, skipped: false },
+                { minute: 8, azimuth: 10.9, elevation: 22.3, skipped: false },
+                { minute: 9, azimuth: 13.2, elevation: 23.5, skipped: false },
+                { minute: 10, azimuth: 15.1, elevation: 24.6, skipped: false },
+                { minute: 11, azimuth: 13.4, elevation: 25.5, skipped: false },
+                { minute: 12, azimuth: 5.6, elevation: 25.8, skipped: false },
+                { minute: 13, azimuth: 348.5, elevation: 25.4, skipped: false },
+                { minute: 14, azimuth: 337.1, elevation: 24.2, skipped: false },
+                { minute: 15, azimuth: 326.7, elevation: 22.8, skipped: false },
+                { minute: 16, azimuth: 318.8, elevation: 21.7, skipped: false },
+                { minute: 17, azimuth: 310.7, elevation: 20.8, skipped: false },
+                { minute: 18, azimuth: 301.2, elevation: 19.1, skipped: false }
             ];
-            document.getElementById('surface-dir').value = '170';
-            document.getElementById('surface-spd').value = '6';
-            editingMinute = 16;
+            document.getElementById('surface-dir').value = '0';
+            document.getElementById('surface-spd').value = '0';
+            editingMinute = 19;
             isSessionCompleted = false;
             saveToLocalStorage();
             updateNumpadUI();
             recalculateAll();
-            showToast('15 data pembacaan contoh (1.000 - 7.000 ft) dimuat.', 'success');
+            showToast('18 data pembacaan contoh (1.000 - 9.000 ft) dimuat.', 'success');
         }
 
         // =========================================================================
-        // 10. PIBAL TRIGONOMETRY & WIND CALCULATION ENGINE (STANDAR BMKGSATU)
+        // 10. PIBAL TRIGONOMETRY & WIND CALCULATION ENGINE + U, V, V/B, ADVEKSI (BBS)
         // =========================================================================
         function roundToNearest5(deg) {
             let d = Math.round(deg / 5) * 5;
@@ -1767,12 +1619,30 @@
             return `${String(ddd).padStart(3, '0')}${String(ff).padStart(2, '0')}`;
         }
 
+        function formatDDD_Slash_FF(dirDeg, speedKt) {
+            const spd = Math.round(speedKt);
+            if (spd === 0) return '000/00';
+            const ddd = roundToNearest5(dirDeg);
+            return `${String(ddd).padStart(3, '0')}/${String(spd).padStart(2, '0')}`;
+        }
+
+        function computeUVComponents(dirDeg, speedKt) {
+            const rad = (dirDeg * Math.PI) / 180;
+            const u = speedKt === 0 ? 0 : -speedKt * Math.sin(rad);
+            const v = speedKt === 0 ? 0 : -speedKt * Math.cos(rad);
+            return {
+                u: Math.abs(u) < 0.005 ? 0 : u,
+                v: Math.abs(v) < 0.005 ? 0 : v
+            };
+        }
+
         function recalculateAll() {
             const surfDir = parseFloat(document.getElementById('surface-dir')?.value) || 0;
             const surfSpd = parseFloat(document.getElementById('surface-spd')?.value) || 0;
 
             computedRows = [];
             standardLayers = [];
+            hodographRows = [];
 
             const posByRead = {};
             readings.forEach(r => {
@@ -1797,7 +1667,8 @@
                     heightFt,
                     dir: null,
                     speedKt: null,
-                    dddff: null
+                    dddff: null,
+                    dddSlashFf: null
                 });
             });
 
@@ -1810,19 +1681,21 @@
                     const dx = curr.x - prevAnchor.x;
                     const dy = curr.y - prevAnchor.y;
 
-                    const u = dx / dtSec;
-                    const v = dy / dtSec;
-                    const speedMs = Math.hypot(u, v);
+                    const uMs = dx / dtSec;
+                    const vMs = dy / dtSec;
+                    const speedMs = Math.hypot(uMs, vMs);
                     const speedKt = Math.round(speedMs * 1.94384);
 
-                    let dirDeg = (Math.atan2(-u, -v) * 180) / Math.PI;
+                    let dirDeg = (Math.atan2(-uMs, -vMs) * 180) / Math.PI;
                     if (dirDeg < 0) dirDeg += 360;
                     const roundedDir = speedKt === 0 ? 0 : roundToNearest5(dirDeg);
                     const dddff = formatDDDFF(roundedDir, speedKt);
+                    const dddSlashFf = formatDDD_Slash_FF(roundedDir, speedKt);
 
                     row.dir = roundedDir;
                     row.speedKt = speedKt;
                     row.dddff = dddff;
+                    row.dddSlashFf = dddSlashFf;
 
                     standardLayers.push({
                         levelFt: row.heightFt,
@@ -1830,15 +1703,56 @@
                         minute: row.minute,
                         dir: roundedDir,
                         speedKt,
-                        dddff
+                        dddff,
+                        dddSlashFf
                     });
 
                     prevAnchor = { x: curr.x, y: curr.y, minute: row.minute };
                 }
             });
 
+            // Bangun baris tabel Hodograph lengkap (No 0 = Surface, No 1..N = kelipatan 1000 ft)
+            const surfRoundedDir = Math.round(surfSpd) === 0 ? 0 : roundToNearest5(surfDir);
+            const surfSpdInt = Math.round(surfSpd);
+            const surfUV = computeUVComponents(surfRoundedDir, surfSpdInt);
+
+            hodographRows.push({
+                no: 0,
+                heightFt: 0,
+                dir: surfRoundedDir,
+                speedKt: surfSpdInt,
+                u: surfUV.u,
+                v: surfUV.v,
+                vb: '',
+                adveksi: ''
+            });
+
+            standardLayers.forEach((l, idx) => {
+                const uv = computeUVComponents(l.dir, l.speedKt);
+                const prev = hodographRows[hodographRows.length - 1];
+                // Beda arah terpendek: > 0 searah jarum jam (veering), < 0 berlawanan jarum jam (backing)
+                let diff = ((l.dir - prev.dir + 540) % 360) - 180;
+                if (prev.speedKt === 0 && l.dir > 0) {
+                    diff = l.dir <= 180 ? l.dir : l.dir - 360;
+                }
+                const vb = diff >= 0 ? 'veering' : 'backing';
+                // Di Belahan Bumi Selatan (BBS - Bima): backing = Adveksi Hangat, veering = Adveksi Dingin
+                const adveksi = vb === 'backing' ? 'Adveksi Hangat' : 'Adveksi Dingin';
+
+                hodographRows.push({
+                    no: idx + 1,
+                    heightFt: l.levelFt,
+                    dir: l.dir,
+                    speedKt: l.speedKt,
+                    u: uv.u,
+                    v: uv.v,
+                    vb,
+                    adveksi
+                });
+            });
+
             renderPlottingTable();
-            generatePilotCodeAndLevels(surfDir, surfSpd);
+            generatePilotCodeAndLevels(surfRoundedDir, surfSpdInt);
         }
 
         function renderPlottingTable() {
@@ -1875,11 +1789,12 @@
             }).join('');
         }
 
-        function generatePilotCodeAndLevels(surfDir, surfSpd) {
+        function getPilotCodeParts() {
             const wmo = document.getElementById('obs-wmo')?.value || '97270';
-            const dateVal = document.getElementById('obs-date')?.value || '2026-11-25';
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
             const hourVal = document.getElementById('obs-hour')?.value || '00';
-            const obsName = document.getElementById('obs-name')?.value || 'Observer';
+            const surfDir = parseFloat(document.getElementById('surface-dir')?.value) || 0;
+            const surfSpd = parseFloat(document.getElementById('surface-spd')?.value) || 0;
 
             const dayNum = parseInt(dateVal.split('-')[2] || '1', 10);
             const DD = String(dayNum).padStart(2, '0');
@@ -1890,47 +1805,18 @@
             const surfRoundedDir = Math.round(surfSpd) === 0 ? 0 : roundToNearest5(surfDir);
             const surfDDDFF = formatDDDFF(surfRoundedDir, surfSpd);
 
-            const levelsBody = document.getElementById('standard-levels-body');
-            let levelRowsHTML = `
-                <tr>
-                    <td class="py-2 px-2.5 font-bold text-white">Surface</td>
-                    <td class="py-2 px-2.5 text-slate-300">0 (Permukaan)</td>
-                    <td class="py-2 px-2.5 font-extrabold text-sky-400">${String(surfRoundedDir).padStart(3, '0')}°</td>
-                    <td class="py-2 px-2.5 font-extrabold text-amber-400">${Math.round(surfSpd)} kt</td>
-                    <td class="py-2 px-2.5 font-extrabold text-emerald-400">${surfDDDFF}</td>
-                </tr>
-            `;
-
-            standardLayers.forEach(l => {
-                levelRowsHTML += `
-                    <tr>
-                        <td class="py-2 px-2.5 font-bold text-white">${l.levelFt} ft</td>
-                        <td class="py-2 px-2.5 text-slate-300">Bacaan ${l.readPair}</td>
-                        <td class="py-2 px-2.5 font-extrabold text-sky-400">${String(l.dir).padStart(3, '0')}°</td>
-                        <td class="py-2 px-2.5 font-extrabold text-amber-400">${l.speedKt} kt</td>
-                        <td class="py-2 px-2.5 font-extrabold text-emerald-400">${l.dddff}</td>
-                    </tr>
-                `;
-            });
-
-            if (levelsBody) levelsBody.innerHTML = levelRowsHTML;
-
             const layer5000 = standardLayers.find(l => l.levelFt === 5000);
             const layer10000 = standardLayers.find(l => l.levelFt === 10000);
 
-            let ppaaLines = [
-                `UPID53 WADB ${DD}${GG}00`,
-                `PPAA ${YY}${GG}${a4} ${wmo}`
-            ];
-
+            let ppaaBody = `PPAA ${YY}${GG}${a4}
+${wmo} `;
             if (layer5000 && layer10000) {
-                ppaaLines.push(`55185 ${layer5000.dddff} 55170 ${layer10000.dddff}`);
+                ppaaBody += `55185 ${layer5000.dddff} 55170 ${layer10000.dddff} 77999=`;
             } else if (layer5000) {
-                ppaaLines.push(`55185 ${layer5000.dddff}`);
+                ppaaBody += `55185 ${layer5000.dddff} 77999=`;
             } else {
-                ppaaLines.push(`55/// /////`);
+                ppaaBody += `55/// ///// 77999=`;
             }
-            ppaaLines.push(`77999=`);
 
             const levelMap = { 0: surfDDDFF };
             standardLayers.forEach(l => {
@@ -1939,7 +1825,7 @@
             });
 
             const maxKFt = standardLayers.length > 0 ? Math.max(...standardLayers.map(l => Math.round(l.levelFt / 1000))) : 0;
-            let ppbbGroups = [];
+            let ppbbTokens = [wmo];
 
             for (let base = 0; base <= maxKFt; base += 3) {
                 let indicatorDigits = '';
@@ -1957,110 +1843,334 @@
                         indicatorDigits += '/';
                     }
                 }
-                ppbbGroups.push(`90${indicatorDigits} ${dataWords.join(' ')}`);
+                ppbbTokens.push(`90${indicatorDigits}`);
+                ppbbTokens.push(...dataWords);
             }
 
-            let ppbbLines = [
-                `UGID53 WADB ${DD}${GG}00`,
-                `PPBB ${YY}${GG}${a4} ${wmo}`,
-                ...ppbbGroups
-            ];
-            ppbbLines[ppbbLines.length - 1] += '=';
+            const ppbbHeader = `PPBB ${YY}${GG}${a4}`;
+            const ppbbFullTokens = ppbbTokens.join(' ') + '=';
 
-            const fullCode = `${ppaaLines.join('\n')}\n\n${ppbbLines.join('\n')}`;
+            return {
+                wmo,
+                dateVal,
+                hourVal,
+                DD,
+                YY,
+                GG,
+                a4,
+                surfRoundedDir,
+                surfSpd: Math.round(surfSpd),
+                surfDDDFF,
+                surfSlash: formatDDD_Slash_FF(surfRoundedDir, surfSpd),
+                ppaaText: ppaaBody,
+                ppbbText: `${ppbbHeader}
+${ppbbFullTokens}`,
+                ppaaSingleLine: `PPAA ${YY}${GG}${a4} ${wmo} ${layer5000 ? '55185 ' + layer5000.dddff + (layer10000 ? ' 55170 ' + layer10000.dddff : '') : '55/// /////'} 77999=`,
+                ppbbSingleLine: `PPBB ${YY}${GG}${a4} ${ppbbFullTokens}`,
+                fullDisplayCode: `UPID53 WADB ${DD}${GG}00
+${ppaaBody}
 
+UGID53 WADB ${DD}${GG}00
+${ppbbHeader}
+${ppbbFullTokens}`
+            };
+        }
+
+        function generatePilotCodeAndLevels() {
+            const levelsBody = document.getElementById('standard-levels-body');
+            if (levelsBody) {
+                levelsBody.innerHTML = hodographRows.map(r => `
+                    <tr>
+                        <td class="py-2 px-1.5 font-bold text-white">${r.no}</td>
+                        <td class="py-2 px-1.5 text-slate-300">${r.heightFt}</td>
+                        <td class="py-2 px-1.5 font-extrabold text-sky-400">${String(r.dir).padStart(3, '0')}</td>
+                        <td class="py-2 px-1.5 font-extrabold text-amber-400">${String(r.speedKt).padStart(2, '0')}</td>
+                        <td class="py-2 px-1.5 text-slate-200">${r.u.toFixed(2)}</td>
+                        <td class="py-2 px-1.5 text-slate-200">${r.v.toFixed(2)}</td>
+                        <td class="py-2 px-1.5 text-slate-300">${r.vb || '-'}</td>
+                        <td class="py-2 px-1.5 font-bold ${r.adveksi === 'Adveksi Hangat' ? 'text-amber-400' : (r.adveksi === 'Adveksi Dingin' ? 'text-sky-400' : 'text-slate-500')}">${r.adveksi || '-'}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const parts = getPilotCodeParts();
             const outArea = document.getElementById('pilot-code-output');
-            if (outArea) outArea.value = fullCode;
-
-            const printWmo = document.getElementById('print-wmo');
-            const printMeta = document.getElementById('print-meta-summary');
-            if (printWmo) printWmo.textContent = wmo;
-            if (printMeta) printMeta.textContent = `${dateVal} ${hourVal}:00 UTC | Observer: ${obsName}`;
+            if (outArea) outArea.value = parts.fullDisplayCode;
         }
 
         // =========================================================================
-        // 11. VERTICAL WIND PROFILE CHART & EXPORTS (WA, CSV, PDF, BMKGSOFT WA SCRIPT)
+        // 11. HODOGRAPH & WIND BARB RENDERER (SHARED BY ON-SCREEN CANVAS & PDF PAGE 3)
         // =========================================================================
-        function drawWindProfileChart() {
-            const canvas = document.getElementById('wind-profile-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width * 2;
-            canvas.height = rect.height * 2;
-            ctx.scale(2, 2);
+        function drawWindBarbOnContext(ctx, cx, cy, dirDeg, speedKt, shaftLen = 28) {
+            ctx.save();
+            ctx.strokeStyle = '#0f172a';
+            ctx.fillStyle = '#0f172a';
+            ctx.lineWidth = 1.2;
 
-            const w = rect.width;
-            const h = rect.height;
-            const isDark = document.documentElement.classList.contains('dark');
-
-            ctx.clearRect(0, 0, w, h);
-
-            const padL = 48, padR = 24, padT = 16, padB = 28;
-            const plotW = w - padL - padR;
-            const plotH = h - padT - padB;
-
-            const surfSpd = parseFloat(document.getElementById('surface-spd')?.value) || 0;
-            const surfDir = parseFloat(document.getElementById('surface-dir')?.value) || 0;
-            const pts = [
-                { heightFt: 0, speedKt: surfSpd, dir: surfDir },
-                ...standardLayers.map(l => ({ heightFt: l.levelFt, speedKt: l.speedKt, dir: l.dir }))
-            ];
-
-            if (pts.length <= 1) {
-                ctx.fillStyle = isDark ? '#64748b' : '#475569';
-                ctx.font = '12px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Rekam minimal 2 pembacaan (1.000 ft) untuk grafik angin', w / 2, h / 2);
+            if (speedKt === 0) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, 3.2, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
                 return;
             }
 
-            const maxH = Math.max(...pts.map(p => p.heightFt), 2000);
-            const maxSpd = Math.max(...pts.map(p => p.speedKt), 20) + 5;
+            // Arah angin meteorologi (dari mana angin bertiup):
+            // 0° = Utara (atas, -Y), 90° = Timur (kanan, +X), 180° = Selatan (bawah, +Y), 270° = Barat (kiri, -X)
+            const rad = (dirDeg * Math.PI) / 180;
+            const dx = Math.sin(rad);
+            const dy = -Math.cos(rad);
 
-            ctx.strokeStyle = isDark ? '#1e293b' : '#cbd5e1';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                const y = padT + (plotH * i) / 4;
-                ctx.beginPath();
-                ctx.moveTo(padL, y);
-                ctx.lineTo(w - padR, y);
-                ctx.stroke();
+            // Titik stasiun (cx, cy) ke ujung ekor angin (tipX, tipY)
+            const tipX = cx + dx * shaftLen;
+            const tipY = cy + dy * shaftLen;
 
-                const hLabel = Math.round(maxH * (1 - i / 4));
-                ctx.fillStyle = isDark ? '#94a3b8' : '#475569';
-                ctx.font = '10px JetBrains Mono, monospace';
-                ctx.textAlign = 'right';
-                ctx.fillText(`${hLabel}ft`, padL - 6, y + 3);
-            }
-
-            ctx.strokeStyle = '#0ea5e9';
-            ctx.lineWidth = 2.5;
             ctx.beginPath();
-            pts.forEach((p, idx) => {
-                const px = padL + (p.speedKt / maxSpd) * plotW;
-                const py = padT + plotH - (p.heightFt / maxH) * plotH;
-                if (idx === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            });
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(tipX, tipY);
             ctx.stroke();
 
-            pts.forEach(p => {
-                const px = padL + (p.speedKt / maxSpd) * plotW;
-                const py = padT + plotH - (p.heightFt / maxH) * plotH;
+            // Untuk Belahan Bumi Selatan (BBS), bulu angin mengarah ke KIRI jika menghadap ke arah datangnya angin
+            // Vektor tegak lurus ke sisi BBS:
+            const perpX = -dy;
+            const perpY = dx;
 
-                ctx.fillStyle = '#f59e0b';
+            let rem = Math.round(speedKt / 5) * 5;
+            let pos = 0; // jarak dari ujung tip ke arah pangkal
+            const barbLen = 9;
+            const step = 4.2;
+
+            // Bendera 50 knot (segitiga penuh)
+            while (rem >= 50) {
+                const bx1 = tipX - dx * pos;
+                const by1 = tipY - dy * pos;
+                const bx2 = tipX - dx * (pos + 5.5);
+                const by2 = tipY - dy * (pos + 5.5);
+                const px = bx1 + perpX * (barbLen + 1) + dx * 2;
+                const py = by1 + perpY * (barbLen + 1) + dy * 2;
+
                 ctx.beginPath();
-                ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                ctx.moveTo(bx1, by1);
+                ctx.lineTo(px, py);
+                ctx.lineTo(bx2, by2);
+                ctx.closePath();
                 ctx.fill();
 
-                ctx.fillStyle = isDark ? '#e2e8f0' : '#0f172a';
-                ctx.font = 'bold 9px JetBrains Mono, monospace';
+                rem -= 50;
+                pos += 7.5;
+            }
+
+            // Garis panjang 10 knot
+            while (rem >= 10) {
+                const bx = tipX - dx * pos;
+                const by = tipY - dy * pos;
+                const px = bx + perpX * barbLen + dx * 2.5;
+                const py = by + perpY * barbLen + dy * 2.5;
+
+                ctx.beginPath();
+                ctx.moveTo(bx, by);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+
+                rem -= 10;
+                pos += step;
+            }
+
+            // Garis setengah 5 knot
+            if (rem >= 5) {
+                if (pos === 0) pos = step; // Jika hanya 5 knot, geser sedikit dari ujung agar tidak tampak seperti 10 kt
+                const bx = tipX - dx * pos;
+                const by = tipY - dy * pos;
+                const px = bx + perpX * (barbLen * 0.55) + dx * 1.4;
+                const py = by + perpY * (barbLen * 0.55) + dy * 1.4;
+
+                ctx.beginPath();
+                ctx.moveTo(bx, by);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function renderHodographAndBarbsToCanvas(canvas, widthPx, heightPx, dpr = 2) {
+            canvas.width = widthPx * dpr;
+            canvas.height = heightPx * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            // Latar belakang putih bersih
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, widthPx, heightPx);
+
+            // Area kiri: Kotak Hodograph persegi
+            const padTop = 18;
+            const padBottom = 26;
+            const padLeft = 18;
+            const rightPanelW = Math.min(135, widthPx * 0.30);
+            const boxSize = Math.min(widthPx - padLeft - rightPanelW - 14, heightPx - padTop - padBottom);
+            const boxX = padLeft;
+            const boxY = padTop + (heightPx - padTop - padBottom - boxSize) / 2;
+            const midX = boxX + boxSize / 2;
+            const midY = boxY + boxSize / 2;
+
+            // Tentukan skala maksimum dinamis kelipatan 11 (persis 11, 22, 33, 44, 55 seperti contoh)
+            const maxAbsUV = Math.max(
+                45,
+                ...hodographRows.map(r => Math.max(Math.abs(r.u), Math.abs(r.v)))
+            );
+            const stepVal = Math.max(11, Math.ceil(maxAbsUV / 5 / 11) * 11);
+            const maxAxis = stepVal * 5; // misal 55
+
+            // Bingkai luar Hodograph
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(boxX, boxY, boxSize, boxSize);
+
+            // Sumbu X (U) & Sumbu Y (V) melewati (0,0)
+            ctx.beginPath();
+            ctx.moveTo(boxX, midY);
+            ctx.lineTo(boxX + boxSize, midY);
+            ctx.moveTo(midX, boxY);
+            ctx.lineTo(midX, boxY + boxSize);
+            ctx.stroke();
+
+            // Ticks & angka skala pada sumbu X dan Y
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '9px Arial, sans-serif';
+            for (let i = -5; i <= 5; i++) {
+                const val = i * stepVal;
+                const px = midX + (i / 5) * (boxSize / 2);
+                const py = midY - (i / 5) * (boxSize / 2);
+
+                // Tick X
+                ctx.beginPath();
+                ctx.moveTo(px, midY - 2.5);
+                ctx.lineTo(px, midY + 2.5);
+                ctx.stroke();
+
+                // Tick Y
+                ctx.beginPath();
+                ctx.moveTo(midX - 2.5, py);
+                ctx.lineTo(midX + 2.5, py);
+                ctx.stroke();
+
+                if (i !== 0 && Math.abs(i) < 5) {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(val), px, midY + 11);
+                    ctx.textAlign = 'right';
+                    ctx.fillText(String(val), midX - 5, py + 3);
+                } else if (i === 0) {
+                    ctx.textAlign = 'right';
+                    ctx.fillText('0', midX - 4, midY + 10);
+                }
+            }
+
+            // Label HODOGRAPH di bawah kotak
+            ctx.font = 'bold 11px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#0f172a';
+            ctx.fillText('HODOGRAPH', midX, boxY + boxSize + 15);
+
+            // Plot titik & garis penghubung Hodograph (U, V)
+            if (hodographRows.length > 0) {
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                hodographRows.forEach((pt, idx) => {
+                    const px = midX + (pt.u / maxAxis) * (boxSize / 2);
+                    const py = midY - (pt.v / maxAxis) * (boxSize / 2);
+                    if (idx === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.stroke();
+
+                hodographRows.forEach(pt => {
+                    const px = midX + (pt.u / maxAxis) * (boxSize / 2);
+                    const py = midY - (pt.v / maxAxis) * (boxSize / 2);
+
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 9px Arial, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(pt.no), px, py - 5);
+                });
+            }
+
+            // =====================================================================
+            // Panel Kanan: Skala Vertikal KM (0..6) & FT (x1000) (0..20) + Wind Barbs
+            // =====================================================================
+            const axisX = boxX + boxSize + 24;
+            const axisTop = boxY + 12;
+            const axisBottom = boxY + boxSize;
+            const axisH = axisBottom - axisTop;
+            const maxFtScale = Math.max(20000, ...hodographRows.map(r => r.heightFt));
+            const maxKmScale = maxFtScale * 0.0003048;
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 7.5px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('KM', axisX - 10, boxY + 2);
+            ctx.textAlign = 'left';
+            ctx.fillText('FT (x1000)', axisX + 4, boxY + 2);
+
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(axisX, axisTop);
+            ctx.lineTo(axisX, axisBottom);
+            ctx.stroke();
+
+            // Ticks FT (x1000) dari 0 sampai 20
+            const maxK = Math.round(maxFtScale / 1000);
+            ctx.font = '7.5px Arial, sans-serif';
+            for (let k = 0; k <= maxK; k++) {
+                const py = axisBottom - (k / maxK) * axisH;
+                ctx.beginPath();
+                ctx.moveTo(axisX, py);
+                ctx.lineTo(axisX + 3, py);
+                ctx.stroke();
                 ctx.textAlign = 'left';
-                ctx.fillText(`${p.dir}°/${p.speedKt}kt`, px + 6, py + 3);
+                ctx.fillText(String(k), axisX + 5, py + 2.5);
+            }
+
+            // Ticks KM dari 0 sampai 6
+            const maxKmInt = Math.floor(maxKmScale);
+            for (let km = 0; km <= maxKmInt; km++) {
+                const ftEq = km / 0.0003048;
+                const py = axisBottom - (ftEq / maxFtScale) * axisH;
+                ctx.beginPath();
+                ctx.moveTo(axisX - 3.5, py);
+                ctx.lineTo(axisX, py);
+                ctx.stroke();
+                ctx.textAlign = 'right';
+                ctx.fillText(String(km), axisX - 5, py + 2.5);
+            }
+
+            // Gambar Wind Barb di sebelah kanan skala FT
+            const barbColX = axisX + 52;
+            hodographRows.forEach(pt => {
+                const py = axisBottom - (pt.heightFt / maxFtScale) * axisH;
+                drawWindBarbOnContext(ctx, barbColX, py, pt.dir, pt.speedKt, 24);
             });
         }
 
+        function drawWindProfileChart() {
+            const canvas = document.getElementById('wind-profile-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = Math.max(320, rect.width || 360);
+            const h = Math.max(250, rect.height || 270);
+            renderHodographAndBarbsToCanvas(canvas, w, h, 2);
+        }
+
+        // =========================================================================
+        // 12. EXPORTS (CLIPBOARD, WA, CSV, PDF 3 HALAMAN PERSIS CONTOH, BMKGSOFT SCRIPT)
+        // =========================================================================
         function copyToClipboardSafe(text, successMsg) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -2107,17 +2217,30 @@
                 const az = r.skipped ? '9999' : r.azimuth.toFixed(1);
                 const el = r.skipped ? '9999' : r.elevation.toFixed(1);
                 return `${String(r.minute).padStart(2, '0')}. Az: *${az}* | El: *${el}*`;
-            }).join('\n');
+            }).join('
+');
 
-            const msg = `*DATA PENGAMATAN PIBAL (BMKGSOFT)*\n` +
-                `Stamet Sultan Muhammad Salahuddin Bima\n` +
-                `Tanggal: ${dateVal} | Jam: ${hourVal} UTC\n` +
-                `Observer: ${obsName}\n` +
-                `Angin Permukaan: ${surfDir}° / ${surfSpd} kt\n\n` +
-                `*PEMBACAAN AZIMUTH & ELEVASI:*\n` +
-                `${azElLines || '(Belum ada data)'}\n\n` +
-                `*SANDI PILOT (PPAA & PPBB):*\n` +
-                `\`\`\`\n${code}\n\`\`\``;
+            const msg = `*DATA PENGAMATAN PIBAL (BMKGSOFT)*
+` +
+                `Stamet Sultan Muhammad Salahuddin Bima
+` +
+                `Tanggal: ${dateVal} | Jam: ${hourVal} UTC
+` +
+                `Observer: ${obsName}
+` +
+                `Angin Permukaan: ${surfDir}° / ${surfSpd} kt
+
+` +
+                `*PEMBACAAN AZIMUTH & ELEVASI:*
+` +
+                `${azElLines || '(Belum ada data)'}
+
+` +
+                `*SANDI PILOT (PPAA & PPBB):*
+` +
+                `\`\`\`
+${code}
+\`\`\``;
 
             const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
@@ -2129,18 +2252,20 @@
             const hourStr = document.getElementById('obs-hour')?.value || '00';
             const fileName = `PIBAL-RM_BIMA_${wmo}_${dateStr}_${hourStr}UTC.csv`;
 
-            let csv = 'Pembacaan,Azimuth(deg),Elevasi(deg),Level(ft),ArahAngin(deg),Kecepatan(kt),Sandi_dddff\n';
+            let csv = 'Pembacaan,Azimuth(deg),Elevasi(deg),Level(ft),ArahAngin(deg),Kecepatan(kt),Sandi_dddff
+';
             computedRows.forEach(r => {
                 const az = r.skipped ? '9999' : r.azimuth;
                 const el = r.skipped ? '9999' : r.elevation;
                 const dir = r.dir !== null ? r.dir : '';
                 const spd = r.speedKt !== null ? r.speedKt : '';
                 const dddff = r.dddff || '';
-                csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
+                csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}
+`;
             });
 
             try {
-                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('﻿' + csv);
                 const link = document.createElement('a');
                 link.setAttribute('href', dataUri);
                 link.setAttribute('download', fileName);
@@ -2165,104 +2290,209 @@
             showToast(`File ${fileName} diunduh. Cek folder Download di File Manager HP.`, 'success');
         }
 
-        function exportToPDF() {
-            const wmo = document.getElementById('obs-wmo')?.value || '97270';
-            const dateVal = document.getElementById('obs-date')?.value || '';
-            const hourVal = document.getElementById('obs-hour')?.value || '00';
-            const obsName = document.getElementById('obs-name')?.value || 'Observer';
-            const surfDir = document.getElementById('surface-dir')?.value || '0';
-            const surfSpd = document.getElementById('surface-spd')?.value || '0';
-            const code = document.getElementById('pilot-code-output')?.value || '';
-            const fileName = `LAPORAN_PIBAL_BIMA_${wmo}_${dateVal}_${hourVal}UTC.pdf`;
+        function formatPdfDateLong(dateStr) {
+            // 2026-11-26 -> 26 Nov 2026
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const parts = (dateStr || '2026-11-26').split('-');
+            const y = parts[0] || '2026';
+            const mIdx = Math.max(0, Math.min(11, parseInt(parts[1] || '1', 10) - 1));
+            const d = String(parseInt(parts[2] || '1', 10)).padStart(2, '0');
+            return `${d} ${months[mIdx]} ${y}`;
+        }
 
-            if (typeof html2pdf === 'undefined') {
-                window.print();
+        function formatPdfDateSlash(dateStr) {
+            // 2026-11-26 -> 26/11/2026
+            const parts = (dateStr || '2026-11-26').split('-');
+            const y = parts[0] || '2026';
+            const m = String(parseInt(parts[1] || '1', 10)).padStart(2, '0');
+            const d = String(parseInt(parts[2] || '1', 10)).padStart(2, '0');
+            return `${d}/${m}/${y}`;
+        }
+
+        // Poin 1: Generator PDF Native jsPDF 3 Halaman Persis Seperti 2026112600_pibal.pdf
+        async function exportToPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
                 return;
             }
 
-            showToast('Menyiapkan dokumen PDF...', 'info');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-            const rowsHtml = computedRows.map(r => `
-                <tr>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.minute}</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.skipped ? '9999' : r.azimuth.toFixed(1) + '°'}</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.skipped ? '9999' : r.elevation.toFixed(1) + '°'}</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.heightFt} ft</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.dir !== null ? r.dir + '°' : '-'}</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.speedKt !== null ? r.speedKt + ' kt' : '-'}</td>
-                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;font-weight:bold;">${r.dddff || '-'}</td>
-                </tr>
-            `).join('');
+                const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+                const hourVal = document.getElementById('obs-hour')?.value || '00';
+                const obsName = document.getElementById('obs-name')?.value || 'Observer';
+                const mslVal = document.getElementById('obs-msl')?.value || '1.3';
+                const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
+                const parts = getPilotCodeParts();
 
-            const pdfWrapper = document.createElement('div');
-            pdfWrapper.style.padding = '16px';
-            pdfWrapper.style.background = '#ffffff';
-            pdfWrapper.style.color = '#0f172a';
-            pdfWrapper.style.fontFamily = 'Arial, sans-serif';
-            pdfWrapper.style.fontSize = '11px';
-            pdfWrapper.innerHTML = `
-                <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:10px;">
-                    <div style="font-size:10px;font-weight:bold;letter-spacing:1px;">BADAN METEOROLOGI, KLIMATOLOGI, DAN GEOFISIKA</div>
-                    <div style="font-size:14px;font-weight:bold;margin:2px 0;">STASIUN METEOROLOGI SULTAN MUHAMMAD SALAHUDDIN BIMA</div>
-                    <div style="font-size:9px;color:#334155;">Jl. Sultan Muhammad Salahuddin, Bandara Muhammad Salahuddin, Bima - NTB | WMO ID: ${wmo}</div>
-                </div>
-                <div style="margin-bottom:10px;display:flex;justify-content:space-between;font-size:10px;">
-                    <div>
-                        <b>Tanggal / Jam:</b> ${dateVal} / ${hourVal}:00 UTC<br>
-                        <b>Observer:</b> ${escapeHtml(obsName)}
-                    </div>
-                    <div style="text-align:right;">
-                        <b>Angin Permukaan:</b> ${surfDir}° / ${surfSpd} kt<br>
-                        <b>Alat:</b> 1 - Optical Theodolite
-                    </div>
-                </div>
-                <div style="font-weight:bold;margin-bottom:4px;">1. DATA PEMBACAAN &amp; LAPISAN ANGIN</div>
-                <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10px;">
-                    <thead>
-                        <tr style="background:#e2e8f0;">
-                            <th style="border:1px solid #94a3b8;padding:5px;">No</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Azimuth</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Elevasi</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Level</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Arah</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Kec</th>
-                            <th style="border:1px solid #94a3b8;padding:5px;">Sandi dddff</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rowsHtml}</tbody>
-                </table>
-                <div style="font-weight:bold;margin-bottom:4px;">2. SANDI PILOT (FM 32)</div>
-                <pre style="background:#f1f5f9;border:1px solid #94a3b8;padding:8px;font-family:monospace;font-size:11px;white-space:pre-wrap;">${code}</pre>
-            `;
+                const cleanDate = dateVal.replace(/-/g, '');
+                const fileName = `${cleanDate}${hourVal}_pibal.pdf`;
 
-            const opt = {
-                margin: 8,
-                filename: fileName,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+                // =================================================================
+                // HALAMAN 1: LAPORAN HASIL PENGAMATAN PIBAL
+                // =================================================================
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(13);
+                doc.text('LAPORAN HASIL PENGAMATAN PIBAL', 105, 18, { align: 'center' });
 
-            html2pdf().set(opt).from(pdfWrapper).save().then(() => {
-                showToast(`File ${fileName} berhasil diunduh!`, 'success');
-            }).catch(() => {
-                window.print();
-            });
+                doc.setFont('courier', 'normal');
+                doc.setFontSize(10.5);
+                let y = 30;
+                doc.text(`UPT     : bmkg bima`, 18, y); y += 5.5;
+                doc.text(`MSL     : ${mslVal} M`, 18, y); y += 5.5;
+                doc.text(`Tanggal : ${formatPdfDateLong(dateVal)} ${hourVal} UTC`, 18, y); y += 6;
+                doc.text(`Record  :`, 18, y); y += 5.5;
+
+                // Baris 0 (Surface)
+                doc.text(`0               -> ${parts.surfSlash}`, 18, y);
+                y += 5;
+
+                // Baris 1..N pembacaan
+                computedRows.forEach(r => {
+                    if (y > 250) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    const noStr = String(r.minute).padEnd(3, ' ');
+                    const azStr = r.skipped ? '9999 ' : r.azimuth.toFixed(1).padStart(5, '0');
+                    const elStr = r.skipped ? '9999' : r.elevation.toFixed(1).padStart(4, '0');
+                    const arrowStr = r.dddSlashFf ? `  -> ${r.dddSlashFf}` : '';
+                    doc.text(`${noStr} ${azStr}  ${elStr}${arrowStr}`, 18, y);
+                    y += 4.8;
+                });
+
+                y += 2;
+                doc.text(`Alasan: ${reasonVal}`, 18, y); y += 5.5;
+                doc.text(`Observer: ${obsName}`, 18, y); y += 7;
+
+                // Sandi PPAA & PPBB
+                const ppaaLines = doc.splitTextToSize(parts.ppaaText, 175);
+                doc.text(ppaaLines, 18, y);
+                y += ppaaLines.length * 5 + 2;
+
+                const ppbbLines = doc.splitTextToSize(parts.ppbbText, 175);
+                doc.text(ppbbLines, 18, y);
+
+                // =================================================================
+                // HALAMAN 2: LAPORAN HODOGRAPH & TABEL ANALISIS (U, V, V/B, ADVEKSI)
+                // =================================================================
+                doc.addPage();
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.text('LAPORAN HODOGRAPH', 18, 18);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                let y2 = 24;
+                doc.text('bmkg bima', 18, y2); y2 += 5;
+                doc.text('Pengamatan Pilot Balon (BBS)', 18, y2); y2 += 5;
+                doc.text(`Tanggal: ${formatPdfDateSlash(dateVal)}`, 18, y2); y2 += 5;
+                doc.text(`Jam: ${hourVal}Z`, 18, y2); y2 += 5;
+                doc.text(`Obs: ${obsName}`, 18, y2); y2 += 7;
+
+                doc.setFont('courier', 'normal');
+                doc.setFontSize(9.5);
+                const ppaa2 = doc.splitTextToSize(parts.ppaaSingleLine, 175);
+                doc.text(ppaa2, 18, y2);
+                y2 += ppaa2.length * 4.5 + 1.5;
+
+                const ppbb2 = doc.splitTextToSize(parts.ppbbSingleLine, 175);
+                doc.text(ppbb2, 18, y2);
+                y2 += ppbb2.length * 4.5 + 5;
+
+                // Tabel Hodograph (8 kolom)
+                const colX = [18, 30, 48, 64, 78, 96, 114, 138, 192];
+                const hdrH = 12;
+
+                doc.setDrawColor(40, 40, 40);
+                doc.setLineWidth(0.25);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8.5);
+
+                // Bingkai Header 2 tingkat
+                doc.rect(colX[0], y2, colX[8] - colX[0], hdrH);
+                for (let c = 1; c < 8; c++) {
+                    if (c === 3) {
+                        // Garis pemisah Arah | Kec hanya di setengah bawah header "Angin"
+                        doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
+                    } else {
+                        doc.line(colX[c], y2, colX[c], y2 + hdrH);
+                    }
+                }
+                doc.line(colX[2], y2 + 6, colX[4], y2 + 6);
+
+                doc.text('No.', (colX[0] + colX[1]) / 2, y2 + 7.5, { align: 'center' });
+                doc.text('Height', (colX[1] + colX[2]) / 2, y2 + 7.5, { align: 'center' });
+                doc.text('Angin', (colX[2] + colX[4]) / 2, y2 + 4.2, { align: 'center' });
+                doc.text('Arah', (colX[2] + colX[3]) / 2, y2 + 10.2, { align: 'center' });
+                doc.text('Kec.', (colX[3] + colX[4]) / 2, y2 + 10.2, { align: 'center' });
+                doc.text('U', (colX[4] + colX[5]) / 2, y2 + 7.5, { align: 'center' });
+                doc.text('V', (colX[5] + colX[6]) / 2, y2 + 7.5, { align: 'center' });
+                doc.text('V/B', (colX[6] + colX[7]) / 2, y2 + 7.5, { align: 'center' });
+                doc.text('Adveksi', (colX[7] + colX[8]) / 2, y2 + 7.5, { align: 'center' });
+
+                y2 += hdrH;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8.5);
+                const rowH = 7;
+
+                hodographRows.forEach(r => {
+                    if (y2 + rowH > 280) {
+                        doc.addPage();
+                        y2 = 20;
+                    }
+                    doc.rect(colX[0], y2, colX[8] - colX[0], rowH);
+                    for (let c = 1; c < 8; c++) {
+                        doc.line(colX[c], y2, colX[c], y2 + rowH);
+                    }
+
+                    doc.text(String(r.no), (colX[0] + colX[1]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(String(r.heightFt), (colX[1] + colX[2]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(String(r.dir).padStart(3, '0'), (colX[2] + colX[3]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(String(r.speedKt).padStart(2, '0'), (colX[3] + colX[4]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(r.u.toFixed(2), (colX[4] + colX[5]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(r.v.toFixed(2), (colX[5] + colX[6]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(r.vb || '', (colX[6] + colX[7]) / 2, y2 + 4.8, { align: 'center' });
+                    doc.text(r.adveksi || '', (colX[7] + colX[8]) / 2, y2 + 4.8, { align: 'center' });
+
+                    y2 += rowH;
+                });
+
+                // =================================================================
+                // HALAMAN 3: GRAFIK HODOGRAPH & WIND BARB PROFILE (KM / FT x1000)
+                // =================================================================
+                doc.addPage();
+                const offCanvas = document.createElement('canvas');
+                renderHodographAndBarbsToCanvas(offCanvas, 900, 650, 2);
+                const chartImgData = offCanvas.toDataURL('image/png');
+                doc.addImage(chartImgData, 'PNG', 12, 20, 186, 134);
+
+                // Simpan & unduh PDF langsung
+                doc.save(fileName);
+                showToast(`PDF ${fileName} (3 halaman) berhasil dibuat & diunduh!`, 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal membuat file PDF: ' + err.message, 'error');
+            }
         }
 
-        // Kirim Script Auto-Input BMKGSoft langsung ke WhatsApp (+ salin ke clipboard HP)
+        // Kirim Script Auto-Input BMKGSoft v2 langsung ke WhatsApp (+ salin ke clipboard HP)
         function sendBMKGSoftScriptToWA() {
             if (computedRows.length === 0) {
                 showToast('Belum ada data pembacaan untuk dikirim.', 'error');
                 return;
             }
 
+            const surfDir = String(document.getElementById('surface-dir')?.value || '').trim();
+            const surfSpd = String(document.getElementById('surface-spd')?.value || '').trim();
             const pairs = computedRows.map(r => [
                 r.skipped ? '9999' : String(r.azimuth),
                 r.skipped ? '9999' : String(r.elevation)
             ]);
 
-            const script = `(function(){const d=${JSON.stringify(pairs)};const setVal=(el,val)=>{if(!el)return;const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};const rows=[];document.querySelectorAll('tr,.row,.grid,div').forEach(r=>{const ins=Array.from(r.querySelectorAll(':scope > td input, :scope > div input'));if(ins.length===2&&!rows.some(p=>p[0]===ins[0]))rows.push(ins);});d.forEach((v,i)=>{if(rows[i]){setVal(rows[i][0],v[0]);setVal(rows[i][1],v[1]);}});const btn=Array.from(document.querySelectorAll('button,input[type="button"],input[type="submit"]')).find(b=>(b.innerText||b.value||'').trim().toLowerCase()==='submit');if(btn)setTimeout(()=>btn.click(),300);})();`;
+            const script = `(function(){const sd=${JSON.stringify(surfDir)},ss=${JSON.stringify(surfSpd)},d=${JSON.stringify(pairs)};const setVal=(el,val)=>{if(!el)return;el.focus();const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.blur();};const vis=Array.from(document.querySelectorAll('input')).filter(i=>!i.disabled&&!i.readOnly&&i.type!=='hidden'&&i.offsetParent!==null);const hRect=(rx)=>{const els=Array.from(document.querySelectorAll('th,td,div,span,label,p,b,strong')).filter(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);return els.length?els[0].getBoundingClientRect():null;};const azR=hRect(/^azimu[th]?$/i),elR=hRect(/^eleva[st]i(on)?$/i);if(azR&&elR){const azCx=azR.left+azR.width/2,elCx=elR.left+elR.width/2;const azIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>azR.bottom-5&&Math.abs((r.left+r.width/2)-azCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);const elIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>elR.bottom-5&&Math.abs((r.left+r.width/2)-elCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);d.forEach((v,idx)=>{if(azIn[idx])setVal(azIn[idx],v[0]);if(elIn[idx])setVal(elIn[idx],v[1]);});}const fillLbl=(rx,val)=>{if(!val)return;const lbl=Array.from(document.querySelectorAll('label,div,span')).find(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);if(!lbl)return;const lr=lbl.getBoundingClientRect();const t=vis.find(i=>{const r=i.getBoundingClientRect();return Math.abs(r.top-lr.top)<35&&r.left>lr.left;});if(t&&!t.value)setVal(t,val);};fillLbl(/arah angin perm/i,sd);fillLbl(/kec angin perm/i,ss);const dt=document.querySelector('input[type="date"]');const okDt=dt?Boolean(dt.value):true;const btn=Array.from(document.querySelectorAll('button,input[type="button"],input[type="submit"]')).find(b=>(b.innerText||b.value||'').trim().toLowerCase()==='submit');if(btn&&okDt){setTimeout(()=>btn.click(),350);console.log('Azimut & Elevasi terisi + Submit diklik! Cek sandi lalu klik Send manual.');}else{console.log('Azimut & Elevasi terisi! Pilih Observer, Tanggal & Jam terlebih dahulu lalu klik Submit.');}})();`;
 
             copyToClipboardSafe(script, 'Script disalin & membuka WhatsApp...');
             const waUrl = `https://wa.me/?text=${encodeURIComponent(script)}`;
@@ -2273,13 +2503,14 @@
             const lines = computedRows.map(r => {
                 const az = r.skipped ? '9999' : r.azimuth;
                 const el = r.skipped ? '9999' : r.elevation;
-                return `${r.minute}\t${az}\t${el}`;
-            }).join('\n');
+                return `${r.minute}	${az}	${el}`;
+            }).join('
+');
             copyToClipboardSafe(lines, 'Tabel Pembacaan, Azimuth & Elevasi berhasil disalin!');
         }
 
         // =========================================================================
-        // 12. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
+        // 13. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
         // =========================================================================
         function getSavedHistory() {
             try {
@@ -2299,6 +2530,8 @@
                     name: document.getElementById('obs-name').value || 'Observer',
                     date: document.getElementById('obs-date').value || '',
                     hour: document.getElementById('obs-hour').value || '00',
+                    msl: document.getElementById('obs-msl')?.value || '1.3',
+                    reason: document.getElementById('obs-reason')?.value || 'BB',
                     surfDir: document.getElementById('surface-dir').value || '0',
                     surfSpd: document.getElementById('surface-spd').value || '0',
                     readings: JSON.parse(JSON.stringify(readings)),
@@ -2355,6 +2588,8 @@
             document.getElementById('obs-name').value = item.name;
             document.getElementById('obs-date').value = item.date;
             document.getElementById('obs-hour').value = item.hour;
+            if (item.msl && document.getElementById('obs-msl')) document.getElementById('obs-msl').value = item.msl;
+            if (item.reason && document.getElementById('obs-reason')) document.getElementById('obs-reason').value = item.reason;
             document.getElementById('surface-dir').value = item.surfDir;
             document.getElementById('surface-spd').value = item.surfSpd;
 
@@ -2377,7 +2612,8 @@
                 const state = {
                     wmo: document.getElementById('obs-wmo').value,
                     name: document.getElementById('obs-name').value,
-                    firstReadDelay: document.getElementById('first-read-delay')?.value || '90',
+                    msl: document.getElementById('obs-msl')?.value || '1.3',
+                    reason: document.getElementById('obs-reason')?.value || 'BB',
                     surfDir: document.getElementById('surface-dir').value,
                     surfSpd: document.getElementById('surface-spd').value,
                     readings,
@@ -2397,9 +2633,8 @@
                     document.getElementById('obs-name').value = state.name;
                     recordObserverName(state.name);
                 }
-                if (state.firstReadDelay && document.getElementById('first-read-delay')) {
-                    document.getElementById('first-read-delay').value = state.firstReadDelay;
-                }
+                if (state.msl && document.getElementById('obs-msl')) document.getElementById('obs-msl').value = state.msl;
+                if (state.reason && document.getElementById('obs-reason')) document.getElementById('obs-reason').value = state.reason;
 
                 if (state.isSessionCompleted) {
                     readings = [];
