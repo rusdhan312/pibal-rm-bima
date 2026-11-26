@@ -569,7 +569,7 @@
 
                 <textarea id="pilot-code-output" rows="8" readonly class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3 font-mono text-xs sm:text-sm font-bold text-emerald-400 leading-relaxed focus:outline-none"></textarea>
 
-                <!-- Alasan Akhir Pengamatan (Diisi setelah selesai merekam sebelum Unduh PDF) -->
+                <!-- Alasan Akhir Pengamatan -->
                 <div class="bg-navy-950/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between gap-2">
                     <label for="obs-reason" class="text-[11px] font-bold text-slate-300 shrink-0">
                         <i class="fa-solid fa-flag-checkered text-amber-400 mr-1"></i>Alasan Selesai:
@@ -582,7 +582,7 @@
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <button type="button" onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-copy"></i>
                         <span>Salin Sandi</span>
@@ -595,9 +595,13 @@
                         <i class="fa-solid fa-file-csv"></i>
                         <span>Unduh CSV</span>
                     </button>
-                    <button type="button" onclick="exportToPDF()" class="bg-navy-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                    <button type="button" onclick="exportToPDF()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-pdf"></i>
                         <span>Unduh PDF</span>
+                    </button>
+                    <button type="button" onclick="sharePDFDirectly()" class="col-span-2 bg-navy-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/40 font-extrabold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span>Kirim / Simpan File PDF (WA &amp; Files)</span>
                     </button>
                 </div>
             </div>
@@ -858,7 +862,7 @@
         let offsetSensor = { az: 0, pitch: 0, roll: 0 };
         let smoothedSensor = { az: 0, el: 0, pitch: 0, roll: 0 };
         const SMOOTHING_ALPHA = 0.15;
-        const FIRST_READ_DELAY_SEC = 90; // Paten 90 detik (01:30) untuk bacaan pertama, lalu tiap 1 menit
+        const FIRST_READ_DELAY_SEC = 90;
         const ASCENT_RATE_FT = 500;
         const ASCENT_RATE_M = 152.4;
 
@@ -1220,7 +1224,7 @@
         }
 
         function getNextTargetInfo(currentElapsedSec) {
-            const firstDelay = FIRST_READ_DELAY_SEC; // 90 detik (01:30)
+            const firstDelay = FIRST_READ_DELAY_SEC;
             if (currentElapsedSec < firstDelay) {
                 return {
                     readNumber: 1,
@@ -2156,7 +2160,7 @@
         }
 
         // =========================================================================
-        // 12. NATIVE VECTOR PDF PAGE 3 GENERATOR (ANTI-CORRUPTION & TINY FILE SIZE)
+        // 12. NATIVE VECTOR PDF BUILDER (3 HALAMAN, ANTI-CORRUPTION & TINY SIZE)
         // =========================================================================
         function drawVectorWindBarbToPDF(doc, cx, cy, dirDeg, speedKt, shaftLenMm = 9.5) {
             doc.setDrawColor(15, 23, 42);
@@ -2177,7 +2181,6 @@
 
             doc.line(cx, cy, tipX, tipY);
 
-            // Sisi Belahan Bumi Selatan (BBS)
             const perpX = -dy;
             const perpY = dx;
 
@@ -2224,11 +2227,9 @@
         }
 
         function drawVectorHodographPageToPDF(doc) {
-            // Halaman 3 menggunakan koordinat mm langsung (A4 portrait: 210 x 297 mm)
-            // Tanpa canvas bitmap -> 100% anti gambar hancur/bergaris di semua HP & ukuran file super kecil!
             const boxX = 16;
             const boxY = 22;
-            const boxSize = 128; // Kotak Hodograph 128 x 128 mm
+            const boxSize = 128;
             const midX = boxX + boxSize / 2;
             const midY = boxY + boxSize / 2;
 
@@ -2243,7 +2244,6 @@
             doc.setLineWidth(0.35);
             doc.rect(boxX, boxY, boxSize, boxSize);
 
-            // Sumbu U (horizontal) & Sumbu V (vertikal)
             doc.line(boxX, midY, boxX + boxSize, midY);
             doc.line(midX, boxY, midX, boxY + boxSize);
 
@@ -2267,12 +2267,10 @@
                 }
             }
 
-            // Label HODOGRAPH di bawah kotak
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(10);
             doc.text('HODOGRAPH', midX, boxY + boxSize + 7, { align: 'center' });
 
-            // Plot titik & garis penghubung Hodograph (U, V) dengan warna biru
             if (hodographRows.length > 0) {
                 doc.setDrawColor(59, 130, 246);
                 doc.setLineWidth(0.45);
@@ -2300,9 +2298,6 @@
                 });
             }
 
-            // =====================================================================
-            // Panel Kanan: Skala Vertikal KM (0..6) & FT (x1000) (0..20) + Wind Barbs
-            // =====================================================================
             const axisX = boxX + boxSize + 15;
             const axisTop = boxY + 5;
             const axisBottom = boxY + boxSize;
@@ -2320,7 +2315,6 @@
             doc.setLineWidth(0.3);
             doc.line(axisX, axisTop, axisX, axisBottom);
 
-            // Ticks FT (x1000) dari 0 sampai 20
             const maxK = Math.round(maxFtScale / 1000);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6.5);
@@ -2330,7 +2324,6 @@
                 doc.text(String(k), axisX + 2, py + 0.9, { align: 'left' });
             }
 
-            // Ticks KM dari 0 sampai 6
             const maxKmInt = Math.floor(maxKmScale);
             for (let km = 0; km <= maxKmInt; km++) {
                 const ftEq = km / 0.0003048;
@@ -2339,7 +2332,6 @@
                 doc.text(String(km), axisX - 2.2, py + 0.9, { align: 'right' });
             }
 
-            // Wind Barbs di sisi kanan skala FT
             const barbColX = axisX + 22;
             hodographRows.forEach(pt => {
                 const py = axisBottom - (pt.heightFt / maxFtScale) * axisH;
@@ -2347,21 +2339,164 @@
             });
         }
 
+        function buildPibalPDFDocument() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+            });
+
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const obsName = (document.getElementById('obs-name')?.value || '').trim() || 'Observer';
+            const mslVal = document.getElementById('obs-msl')?.value || '1.3';
+            const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
+            const parts = getPilotCodeParts();
+
+            const cleanDate = dateVal.replace(/-/g, '');
+            const fileName = `${cleanDate}${hourVal}_pibal.pdf`;
+
+            // HALAMAN 1: LAPORAN HASIL PENGAMATAN PIBAL
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.text('LAPORAN HASIL PENGAMATAN PIBAL', 105, 18, { align: 'center' });
+
+            doc.setFont('courier', 'normal');
+            doc.setFontSize(10.5);
+            let y = 30;
+            doc.text(`UPT     : bmkg bima`, 18, y); y += 5.5;
+            doc.text(`MSL     : ${mslVal} M`, 18, y); y += 5.5;
+            doc.text(`Tanggal : ${formatPdfDateLong(dateVal)} ${hourVal} UTC`, 18, y); y += 6;
+            doc.text(`Record  :`, 18, y); y += 5.5;
+
+            doc.text(`0               -> ${parts.surfSlash}`, 18, y);
+            y += 5;
+
+            computedRows.forEach(r => {
+                if (y > 250) {
+                    doc.addPage();
+                    y = 20;
+                }
+                const noStr = String(r.minute).padEnd(3, ' ');
+                const azStr = r.skipped ? '9999 ' : r.azimuth.toFixed(1).padStart(5, '0');
+                const elStr = r.skipped ? '9999' : r.elevation.toFixed(1).padStart(4, '0');
+                const arrowStr = r.dddSlashFf ? `  -> ${r.dddSlashFf}` : '';
+                doc.text(`${noStr} ${azStr}  ${elStr}${arrowStr}`, 18, y);
+                y += 4.8;
+            });
+
+            y += 2;
+            doc.text(`Alasan: ${reasonVal}`, 18, y); y += 5.5;
+            doc.text(`Observer: ${obsName}`, 18, y); y += 7;
+
+            const ppaaLines = doc.splitTextToSize(parts.ppaaText, 175);
+            doc.text(ppaaLines, 18, y);
+            y += ppaaLines.length * 5 + 2;
+
+            const ppbbLines = doc.splitTextToSize(parts.ppbbText, 175);
+            doc.text(ppbbLines, 18, y);
+
+            // HALAMAN 2: LAPORAN HODOGRAPH & TABEL ANALISIS
+            doc.addPage();
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('LAPORAN HODOGRAPH', 18, 18);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            let y2 = 24;
+            doc.text('bmkg bima', 18, y2); y2 += 5;
+            doc.text('Pengamatan Pilot Balon (BBS)', 18, y2); y2 += 5;
+            doc.text(`Tanggal: ${formatPdfDateSlash(dateVal)}`, 18, y2); y2 += 5;
+            doc.text(`Jam: ${hourVal}Z`, 18, y2); y2 += 5;
+            doc.text(`Obs: ${obsName}`, 18, y2); y2 += 7;
+
+            doc.setFont('courier', 'normal');
+            doc.setFontSize(9.5);
+            const ppaa2 = doc.splitTextToSize(parts.ppaaSingleLine, 175);
+            doc.text(ppaa2, 18, y2);
+            y2 += ppaa2.length * 4.5 + 1.5;
+
+            const ppbb2 = doc.splitTextToSize(parts.ppbbSingleLine, 175);
+            doc.text(ppbb2, 18, y2);
+            y2 += ppbb2.length * 4.5 + 5;
+
+            const colX = [18, 29, 46, 61, 75, 93, 111, 134, 192];
+            const hdrH = 12;
+
+            doc.setDrawColor(40, 40, 40);
+            doc.setLineWidth(0.25);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+
+            doc.rect(colX[0], y2, colX[8] - colX[0], hdrH);
+            for (let c = 1; c < 8; c++) {
+                if (c === 3) {
+                    doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
+                } else {
+                    doc.line(colX[c], y2, colX[c], y2 + hdrH);
+                }
+            }
+            doc.line(colX[2], y2 + 6, colX[4], y2 + 6);
+
+            doc.text('No.', (colX[0] + colX[1]) / 2, y2 + 7.5, { align: 'center' });
+            doc.text('Height', (colX[1] + colX[2]) / 2, y2 + 7.5, { align: 'center' });
+            doc.text('Angin', (colX[2] + colX[4]) / 2, y2 + 4.2, { align: 'center' });
+            doc.text('Arah', (colX[2] + colX[3]) / 2, y2 + 10.2, { align: 'center' });
+            doc.text('Kec.', (colX[3] + colX[4]) / 2, y2 + 10.2, { align: 'center' });
+            doc.text('U', (colX[4] + colX[5]) / 2, y2 + 7.5, { align: 'center' });
+            doc.text('V', (colX[5] + colX[6]) / 2, y2 + 7.5, { align: 'center' });
+            doc.text('V/B', (colX[6] + colX[7]) / 2, y2 + 7.5, { align: 'center' });
+            doc.text('Adveksi', (colX[7] + colX[8]) / 2, y2 + 7.5, { align: 'center' });
+
+            y2 += hdrH;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            const rowH = 7;
+
+            hodographRows.forEach(r => {
+                if (y2 + rowH > 280) {
+                    doc.addPage();
+                    y2 = 20;
+                }
+                doc.rect(colX[0], y2, colX[8] - colX[0], rowH);
+                for (let c = 1; c < 8; c++) {
+                    doc.line(colX[c], y2, colX[c], y2 + rowH);
+                }
+
+                doc.text(String(r.no), (colX[0] + colX[1]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(String(r.heightFt), (colX[1] + colX[2]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(String(r.dir).padStart(3, '0'), (colX[2] + colX[3]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(String(r.speedKt).padStart(2, '0'), (colX[3] + colX[4]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(r.u.toFixed(2), (colX[4] + colX[5]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(r.v.toFixed(2), (colX[5] + colX[6]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(r.vb || '', (colX[6] + colX[7]) / 2, y2 + 4.8, { align: 'center' });
+                doc.text(r.adveksi || '', (colX[7] + colX[8]) / 2, y2 + 4.8, { align: 'center' });
+
+                y2 += rowH;
+            });
+
+            // HALAMAN 3: GRAFIK VEKTOR HODOGRAPH & WIND BARB PROFILE
+            doc.addPage();
+            drawVectorHodographPageToPDF(doc);
+
+            return { doc, fileName };
+        }
+
         // =========================================================================
-        // 13. EXPORTS (DIRECT AUTO-NAMED FILE DOWNLOAD, WA, CSV, PDF, BMKGSOFT SCRIPT)
+        // 13. EXPORTS (ANTI-.BIN DATA URI DOWNLOAD, SHARE PDF FILE, WA, CSV, SCRIPT)
         // =========================================================================
-        function triggerDirectBlobDownload(blob, fileName) {
-            const url = URL.createObjectURL(blob);
+        function triggerDirectDataUriDownload(dataUri, fileName) {
             const link = document.createElement('a');
-            link.href = url;
+            link.href = dataUri;
             link.download = fileName;
             link.setAttribute('download', fileName);
             link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            // Tunda revoke agar Download Manager Android selesai membaca atribut nama file otomatis
-            setTimeout(() => URL.revokeObjectURL(url), 15000);
         }
 
         function copyToClipboardSafe(text, successMsg) {
@@ -2442,9 +2577,10 @@
                 csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
             });
 
-            const csvBlob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
-            triggerDirectBlobDownload(csvBlob, fileName);
-            showToast(`File ${fileName} otomatis diunduh!`, 'success');
+            // Menggunakan Data URI (bukan blob:) agar Android tidak mengubah ekstensi menjadi .bin
+            const csvDataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+            triggerDirectDataUriDownload(csvDataUri, fileName);
+            showToast(`File ${fileName} diunduh!`, 'success');
         }
 
         function formatPdfDateLong(dateStr) {
@@ -2464,7 +2600,7 @@
             return `${d}/${m}/${y}`;
         }
 
-        // Generator PDF Vektor 3 Halaman (Ukuran kecil ~18KB, grafik tajam anti-rusak, auto-nama YYYYMMDDHH_pibal.pdf)
+        // Unduh PDF via clean Base64 Data URI (bukan blob:) agar di Android terbaca .pdf & nama terisi otomatis
         function exportToPDF() {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
@@ -2472,166 +2608,46 @@
             }
 
             try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4',
-                    compress: true
-                });
+                const { doc, fileName } = buildPibalPDFDocument();
+                const rawDataUri = doc.output('datauristring');
+                const base64Only = rawDataUri.split(',')[1];
+                const cleanPdfDataUri = 'data:application/pdf;base64,' + base64Only;
 
-                const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
-                const hourVal = document.getElementById('obs-hour')?.value || '00';
-                const obsName = (document.getElementById('obs-name')?.value || '').trim() || 'Observer';
-                const mslVal = document.getElementById('obs-msl')?.value || '1.3';
-                const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
-                const parts = getPilotCodeParts();
+                triggerDirectDataUriDownload(cleanPdfDataUri, fileName);
 
-                const cleanDate = dateVal.replace(/-/g, '');
-                const fileName = `${cleanDate}${hourVal}_pibal.pdf`;
-
-                // =================================================================
-                // HALAMAN 1: LAPORAN HASIL PENGAMATAN PIBAL
-                // =================================================================
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(13);
-                doc.text('LAPORAN HASIL PENGAMATAN PIBAL', 105, 18, { align: 'center' });
-
-                doc.setFont('courier', 'normal');
-                doc.setFontSize(10.5);
-                let y = 30;
-                doc.text(`UPT     : bmkg bima`, 18, y); y += 5.5;
-                doc.text(`MSL     : ${mslVal} M`, 18, y); y += 5.5;
-                doc.text(`Tanggal : ${formatPdfDateLong(dateVal)} ${hourVal} UTC`, 18, y); y += 6;
-                doc.text(`Record  :`, 18, y); y += 5.5;
-
-                // Baris 0 (Surface)
-                doc.text(`0               -> ${parts.surfSlash}`, 18, y);
-                y += 5;
-
-                // Baris 1..N pembacaan
-                computedRows.forEach(r => {
-                    if (y > 250) {
-                        doc.addPage();
-                        y = 20;
-                    }
-                    const noStr = String(r.minute).padEnd(3, ' ');
-                    const azStr = r.skipped ? '9999 ' : r.azimuth.toFixed(1).padStart(5, '0');
-                    const elStr = r.skipped ? '9999' : r.elevation.toFixed(1).padStart(4, '0');
-                    const arrowStr = r.dddSlashFf ? `  -> ${r.dddSlashFf}` : '';
-                    doc.text(`${noStr} ${azStr}  ${elStr}${arrowStr}`, 18, y);
-                    y += 4.8;
-                });
-
-                y += 2;
-                doc.text(`Alasan: ${reasonVal}`, 18, y); y += 5.5;
-                doc.text(`Observer: ${obsName}`, 18, y); y += 7;
-
-                const ppaaLines = doc.splitTextToSize(parts.ppaaText, 175);
-                doc.text(ppaaLines, 18, y);
-                y += ppaaLines.length * 5 + 2;
-
-                const ppbbLines = doc.splitTextToSize(parts.ppbbText, 175);
-                doc.text(ppbbLines, 18, y);
-
-                // =================================================================
-                // HALAMAN 2: LAPORAN HODOGRAPH & TABEL ANALISIS (U, V, V/B, ADVEKSI)
-                // =================================================================
-                doc.addPage();
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.text('LAPORAN HODOGRAPH', 18, 18);
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                let y2 = 24;
-                doc.text('bmkg bima', 18, y2); y2 += 5;
-                doc.text('Pengamatan Pilot Balon (BBS)', 18, y2); y2 += 5;
-                doc.text(`Tanggal: ${formatPdfDateSlash(dateVal)}`, 18, y2); y2 += 5;
-                doc.text(`Jam: ${hourVal}Z`, 18, y2); y2 += 5;
-                doc.text(`Obs: ${obsName}`, 18, y2); y2 += 7;
-
-                doc.setFont('courier', 'normal');
-                doc.setFontSize(9.5);
-                const ppaa2 = doc.splitTextToSize(parts.ppaaSingleLine, 175);
-                doc.text(ppaa2, 18, y2);
-                y2 += ppaa2.length * 4.5 + 1.5;
-
-                const ppbb2 = doc.splitTextToSize(parts.ppbbSingleLine, 175);
-                doc.text(ppbb2, 18, y2);
-                y2 += ppbb2.length * 4.5 + 5;
-
-                const colX = [18, 29, 46, 61, 75, 93, 111, 134, 192];
-                const hdrH = 12;
-
-                doc.setDrawColor(40, 40, 40);
-                doc.setLineWidth(0.25);
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(8.5);
-
-                doc.rect(colX[0], y2, colX[8] - colX[0], hdrH);
-                for (let c = 1; c < 8; c++) {
-                    if (c === 3) {
-                        doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
-                    } else {
-                        doc.line(colX[c], y2, colX[c], y2 + hdrH);
-                    }
-                }
-                doc.line(colX[2], y2 + 6, colX[4], y2 + 6);
-
-                doc.text('No.', (colX[0] + colX[1]) / 2, y2 + 7.5, { align: 'center' });
-                doc.text('Height', (colX[1] + colX[2]) / 2, y2 + 7.5, { align: 'center' });
-                doc.text('Angin', (colX[2] + colX[4]) / 2, y2 + 4.2, { align: 'center' });
-                doc.text('Arah', (colX[2] + colX[3]) / 2, y2 + 10.2, { align: 'center' });
-                doc.text('Kec.', (colX[3] + colX[4]) / 2, y2 + 10.2, { align: 'center' });
-                doc.text('U', (colX[4] + colX[5]) / 2, y2 + 7.5, { align: 'center' });
-                doc.text('V', (colX[5] + colX[6]) / 2, y2 + 7.5, { align: 'center' });
-                doc.text('V/B', (colX[6] + colX[7]) / 2, y2 + 7.5, { align: 'center' });
-                doc.text('Adveksi', (colX[7] + colX[8]) / 2, y2 + 7.5, { align: 'center' });
-
-                y2 += hdrH;
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(8.5);
-                const rowH = 7;
-
-                hodographRows.forEach(r => {
-                    if (y2 + rowH > 280) {
-                        doc.addPage();
-                        y2 = 20;
-                    }
-                    doc.rect(colX[0], y2, colX[8] - colX[0], rowH);
-                    for (let c = 1; c < 8; c++) {
-                        doc.line(colX[c], y2, colX[c], y2 + rowH);
-                    }
-
-                    doc.text(String(r.no), (colX[0] + colX[1]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(String(r.heightFt), (colX[1] + colX[2]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(String(r.dir).padStart(3, '0'), (colX[2] + colX[3]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(String(r.speedKt).padStart(2, '0'), (colX[3] + colX[4]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(r.u.toFixed(2), (colX[4] + colX[5]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(r.v.toFixed(2), (colX[5] + colX[6]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(r.vb || '', (colX[6] + colX[7]) / 2, y2 + 4.8, { align: 'center' });
-                    doc.text(r.adveksi || '', (colX[7] + colX[8]) / 2, y2 + 4.8, { align: 'center' });
-
-                    y2 += rowH;
-                });
-
-                // =================================================================
-                // HALAMAN 3: GRAFIK VEKTOR HODOGRAPH & WIND BARB PROFILE
-                // =================================================================
-                doc.addPage();
-                drawVectorHodographPageToPDF(doc);
-
-                // Unduh langsung sebagai application/pdf dengan nama otomatis YYYYMMDDHH_pibal.pdf
-                const pdfArrayBuf = doc.output('arraybuffer');
-                const pdfBlob = new Blob([pdfArrayBuf], { type: 'application/pdf' });
-                triggerDirectBlobDownload(pdfBlob, fileName);
-
-                const sizeKB = Math.max(1, Math.round(pdfBlob.size / 1024));
-                showToast(`PDF ${fileName} (${sizeKB} KB) otomatis diunduh!`, 'success');
+                const sizeKB = Math.max(1, Math.round((base64Only.length * 0.75) / 1024));
+                showToast(`PDF ${fileName} (${sizeKB} KB) diunduh!`, 'success');
             } catch (err) {
                 console.error(err);
                 showToast('Gagal membuat file PDF: ' + err.message, 'error');
+            }
+        }
+
+        // Bagikan / Simpan langsung objek File PDF (untuk PWA / WhatsApp / Files Android & iOS)
+        async function sharePDFDirectly() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+                return;
+            }
+
+            try {
+                const { doc, fileName } = buildPibalPDFDocument();
+                const pdfArrayBuf = doc.output('arraybuffer');
+                const pdfFile = new File([pdfArrayBuf], fileName, { type: 'application/pdf' });
+
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    await navigator.share({
+                        title: fileName,
+                        files: [pdfFile]
+                    });
+                    showToast(`File ${fileName} berhasil dibagikan/disimpan!`, 'success');
+                } else {
+                    exportToPDF();
+                }
+            } catch (err) {
+                if (err && err.name !== 'AbortError') {
+                    exportToPDF();
+                }
             }
         }
 

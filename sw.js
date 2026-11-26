@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pibal-rm-bima-v9';
+const CACHE_NAME = 'pibal-rm-bima-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
