@@ -629,7 +629,7 @@
                     </button>
                     <button type="button" onclick="handlePDFAction()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Laporan PDF / WA</span>
+                        <span>Kirim PDF ke WA</span>
                     </button>
                 </div>
             </div>
@@ -728,9 +728,9 @@
                     <div class="text-[10px] text-slate-400">Laporan 3 Halaman (Hasil, Tabel Hodograph &amp; Grafik)</div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="sendFullReportToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
-                        <i class="fa-brands fa-whatsapp text-sm"></i>
-                        <span>Kirim ke WA</span>
+                    <button type="button" onclick="openInChromeForFileShare()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-brands fa-chrome text-sm"></i>
+                        <span>Buka di Chrome (File PDF)</span>
                     </button>
                     <button type="button" onclick="saveReportAsPDFSafe()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-file-pdf"></i>
@@ -2449,11 +2449,7 @@
             });
         }
 
-        function downloadDesktopVectorPDF() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
-                return;
-            }
+        function buildPibalPDFDocument() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
 
@@ -2569,6 +2565,15 @@
             // Page 3
             doc.addPage();
             drawVectorHodographPageToPDF(doc);
+            return { doc, fileName };
+        }
+
+        function downloadDesktopVectorPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+                return;
+            }
+            const { doc, fileName } = buildPibalPDFDocument();
             doc.save(fileName);
             showToast(`PDF ${fileName} berhasil diunduh ke PC!`, 'success');
         }
@@ -2610,6 +2615,21 @@
             copyToClipboardSafe(code, 'Sandi PILOT (PPAA & PPBB) berhasil disalin!');
         }
 
+        function openWhatsAppTextDirect(msg) {
+            const encoded = encodeURIComponent(msg);
+            if (isMobileOrWebView()) {
+                // Gunakan skema whatsapp:// langsung agar tidak terjebak halaman web "Lanjutkan ke WhatsApp"
+                const a = document.createElement('a');
+                a.href = `whatsapp://send?text=${encoded}`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                window.open(`https://wa.me/?text=${encoded}`, '_blank');
+            }
+        }
+
         function shareToWhatsApp() {
             const dateVal = document.getElementById('obs-date')?.value || '';
             const hourVal = document.getElementById('obs-hour')?.value || '';
@@ -2634,10 +2654,10 @@
                 `*SANDI PILOT (PPAA & PPBB):*\n` +
                 `\`\`\`\n${code}\n\`\`\``;
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            openWhatsAppTextDirect(msg);
         }
 
-        function handleCSVAction() {
+        async function handleCSVAction() {
             const wmo = document.getElementById('obs-wmo')?.value || '97270';
             const dateStr = document.getElementById('obs-date')?.value || 'date';
             const hourStr = document.getElementById('obs-hour')?.value || '00';
@@ -2654,10 +2674,17 @@
             });
 
             if (isMobileOrWebView()) {
-                // Di HP/APK: Jangan picu DownloadManager (anti-crash), langsung salin & kirim ke WA
+                try {
+                    const csvFile = new File(['\uFEFF' + csv], fileName, { type: 'text/csv', lastModified: Date.now() });
+                    if (navigator.canShare && navigator.canShare({ files: [csvFile] })) {
+                        await navigator.share({ files: [csvFile] });
+                        return;
+                    }
+                } catch (e) {
+                    if (e && e.name === 'AbortError') return;
+                }
                 copyToClipboardSafe(csv, 'Data CSV disalin! Membuka WhatsApp...');
-                const msg = `*DATA CSV PIBAL (${fileName})*\n\`\`\`\n${csv}\n\`\`\``;
-                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                openWhatsAppTextDirect(`*DATA CSV PIBAL (${fileName})*\n\`\`\`\n${csv}\n\`\`\``);
             } else {
                 const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
@@ -2723,16 +2750,52 @@
             return lines.join('\n');
         }
 
-        // Handler utama tombol Laporan PDF / WA (100% bebas crash di HP APK maupun PC)
-        function handlePDFAction() {
+        // Handler utama tombol Kirim PDF ke WA:
+        // - Di PC: langsung mengunduh file vector PDF YYYYMMDDHH_pibal.pdf
+        // - Di HP (Chrome / TWA): membuka menu Share Android dengan lampiran FILE .pdf asli untuk dikirim ke WA
+        // - Di WebView APK lama yang memblokir share file: membuka Pratinjau 3 Halaman + tombol Buka di Chrome (tanpa crash!)
+        async function handlePDFAction() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+                return;
+            }
+
             if (!isMobileOrWebView()) {
-                // Di Laptop / PC: langsung unduh file PDF 3 halaman YYYYMMDDHH_pibal.pdf
                 downloadDesktopVectorPDF();
                 return;
             }
 
-            // Di HP / Android APK: buka pratinjau laporan 3 halaman yang bersih dengan tombol Kirim ke WA & Simpan PDF
+            try {
+                const { doc, fileName } = buildPibalPDFDocument();
+                const pdfBlob = doc.output('blob');
+                const pdfFile = new File([pdfBlob], fileName, {
+                    type: 'application/pdf',
+                    lastModified: Date.now()
+                });
+
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    await navigator.share({
+                        files: [pdfFile]
+                    });
+                    showToast(`File ${fileName} berhasil dikirim!`, 'success');
+                    return;
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    return;
+                }
+            }
+
+            // Fallback aman jika dibuka dari WebView APK yang tidak memiliki izin share file:
             openPdfPreviewModal();
+            showToast('WebView APK membatasi lampiran file. Ketuk "Buka di Chrome (File PDF)" di atas untuk mengirim file PDF ke WA.', 'info');
+        }
+
+        function openInChromeForFileShare() {
+            saveToLocalStorage();
+            const hostAndPath = window.location.host + window.location.pathname;
+            const intentUrl = `intent://${hostAndPath}#Intent;scheme=https;package=com.android.chrome;end`;
+            window.location.href = intentUrl;
         }
 
         function openPdfPreviewModal() {
@@ -2782,20 +2845,6 @@
             if (modal) modal.classList.add('hidden');
         }
 
-        function sendFullReportToWA() {
-            const p1Text = buildPage1PlainText();
-            const hodoLines = hodographRows.map(r =>
-                `${r.no}. ${r.heightFt}ft | ${String(r.dir).padStart(3, '0')}/${String(r.speedKt).padStart(2, '0')} | U:${r.u.toFixed(2)} V:${r.v.toFixed(2)}${r.vb ? ' | ' + r.vb + ' (' + r.adveksi + ')' : ''}`
-            ).join('\n');
-
-            const fullMsg = `*LAPORAN HASIL PENGAMATAN PIBAL*\n` +
-                `\`\`\`\n${p1Text}\n\`\`\`\n` +
-                `*TABEL HODOGRAPH (BBS):*\n` +
-                `\`\`\`\n${hodoLines}\n\`\`\``;
-
-            window.open(`https://wa.me/?text=${encodeURIComponent(fullMsg)}`, '_blank');
-        }
-
         function saveReportAsPDFSafe() {
             const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
             const hourVal = document.getElementById('obs-hour')?.value || '00';
@@ -2812,7 +2861,7 @@
             try {
                 window.print();
             } catch (e) {
-                showToast('Gunakan tombol Kirim ke WA untuk membuka & simpan PDF di PC.', 'info');
+                openInChromeForFileShare();
             }
             setTimeout(() => { document.title = origTitle; }, 1500);
         }
@@ -2834,7 +2883,7 @@
             const script = `(function(){const sd=${JSON.stringify(surfDir)},ss=${JSON.stringify(surfSpd)},d=${JSON.stringify(pairs)};const setVal=(el,val)=>{if(!el)return;el.focus();const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.blur();};const vis=Array.from(document.querySelectorAll('input')).filter(i=>!i.disabled&&!i.readOnly&&i.type!=='hidden'&&i.offsetParent!==null);const hRect=(rx)=>{const els=Array.from(document.querySelectorAll('th,td,div,span,label,p,b,strong')).filter(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);return els.length?els[0].getBoundingClientRect():null;};const azR=hRect(/^azimu[th]?$/i),elR=hRect(/^eleva[st]i(on)?$/i);if(azR&&elR){const azCx=azR.left+azR.width/2,elCx=elR.left+elR.width/2;const azIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>azR.bottom-5&&Math.abs((r.left+r.width/2)-azCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);const elIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>elR.bottom-5&&Math.abs((r.left+r.width/2)-elCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);d.forEach((v,idx)=>{if(azIn[idx])setVal(azIn[idx],v[0]);if(elIn[idx])setVal(elIn[idx],v[1]);});}const fillLbl=(rx,val)=>{if(!val)return;const lbl=Array.from(document.querySelectorAll('label,div,span')).find(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);if(!lbl)return;const lr=lbl.getBoundingClientRect();const t=vis.find(i=>{const r=i.getBoundingClientRect();return Math.abs(r.top-lr.top)<35&&r.left>lr.left;});if(t&&!t.value)setVal(t,val);};fillLbl(/arah angin perm/i,sd);fillLbl(/kec angin perm/i,ss);const dt=document.querySelector('input[type="date"]');const okDt=dt?Boolean(dt.value):true;const btn=Array.from(document.querySelectorAll('button,input[type="button"],input[type="submit"]')).find(b=>(b.innerText||b.value||'').trim().toLowerCase()==='submit');if(btn&&okDt){setTimeout(()=>btn.click(),350);console.log('Azimut & Elevasi terisi + Submit diklik! Cek sandi lalu klik Send manual.');}else{console.log('Azimut & Elevasi terisi! Pilih Observer, Tanggal & Jam terlebih dahulu lalu klik Submit.');}})();`;
 
             copyToClipboardSafe(script, 'Script disalin & membuka WhatsApp...');
-            window.open(`https://wa.me/?text=${encodeURIComponent(script)}`, '_blank');
+            openWhatsAppTextDirect(script);
         }
 
         function copyAzElTabular() {
