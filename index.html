@@ -1,0 +1,2468 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1528">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PIBAL-RM BIMA">
+    <title>PIBAL-RM BIMA | Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</title>
+
+    <!-- Dynamic PWA Manifest & Icon -->
+    <link id="pwa-manifest" rel="manifest" href="">
+    <link id="pwa-apple-icon" rel="apple-touch-icon" href="">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js untuk ekspor PDF langsung di HP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            950: '#060c18',
+                            900: '#0b1528',
+                            800: '#112240',
+                            700: '#1d3557',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        input, select, textarea {
+            user-select: text;
+        }
+        .numpad-btn {
+            transition: transform 0.08s ease, background-color 0.1s ease;
+        }
+        .numpad-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ========================================================= */
+        /* HIGH-CONTRAST OUTDOOR DAYLIGHT MODE (DEFAULT FOR FIELD)   */
+        /* ========================================================= */
+        html:not(.dark) body {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) .bg-navy-950,
+        html:not(.dark) .bg-navy-950\/90,
+        html:not(.dark) .bg-navy-950\/70 {
+            background-color: #f8fafc !important;
+        }
+        html:not(.dark) .bg-navy-900,
+        html:not(.dark) .bg-navy-900\/95 {
+            background-color: #ffffff !important;
+        }
+        html:not(.dark) .bg-navy-800 {
+            background-color: #f1f5f9 !important;
+        }
+        html:not(.dark) .border-slate-800,
+        html:not(.dark) .border-slate-800\/80,
+        html:not(.dark) .border-slate-800\/60,
+        html:not(.dark) .border-slate-700,
+        html:not(.dark) .border-slate-700\/70 {
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) .text-white {
+            color: #0f172a !important;
+        }
+        html:not(.dark) .text-slate-100,
+        html:not(.dark) .text-slate-200,
+        html:not(.dark) .text-slate-300 {
+            color: #1e293b !important;
+        }
+        html:not(.dark) .text-slate-400,
+        html:not(.dark) .text-slate-500 {
+            color: #475569 !important;
+        }
+        html:not(.dark) .text-sky-400,
+        html:not(.dark) .text-sky-300 {
+            color: #0284c7 !important;
+        }
+        html:not(.dark) .text-emerald-400,
+        html:not(.dark) .text-emerald-300 {
+            color: #059669 !important;
+        }
+        html:not(.dark) .text-amber-400,
+        html:not(.dark) .text-amber-300 {
+            color: #d97706 !important;
+        }
+        html:not(.dark) .bg-emerald-950\/60 {
+            background-color: #ecfdf5 !important;
+        }
+        html:not(.dark) .bg-rose-950\/50,
+        html:not(.dark) .bg-rose-950\/60 {
+            background-color: #fff1f2 !important;
+        }
+        html:not(.dark) .text-rose-300,
+        html:not(.dark) .text-rose-400 {
+            color: #e11d48 !important;
+        }
+        html:not(.dark) .bg-sky-950\/70 {
+            background-color: #e0f2fe !important;
+        }
+        html:not(.dark) .bg-sky-500,
+        html:not(.dark) .bg-emerald-500,
+        html:not(.dark) .bg-amber-500,
+        html:not(.dark) .bg-rose-500 {
+            color: #ffffff !important;
+        }
+        html:not(.dark) .bg-gradient-to-br.from-sky-500.to-blue-700 i {
+            color: #ffffff !important;
+        }
+
+        /* Official Print Styles Fallback */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                max-width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            #tab-report {
+                display: block !important;
+            }
+            .print-card {
+                background: white !important;
+                border: 1px solid #94a3b8 !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            textarea {
+                background: #f8fafc !important;
+                color: black !important;
+                border: 1px solid #64748b !important;
+            }
+            table th, table td {
+                border: 1px solid #64748b !important;
+                color: black !important;
+                padding: 4px 6px !important;
+                font-size: 11px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans min-h-screen flex flex-col max-w-xl mx-auto shadow-2xl border-x border-slate-800/60">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 inset-x-3 z-50 flex flex-col items-center gap-2 pointer-events-none max-w-md mx-auto"></div>
+
+    <!-- Official Print Header (Only visible when printing via browser print) -->
+    <div class="hidden print-only border-b-2 border-black pb-3 mb-4 text-center">
+        <h2 class="text-xs font-bold uppercase tracking-wider">Badan Meteorologi, Klimatologi, dan Geofisika</h2>
+        <h1 class="text-base font-extrabold uppercase">Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</h1>
+        <p class="text-[11px]">Jl. Sultan Muhammad Salahuddin, Bandara Muhammad Salahuddin, Bima - NTB | WMO ID: <span id="print-wmo">97270</span></p>
+        <div class="mt-2 pt-2 border-t border-slate-400 flex justify-between text-xs font-bold">
+            <span>LAPORAN PENGAMATAN UDARA ATAS (PIBAL)</span>
+            <span id="print-meta-summary"></span>
+        </div>
+    </div>
+
+    <!-- Mobile App Top Header -->
+    <header class="bg-navy-900 border-b border-slate-800 sticky top-0 z-40 shadow-md no-print">
+        <div class="px-3.5 py-2.5 flex items-center justify-between gap-2">
+            <!-- Branding -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center shadow-sm shrink-0">
+                    <i class="fa-solid fa-wind text-white text-base"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                        <h1 class="font-extrabold text-sm sm:text-base tracking-tight text-white truncate">PIBAL-RM <span class="text-sky-400">BIMA</span></h1>
+                        <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded shrink-0">BMKG</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-semibold truncate">Stamet Sultan Muhammad Salahuddin Bima</p>
+                </div>
+            </div>
+
+            <!-- Compact Controls: Theme + WakeLock + Clock -->
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="toggleOutdoorTheme()" id="theme-toggle-btn" title="Ganti Tema Siang (Outdoor) / Malam" class="w-8 h-8 rounded-xl bg-navy-950 border border-slate-800 flex items-center justify-center text-amber-400 hover:border-sky-500 transition">
+                    <i id="theme-toggle-icon" class="fa-solid fa-sun text-xs"></i>
+                </button>
+
+                <button onclick="toggleWakeLockManual()" id="wakelock-badge" title="Kunci Layar Tetap Nyala" class="h-8 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center gap-1.5 transition">
+                    <span id="wakelock-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="wakelock-text" class="text-[10px] font-extrabold text-amber-400 tracking-wide">ON</span>
+                </button>
+
+                <div class="bg-navy-950 border border-slate-800 rounded-xl px-2.5 py-1 text-right">
+                    <div id="clock-utc" class="font-mono text-[11px] font-extrabold text-sky-400 leading-tight">--:--:-- UTC</div>
+                    <div id="clock-wita" class="font-mono text-[9px] font-semibold text-slate-400 leading-tight">--:--:-- WITA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-Step Mobile Navigation Tabs -->
+        <nav class="px-3 pb-2 grid grid-cols-3 gap-1.5">
+            <button onclick="switchTab('setup')" id="tab-btn-setup" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all bg-sky-500 text-navy-950 shadow-md">
+                <i class="fa-solid fa-sliders"></i>
+                <span>1. Setup</span>
+            </button>
+            <button onclick="switchTab('observe')" id="tab-btn-observe" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+                <i class="fa-solid fa-stopwatch"></i>
+                <span>2. Rekam</span>
+            </button>
+            <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+                <i class="fa-solid fa-file-code"></i>
+                <span>3. Sandi</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-3 py-3.5 pb-16 space-y-3.5">
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: SETUP & NIVO DIGITAL                               -->
+        <!-- ========================================================= -->
+        <section id="tab-setup" class="space-y-3.5 no-print">
+
+            <!-- Digital Waterpass / Nivo Card -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-emerald-400"></i>
+                        <h2 class="font-bold text-sm text-white">Nivo Digital &amp; Orientasi Sensor HP</h2>
+                    </div>
+                    <span id="sensor-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400">STANDBY</span>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Bubble Level Visual -->
+                    <div class="relative w-28 h-28 rounded-full bg-navy-950 border-4 border-slate-700 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
+                        <div class="absolute inset-x-0 h-[1px] bg-slate-700/80"></div>
+                        <div class="absolute inset-y-0 w-[1px] bg-slate-700/80"></div>
+                        <div class="w-9 h-9 rounded-full border-2 border-emerald-500/60 z-10 flex items-center justify-center">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400/50"></div>
+                        </div>
+                        <div id="waterpass-bubble" class="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-300 shadow-lg shadow-emerald-500/40 absolute transition-transform duration-75 ease-out opacity-95 border border-white/50" style="transform: translate(0px, 0px);"></div>
+                    </div>
+
+                    <!-- Readouts & Action Buttons -->
+                    <div class="flex-1 space-y-2 min-w-0">
+                        <div id="level-indicator-text" class="text-[11px] font-extrabold text-emerald-400 truncate">POSISI DATAR (LEVEL OK)</div>
+                        
+                        <div class="grid grid-cols-3 gap-1.5 text-center">
+                            <div class="bg-navy-950 border border-slate-800 rounded-lg py-1.5 px-1">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase">Azimuth</div>
+                                <div id="sensor-azimuth" class="font-mono text-xs font-extrabold text-sky-400">0.0°</div>
+                            </div>
+                            <div class="bg-navy-950 border border-slate-800 rounded-lg py-1.5 px-1">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase">Pitch</div>
+                                <div id="sensor-pitch" class="font-mono text-xs font-extrabold text-emerald-400">0.0°</div>
+                            </div>
+                            <div class="bg-navy-950 border border-slate-800 rounded-lg py-1.5 px-1">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase">Roll</div>
+                                <div id="sensor-roll" class="font-mono text-xs font-extrabold text-amber-400">0.0°</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+                            <button onclick="activateRealSensors()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                                <span>Aktifkan</span>
+                            </button>
+                            <button onclick="calibrateZeroOffset()" class="bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-2.5 px-2 rounded-xl transition flex items-center justify-center gap-1 shadow">
+                                <i class="fa-solid fa-crosshairs"></i>
+                                <span>Set Nol</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostic Info Bar -->
+                <div class="bg-navy-950/90 border border-slate-800/80 rounded-xl px-3 py-1.5 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <span id="sensor-source-diag">Sumber Sensor: Menunggu Aktivasi</span>
+                    <span id="calibration-info">Offset: 0.0° / 0.0°</span>
+                </div>
+            </div>
+
+            <!-- Observation Metadata Form Card -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-sky-400"></i>
+                        <h2 class="font-bold text-sm text-white">Parameter Pengamatan PIBAL</h2>
+                    </div>
+                    <button onclick="autoDetectSynoptic()" class="text-[11px] bg-navy-800 hover:bg-slate-700 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-700 font-bold transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Auto Jam
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- Stasiun -->
+                    <div class="col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nama Stasiun Meteorologi</label>
+                        <input type="text" id="obs-station" value="Stamet Sultan Muhammad Salahuddin Bima" readonly class="w-full bg-navy-950/70 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 focus:outline-none">
+                    </div>
+
+                    <!-- WMO ID -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nomor Stasiun (WMO ID)</label>
+                        <input type="text" id="obs-wmo" value="97270" maxlength="5" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                    </div>
+
+                    <!-- Nama Observer -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nama Observer / Pengamat</label>
+                        <input type="text" id="obs-name" list="observer-history-list" placeholder="Ketik nama pengamat..." value="" onchange="onObserverNameCommit();" onblur="onObserverNameCommit();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-sky-500">
+                        <datalist id="observer-history-list"></datalist>
+                    </div>
+
+                    <!-- Jejak Nama Observer (Quick-Select Chips) -->
+                    <div id="observer-chips-wrapper" class="col-span-2 hidden bg-navy-950/80 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-slate-400"><i class="fa-solid fa-user-check text-sky-400 mr-1"></i>Jejak Nama Observer (Ketuk untuk pilih):</span>
+                            <span class="text-[9px] text-slate-500">Otomatis tersimpan</span>
+                        </div>
+                        <div id="observer-chips-container" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+
+                    <!-- Tanggal -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tanggal Pengamatan (UTC)</label>
+                        <input type="date" id="obs-date" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium text-white focus:outline-none focus:border-sky-500">
+                    </div>
+
+                    <!-- Jam Sinoptik -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Jam Pengamatan (UTC)</label>
+                        <select id="obs-hour" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-sky-400 focus:outline-none focus:border-sky-500">
+                            <option value="00">00 UTC (08:00 WITA)</option>
+                            <option value="06">06 UTC (14:00 WITA)</option>
+                            <option value="12">12 UTC (20:00 WITA)</option>
+                            <option value="18">18 UTC (02:00 WITA)</option>
+                        </select>
+                    </div>
+
+                    <!-- Pengaturan Jeda Pembacaan Pertama -->
+                    <div class="col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Waktu Pembacaan Pertama Setelah Lepas Balon</label>
+                        <select id="first-read-delay" onchange="saveToLocalStorage(); updateTimerDisplay();" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-amber-400 focus:outline-none focus:border-sky-500">
+                            <option value="90" selected>01:30 (90 Detik - Jeda Awal, lanjut tiap 1 Menit)</option>
+                            <option value="60">01:00 (60 Detik - Standar BMKGSatu, lanjut tiap 1 Menit)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Surface Wind (Menit ke-0) -->
+                <div class="bg-navy-950/90 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-sky-400 uppercase tracking-wider"><i class="fa-solid fa-gauge-high mr-1"></i>Angin Permukaan (Surface)</span>
+                        <span class="text-[10px] text-slate-400">Anemometer</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Arah Angin (0 - 360°)</label>
+                            <input type="number" id="surface-dir" value="170" min="0" max="360" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Kecepatan (Knot)</label>
+                            <input type="number" id="surface-spd" value="6" min="0" max="150" onchange="saveToLocalStorage(); recalculateAll();" class="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-white focus:outline-none focus:border-sky-500">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="onObserverNameCommit(); switchTab('observe');" class="w-full bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-sm py-3.5 rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition">
+                    <span>Mulai Pengamatan Lapangan</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <!-- PWA Install App Card -->
+                <div id="install-app-card" class="bg-sky-950/70 border border-sky-500/40 rounded-xl p-3 flex items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 shrink-0">
+                            <i class="fa-solid fa-mobile-screen-button text-base"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-xs font-extrabold text-white truncate">Pasang ke Layar Utama HP</div>
+                            <div class="text-[10px] text-slate-400 truncate">Tampilan layar penuh &amp; bisa offline</div>
+                        </div>
+                    </div>
+                    <button onclick="installPWAApp()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow shrink-0 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Install App</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: REKAM DATA (TIMER + AUTO/MANUAL + TABEL)           -->
+        <!-- ========================================================= -->
+        <section id="tab-observe" class="hidden space-y-3.5 no-print">
+
+            <!-- Compact Stopwatch Card -->
+            <div id="timer-box" class="bg-navy-900 border-2 border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-3 transition-colors duration-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-stopwatch mr-1 text-amber-400"></i>Timer Pembacaan</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-bold text-sky-400">Target: Bacaan <span id="target-minute-label">1</span> (<span id="target-time-label">01:30</span>)</span>
+                        <button onclick="toggleAudioMute()" id="btn-audio-toggle" class="text-[11px] bg-navy-950 border border-slate-700 px-2 py-0.5 rounded-lg text-emerald-400 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span>Beep</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-navy-950 border border-slate-800/80 rounded-xl px-3.5 py-2.5">
+                    <div>
+                        <div id="stopwatch-display" class="font-mono text-4xl font-extrabold text-white tracking-tight">00:00</div>
+                        <div id="timer-status-text" class="text-[11px] font-semibold text-slate-400 mt-0.5">Siap Lepas Balon</div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="startTimer()" id="btn-timer-start" class="bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-play"></i>
+                            <span>LEPAS BALON</span>
+                        </button>
+                        <button onclick="pauseTimer()" id="btn-timer-pause" class="hidden bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-pause"></i>
+                            <span>PAUSE</span>
+                        </button>
+                        <button onclick="stopAndFinishObservation()" id="btn-timer-stop" title="Selesai Merekam & Buka Sandi" class="hidden bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-rose-500/20 flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                            <span>SELESAI</span>
+                        </button>
+                        <button onclick="resetTimerConfirm()" title="Reset Timer" class="bg-navy-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-400 border border-slate-700 font-bold text-xs p-3 rounded-xl transition">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interval Progress Bar -->
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="minute-progress-bar" class="bg-sky-500 h-full transition-all duration-200" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Mode Toggle Switch (Auto Sensor HP vs Input Manual) -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 shadow-lg">
+                <button onclick="setRecordMode('auto')" id="mode-btn-auto" class="py-2.5 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-navy-950 shadow-md">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                    <span>Auto Sensor HP</span>
+                </button>
+                <button onclick="setRecordMode('manual')" id="mode-btn-manual" class="py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all text-slate-400 hover:bg-navy-800 hover:text-white">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span>Input Manual</span>
+                </button>
+            </div>
+
+            <!-- Panel A: AUTO SENSOR HP MODE (Azimuth Kiri, Elevasi Kanan) -->
+            <div id="panel-mode-auto" class="bg-navy-900 border border-emerald-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
+                <div id="auto-capture-banner" class="bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-2.5 flex items-center justify-between transition-all">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i class="fa-solid fa-bolt text-emerald-400 text-sm shrink-0"></i>
+                        <div class="min-w-0">
+                            <div id="auto-banner-title" class="text-[11px] font-extrabold text-emerald-300 truncate">REKAM OTOMATIS TIAP PEMBACAAN AKTIF</div>
+                            <div id="auto-banner-sub" class="text-[10px] text-slate-300 truncate">Bacaan 1 di 01:30, lalu otomatis tiap 1 menit berikutnya.</div>
+                        </div>
+                    </div>
+                    <span class="font-mono text-[11px] font-extrabold bg-navy-950 text-emerald-400 px-2 py-0.5 rounded-lg border border-emerald-500/30 shrink-0">BACA <span id="auto-next-min-badge">1</span></span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-navy-950 border-2 border-sky-500/50 rounded-xl p-3 text-center">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 block">Live Azimuth (Kiri)</span>
+                        <div id="live-auto-az" class="font-mono text-3xl font-extrabold text-white my-1">0.0°</div>
+                    </div>
+                    <div class="bg-navy-950 border-2 border-emerald-500/50 rounded-xl p-3 text-center">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Live Elevasi (Kanan)</span>
+                        <div id="live-auto-el" class="font-mono text-3xl font-extrabold text-white my-1">0.0°</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="skipFirstReading9999()" title="Isi Bacaan 1 dengan 9999 (seperti BMKGSatu)" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-[11px] py-3 px-2 rounded-xl transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span>Skip 1 (9999)</span>
+                    </button>
+                    <button onclick="triggerAutoRecordNow(true)" class="col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>Rekam Sekarang (Bacaan <span id="btn-auto-now-min">1</span>)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel B: INPUT MANUAL NUMPAD MODE (Azimuth Kiri, Elevasi Kanan) -->
+            <div id="panel-mode-manual" class="hidden bg-navy-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-2.5">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-lg bg-amber-500 text-navy-950 font-extrabold text-xs">PEMBACAAN KE-<span id="input-minute-badge">1</span></span>
+                        <span class="text-[11px] text-slate-400 font-mono" id="input-height-preview">500 ft</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="skipFirstReading9999()" class="px-2 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-amber-400 text-[10px] font-bold border border-slate-700 mr-1">9999</button>
+                        <button onclick="changeEditingMinute(-1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="changeEditingMinute(1)" class="w-7 h-7 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Dual Input Boxes: Azimuth Kiri, Elevasi Kanan -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div onclick="setActiveField('azimuth')" id="field-box-azimuth" class="cursor-pointer bg-navy-950 border-2 border-sky-500 rounded-xl p-2.5 transition">
+                        <span class="text-[10px] font-bold uppercase text-sky-400 block">1. Azimuth (0-360°)</span>
+                        <div class="font-mono text-2xl font-extrabold text-white mt-0.5 h-8 flex items-center">
+                            <span id="val-azimuth"></span><span class="animate-pulse text-sky-400 ml-0.5" id="cursor-azimuth">|</span>
+                        </div>
+                    </div>
+
+                    <div onclick="setActiveField('elevation')" id="field-box-elevation" class="cursor-pointer bg-navy-950 border-2 border-slate-800 rounded-xl p-2.5 transition">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 block" id="label-elevation">2. Elevasi (0-90°)</span>
+                        <div class="font-mono text-2xl font-extrabold text-white mt-0.5 h-8 flex items-center">
+                            <span id="val-elevation"></span><span class="hidden animate-pulse text-sky-400 ml-0.5" id="cursor-elevation">|</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Large Anti-Typo Numpad -->
+                <div class="grid grid-cols-4 gap-1.5">
+                    <button onclick="numpadPress('7')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">7</button>
+                    <button onclick="numpadPress('8')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">8</button>
+                    <button onclick="numpadPress('9')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">9</button>
+                    <button onclick="numpadBackspace()" class="numpad-btn bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 font-bold text-base py-3 rounded-xl border border-rose-800/50 flex items-center justify-center"><i class="fa-solid fa-delete-left"></i></button>
+
+                    <button onclick="numpadPress('4')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">4</button>
+                    <button onclick="numpadPress('5')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">5</button>
+                    <button onclick="numpadPress('6')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">6</button>
+                    <button onclick="numpadClear()" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] py-3 rounded-xl border border-slate-700">CLEAR</button>
+
+                    <button onclick="numpadPress('1')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">1</button>
+                    <button onclick="numpadPress('2')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">2</button>
+                    <button onclick="numpadPress('3')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">3</button>
+                    <button onclick="switchActiveField()" class="numpad-btn bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 font-bold text-[11px] py-3 rounded-xl border border-sky-700/50">NEXT <i class="fa-solid fa-arrow-right-arrow-left ml-0.5"></i></button>
+
+                    <button onclick="numpadPress('0')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">0</button>
+                    <button onclick="numpadPress('.')" class="numpad-btn bg-navy-800 hover:bg-slate-700 text-white font-mono text-xl font-bold py-3 rounded-xl border border-slate-700/70">.</button>
+                    <button onclick="saveMinuteReading()" class="numpad-btn col-span-2 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>SIMPAN BACAAN <span id="btn-save-min-num">1</span></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recorded Observations Table Card (Azimuth Kiri, Elevasi Kanan) -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-table-list text-sky-400 text-xs"></i>
+                        <h3 class="font-bold text-xs text-white">Hasil Rekam (<span id="total-minutes-count">0</span> Bacaan)</h3>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="loadSampleData()" class="text-[10px] bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg font-bold transition">
+                            Data BMKGSatu
+                        </button>
+                        <button onclick="clearAllReadings()" class="text-[10px] bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 px-2 py-1 rounded-lg font-bold transition">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left border-collapse font-mono text-[11px]">
+                        <thead>
+                            <tr class="bg-navy-950 text-slate-400 border-b border-slate-800 text-[10px]">
+                                <th class="py-2 px-2">No</th>
+                                <th class="py-2 px-2 text-sky-400">Azimuth</th>
+                                <th class="py-2 px-2 text-emerald-400">Elevasi</th>
+                                <th class="py-2 px-2">Level</th>
+                                <th class="py-2 px-2 text-sky-400">Arah</th>
+                                <th class="py-2 px-2 text-amber-400">Kec</th>
+                                <th class="py-2 px-1.5 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="plotting-table-body" class="divide-y divide-slate-800/70"></tbody>
+                    </table>
+                </div>
+                <p class="text-[10px] text-slate-400">* Sesuai standar BMKGSatu, arah &amp; kecepatan angin (`dddff`) dihitung setiap 2 kali pembacaan (kelipatan 1.000 ft).</p>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: SANDI PILOT FM 32, GRAFIK & EKSPOR                 -->
+        <!-- ========================================================= -->
+        <section id="tab-report" class="hidden space-y-3.5">
+
+            <!-- Sandi PILOT FM 32 Generator Card -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 print-card">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-terminal text-emerald-400"></i>
+                        <h2 class="font-bold text-sm text-white">Sandi PILOT (FM 32) Standar BMKG</h2>
+                    </div>
+                    <span class="text-[10px] font-mono bg-navy-950 text-sky-400 px-2 py-0.5 rounded border border-slate-800">PPAA &amp; PPBB</span>
+                </div>
+
+                <textarea id="pilot-code-output" rows="8" readonly class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3 font-mono text-xs sm:text-sm font-bold text-emerald-400 leading-relaxed focus:outline-none"></textarea>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 no-print">
+                    <button onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Salin Sandi</span>
+                    </button>
+                    <button onclick="shareToWhatsApp()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>WA Az &amp; El</span>
+                    </button>
+                    <button onclick="exportToCSV()" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Unduh CSV</span>
+                    </button>
+                    <button onclick="exportToPDF()" class="bg-navy-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                        <span>Unduh PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Auto-Input BMKGSoft / BMKGSatu Helper Card (Langsung Kirim Script ke WA) -->
+            <div class="bg-navy-900 border border-sky-500/40 rounded-2xl p-4 shadow-xl space-y-2.5 no-print">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-sky-400"></i>
+                        <h3 class="font-bold text-xs text-white">Auto-Input ke BMKGSoft / BMKGSatu (+ Submit)</h3>
+                    </div>
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">TANPA SEND</span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Ketuk <b>Kirim Script ke WA</b> untuk langsung mengirim kode otomatis ke WhatsApp. Di PC, buka WA Web → salin kode tersebut → buka halaman input PIBAL <b>BMKGSoft</b> → tekan <b>F12 → Console</b> → tempel (<b>Ctrl+V</b>) → <b>Enter</b>. Kolom Azimuth &amp; Elevasi otomatis terisi dan tombol <b>Submit</b> terklik (tombol <b>Send</b> tetap diklik observer).
+                </p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="sendBMKGSoftScriptToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Kirim Script ke WA</span>
+                    </button>
+                    <button onclick="copyAzElTabular()" class="bg-navy-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-table-columns"></i>
+                        <span>Salin Data Az &amp; El</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Standard Aviation Levels Table (Tiap 2 Pembacaan / 1.000 ft) -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5 print-card">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i>
+                        <span>Lapisan Ketinggian Standar (Tiap 2 Pembacaan)</span>
+                    </h3>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left border-collapse font-mono text-[11px]">
+                        <thead>
+                            <tr class="bg-navy-950 text-slate-400 border-b border-slate-800 text-[10px]">
+                                <th class="py-2 px-2.5">Level</th>
+                                <th class="py-2 px-2.5">Bacaan</th>
+                                <th class="py-2 px-2.5 text-sky-400">Arah</th>
+                                <th class="py-2 px-2.5 text-amber-400">Kec</th>
+                                <th class="py-2 px-2.5 text-emerald-400">dddff</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standard-levels-body" class="divide-y divide-slate-800/70"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vertical Wind Profile Chart -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2 no-print">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line text-sky-400"></i>
+                        <span>Profil Angin Vertikal &amp; Vektor Arah</span>
+                    </h3>
+                    <span class="text-[10px] text-slate-400">Kecepatan (kt) vs Level (ft)</span>
+                </div>
+                <div class="w-full h-64 bg-navy-950 border border-slate-800 rounded-xl p-2">
+                    <canvas id="wind-profile-canvas" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <!-- Riwayat Pengamatan Sebelumnya (3 Sesi Terakhir) -->
+            <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 no-print">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
+                        <h3 class="font-bold text-xs text-white">Riwayat Pengamatan (3 Sesi Terakhir)</h3>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Otomatis tersimpan</span>
+                </div>
+                <div id="history-list-container" class="space-y-2">
+                    <p class="text-xs text-slate-500 text-center py-3">Belum ada riwayat sesi yang diselesaikan.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4 no-print">
+        <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
+            <h3 id="modal-title" class="text-base font-extrabold text-white">Konfirmasi</h3>
+            <p id="modal-message" class="text-xs text-slate-300 leading-relaxed"></p>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="closeModal()" class="py-2.5 px-3 rounded-xl bg-navy-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">Batal</button>
+                <button id="modal-confirm-btn" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs transition">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-900 border-t border-slate-800 py-3 px-4 text-center text-[11px] text-slate-500 no-print">
+        <p>PIBAL-RM BIMA &bull; Operasional Pengamatan Udara Atas &bull; <span class="text-slate-400 font-semibold">Stasiun Meteorologi Sultan Muhammad Salahuddin Bima</span></p>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // =========================================================================
+        // 1. PWA MANIFEST, SVG ICON & OFFLINE SERVICE WORKER SETUP
+        // =========================================================================
+        let deferredPrompt = null;
+
+        function initPWA() {
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <defs>
+                    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#0b1528"/>
+                        <stop offset="100%" stop-color="#0ea5e9"/>
+                    </linearGradient>
+                </defs>
+                <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+                <circle cx="256" cy="200" r="115" fill="#f59e0b"/>
+                <path d="M236 312 L276 312 L266 342 L246 342 Z" fill="#e2e8f0"/>
+                <line x1="256" y1="342" x2="256" y2="395" stroke="#94a3b8" stroke-width="6"/>
+                <rect x="234" y="395" width="44" height="32" rx="6" fill="#38bdf8"/>
+                <text x="256" y="476" font-family="sans-serif" font-weight="bold" font-size="38" fill="#ffffff" text-anchor="middle">PIBAL-RM</text>
+            </svg>`;
+            const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+
+            const appleIconEl = document.getElementById('pwa-apple-icon');
+            if (appleIconEl) appleIconEl.href = iconUrl;
+
+            const manifestObj = {
+                name: 'PIBAL-RM BIMA - Stamet Sultan Muhammad Salahuddin Bima',
+                short_name: 'PIBAL-RM BIMA',
+                description: 'Aplikasi Pencatatan Data Pengamatan Udara Atas (PIBAL) Stasiun Meteorologi Sultan Muhammad Salahuddin Bima',
+                start_url: './',
+                display: 'standalone',
+                background_color: '#060c18',
+                theme_color: '#0b1528',
+                orientation: 'portrait',
+                icons: [
+                    { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+                    { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+                ]
+            };
+
+            const manifestUrl = 'data:application/manifest+json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(manifestObj))));
+            const manifestEl = document.getElementById('pwa-manifest');
+            if (manifestEl) manifestEl.href = manifestUrl;
+
+            if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+                const swCode = `
+                    const CACHE_NAME = 'pibal-rm-bima-v4';
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).then(res => {
+                                const resClone = res.clone();
+                                caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+                                return res;
+                            }).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const card = document.getElementById('install-app-card');
+                if (card) card.classList.remove('hidden');
+            });
+
+            window.addEventListener('appinstalled', () => {
+                deferredPrompt = null;
+                const card = document.getElementById('install-app-card');
+                if (card) card.classList.add('hidden');
+                showToast('Aplikasi PIBAL-RM BIMA berhasil terpasang di HP!', 'success');
+            });
+
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+                const card = document.getElementById('install-app-card');
+                if (card) card.classList.add('hidden');
+            }
+        }
+
+        async function installPWAApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredPrompt = null;
+                    const card = document.getElementById('install-app-card');
+                    if (card) card.classList.add('hidden');
+                }
+            } else {
+                showToast('Ketuk titik tiga (⋮) di pojok kanan atas Chrome lalu pilih "Tambahkan ke Layar Utama" / "Install app".', 'info');
+            }
+        }
+
+        // =========================================================================
+        // 2. OBSERVER NAME HISTORY ("JEJAK NAMA OBSERVER")
+        // =========================================================================
+        const OBSERVER_HISTORY_KEY = 'pibal_rm_bima_observers';
+
+        function getObserverHistory() {
+            try {
+                const raw = localStorage.getItem(OBSERVER_HISTORY_KEY);
+                const list = raw ? JSON.parse(raw) : [];
+                return Array.isArray(list) ? list : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveObserverHistory(list) {
+            try {
+                localStorage.setItem(OBSERVER_HISTORY_KEY, JSON.stringify(list.slice(0, 8)));
+            } catch (e) {}
+        }
+
+        function recordObserverName(rawName) {
+            const cleaned = (rawName || '').trim();
+            if (!cleaned) return;
+            const ignoredDefaults = ['observer', 'observer stamet bima'];
+            if (ignoredDefaults.includes(cleaned.toLowerCase())) return;
+
+            let list = getObserverHistory();
+            list = list.filter(n => n.toLowerCase() !== cleaned.toLowerCase());
+            list.unshift(cleaned);
+            saveObserverHistory(list);
+            renderObserverChips();
+        }
+
+        function onObserverNameCommit() {
+            const input = document.getElementById('obs-name');
+            if (!input) return;
+            recordObserverName(input.value);
+            saveToLocalStorage();
+            recalculateAll();
+        }
+
+        function selectObserverFromChip(name) {
+            const input = document.getElementById('obs-name');
+            if (!input) return;
+            input.value = name;
+            recordObserverName(name);
+            saveToLocalStorage();
+            recalculateAll();
+            showToast(`Observer dipilih: ${name}`, 'success');
+        }
+
+        function removeObserverFromHistory(name, event) {
+            if (event) event.stopPropagation();
+            let list = getObserverHistory();
+            list = list.filter(n => n.toLowerCase() !== name.toLowerCase());
+            saveObserverHistory(list);
+            renderObserverChips();
+            showToast(`Nama "${name}" dihapus dari jejak nama.`, 'info');
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderObserverChips() {
+            const wrapper = document.getElementById('observer-chips-wrapper');
+            const container = document.getElementById('observer-chips-container');
+            const datalist = document.getElementById('observer-history-list');
+            const currentVal = (document.getElementById('obs-name')?.value || '').trim().toLowerCase();
+            const list = getObserverHistory();
+
+            if (datalist) {
+                datalist.innerHTML = list.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+            }
+
+            if (!wrapper || !container) return;
+
+            if (list.length === 0) {
+                wrapper.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            wrapper.classList.remove('hidden');
+            container.innerHTML = list.map(name => {
+                const isSelected = currentVal && name.toLowerCase() === currentVal;
+                const safeArg = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                const activeClasses = isSelected
+                    ? 'bg-sky-500 text-navy-950 border-sky-400 font-extrabold shadow-sm'
+                    : 'bg-navy-800 hover:bg-slate-700 text-slate-200 border-slate-700 font-semibold';
+
+                return `
+                    <div onclick="selectObserverFromChip('${safeArg}')" class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition ${activeClasses}">
+                        <i class="fa-solid fa-user text-[10px] ${isSelected ? 'text-navy-950' : 'text-sky-400'}"></i>
+                        <span>${escapeHtml(name)}</span>
+                        <button type="button" onclick="removeObserverFromHistory('${safeArg}', event)" title="Hapus nama ini" class="ml-0.5 w-4 h-4 rounded-full inline-flex items-center justify-center hover:bg-black/20 text-[10px]">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // 3. STATE MANAGEMENT & SCREEN WAKE LOCK API
+        // =========================================================================
+        let readings = [];
+        let computedRows = [];
+        let standardLayers = [];
+        let isSessionCompleted = false;
+
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+        let isTimerRunning = false;
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        let wakeLockSentinel = null;
+        let keepAwakeDesired = true;
+
+        let recordMode = 'auto';
+        let activeInputField = 'azimuth';
+        let editingMinute = 1;
+        let currentInputs = { azimuth: '', elevation: '' };
+
+        let sensorActive = false;
+        let lockedSensorSource = null;
+        let rawSensor = { az: 0, pitch: 0, roll: 0 };
+        let offsetSensor = { az: 0, pitch: 0, roll: 0 };
+        let smoothedSensor = { az: 0, el: 0, pitch: 0, roll: 0 };
+        const SMOOTHING_ALPHA = 0.15;
+        const ASCENT_RATE_FT = 500;
+        const ASCENT_RATE_M = 152.4;
+
+        window.onload = function() {
+            initPWA();
+            initTheme();
+            initDateTime();
+            loadFromLocalStorage();
+            renderObserverChips();
+            renderHistoryList();
+            setRecordMode('auto');
+            updateNumpadUI();
+            updateTimerDisplay();
+            recalculateAll();
+            startClocks();
+            requestScreenWakeLock(false);
+        };
+
+        // =========================================================================
+        // 4. DAYLIGHT / NIGHT THEME & SCREEN WAKE LOCK
+        // =========================================================================
+        function initTheme() {
+            const savedTheme = localStorage.getItem('pibal_rm_bima_theme') || 'light';
+            applyTheme(savedTheme);
+        }
+
+        function toggleOutdoorTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const nextTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('pibal_rm_bima_theme', nextTheme);
+            applyTheme(nextTheme);
+            drawWindProfileChart();
+        }
+
+        function applyTheme(theme) {
+            const htmlEl = document.documentElement;
+            const iconEl = document.getElementById('theme-toggle-icon');
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+
+            if (theme === 'dark') {
+                htmlEl.classList.add('dark');
+                if (iconEl) iconEl.className = 'fa-solid fa-moon text-xs text-sky-400';
+                if (metaTheme) metaTheme.setAttribute('content', '#0b1528');
+            } else {
+                htmlEl.classList.remove('dark');
+                if (iconEl) iconEl.className = 'fa-solid fa-sun text-xs text-amber-500';
+                if (metaTheme) metaTheme.setAttribute('content', '#ffffff');
+            }
+        }
+
+        async function requestScreenWakeLock(showNotification = true) {
+            if (!keepAwakeDesired) return;
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLockSentinel = await navigator.wakeLock.request('screen');
+                    updateWakeLockUI(true);
+                    wakeLockSentinel.addEventListener('release', () => {
+                        updateWakeLockUI(false);
+                    });
+                    if (showNotification) showToast('Layar dikunci agar tetap menyala.', 'success');
+                }
+            } catch (e) {
+                updateWakeLockUI(false);
+            }
+        }
+
+        async function toggleWakeLockManual() {
+            if (wakeLockSentinel) {
+                keepAwakeDesired = false;
+                await wakeLockSentinel.release();
+                wakeLockSentinel = null;
+                updateWakeLockUI(false);
+                showToast('Kunci layar dimatikan.', 'info');
+            } else {
+                keepAwakeDesired = true;
+                await requestScreenWakeLock(true);
+            }
+        }
+
+        function updateWakeLockUI(isActive) {
+            const badge = document.getElementById('wakelock-badge');
+            const dot = document.getElementById('wakelock-dot');
+            const text = document.getElementById('wakelock-text');
+            if (!badge || !dot || !text) return;
+
+            if (isActive) {
+                badge.className = 'h-8 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center gap-1.5 transition';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+                text.textContent = 'ON';
+                text.className = 'text-[10px] font-extrabold text-amber-400 tracking-wide';
+            } else {
+                badge.className = 'h-8 px-2.5 rounded-xl bg-slate-800/50 border border-slate-700 flex items-center gap-1.5 transition';
+                dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+                text.textContent = 'OFF';
+                text.className = 'text-[10px] font-bold text-slate-400 tracking-wide';
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && keepAwakeDesired) {
+                requestScreenWakeLock(false);
+            }
+        });
+
+        // =========================================================================
+        // 5. DATE, UTC/WITA CLOCKS & SYNOPTIC HOUR AUTO-DETECT
+        // =========================================================================
+        function initDateTime() {
+            const now = new Date();
+            const yyyy = now.getUTCFullYear();
+            const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(now.getUTCDate()).padStart(2, '0');
+            const dateInput = document.getElementById('obs-date');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = `${yyyy}-${mm}-${dd}`;
+            }
+            autoDetectSynoptic(false);
+        }
+
+        function autoDetectSynoptic(notify = true) {
+            const now = new Date();
+            const utcHour = now.getUTCHours();
+            const synopticHours = [0, 6, 12, 18];
+            let nearest = 0;
+            let minDiff = 24;
+
+            synopticHours.forEach(h => {
+                let diff = Math.abs(utcHour - h);
+                if (diff > 12) diff = 24 - diff;
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nearest = h;
+                }
+            });
+
+            const hourSelect = document.getElementById('obs-hour');
+            if (hourSelect) {
+                hourSelect.value = String(nearest).padStart(2, '0');
+                saveToLocalStorage();
+                recalculateAll();
+                if (notify) showToast(`Jam sinoptik otomatis diatur ke ${hourSelect.value} UTC.`, 'info');
+            }
+        }
+
+        function startClocks() {
+            const updateClocks = () => {
+                const now = new Date();
+                const utcH = String(now.getUTCHours()).padStart(2, '0');
+                const utcM = String(now.getUTCMinutes()).padStart(2, '0');
+                const utcS = String(now.getUTCSeconds()).padStart(2, '0');
+
+                const witaTime = new Date(now.getTime() + 8 * 3600 * 1000);
+                const witaH = String(witaTime.getUTCHours()).padStart(2, '0');
+                const witaM = String(witaTime.getUTCMinutes()).padStart(2, '0');
+                const witaS = String(witaTime.getUTCSeconds()).padStart(2, '0');
+
+                const utcEl = document.getElementById('clock-utc');
+                const witaEl = document.getElementById('clock-wita');
+                if (utcEl) utcEl.textContent = `${utcH}:${utcM}:${utcS} UTC`;
+                if (witaEl) witaEl.textContent = `${witaH}:${witaM}:${witaS} WITA`;
+            };
+            updateClocks();
+            setInterval(updateClocks, 1000);
+        }
+
+        // =========================================================================
+        // 6. TAB NAVIGATION
+        // =========================================================================
+        function switchTab(tabName) {
+            const tabs = ['setup', 'observe', 'report'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (!sec || !btn) return;
+
+                if (t === tabName) {
+                    sec.classList.remove('hidden');
+                    btn.className = 'tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all bg-sky-500 text-navy-950 shadow-md';
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = 'tab-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-navy-800 hover:text-white';
+                }
+            });
+
+            if (tabName === 'report') {
+                recalculateAll();
+                setTimeout(drawWindProfileChart, 50);
+            }
+        }
+
+        // =========================================================================
+        // 7. DIGITAL WATERPASS & MULTI-SENSOR ANDROID
+        // =========================================================================
+        async function activateRealSensors() {
+            const badge = document.getElementById('sensor-status-badge');
+            const diag = document.getElementById('sensor-source-diag');
+            lockedSensorSource = null;
+
+            try {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const res = await DeviceOrientationEvent.requestPermission();
+                    if (res !== 'granted') {
+                        showToast('Izin sensor ditolak oleh browser.', 'error');
+                        return;
+                    }
+                }
+
+                window.removeEventListener('deviceorientationabsolute', handleOrientationEvent, true);
+                window.removeEventListener('deviceorientation', handleOrientationEvent, true);
+                window.removeEventListener('devicemotion', handleMotionFallback, true);
+
+                window.addEventListener('deviceorientationabsolute', handleOrientationEvent, true);
+                window.addEventListener('deviceorientation', handleOrientationEvent, true);
+                window.addEventListener('devicemotion', handleMotionFallback, true);
+
+                sensorActive = true;
+                if (badge) {
+                    badge.textContent = 'AKTIF';
+                    badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                }
+                if (diag) diag.textContent = 'Sumber Sensor: Mengkalibrasi Sensor HP...';
+                showToast('Sensor HP diaktifkan! Letakkan datar lalu tekan Set Nol.', 'success');
+            } catch (err) {
+                showToast('Gagal mengakses sensor HP. Pastikan akses via HTTPS.', 'error');
+            }
+        }
+
+        function handleOrientationEvent(e) {
+            if (e.alpha === null && e.beta === null && e.gamma === null) return;
+            const currentType = e.absolute ? 'deviceorientationabsolute' : 'deviceorientation';
+
+            if (!lockedSensorSource || lockedSensorSource === 'devicemotion') {
+                lockedSensorSource = currentType;
+            } else if (lockedSensorSource === 'deviceorientation' && currentType === 'deviceorientationabsolute') {
+                lockedSensorSource = 'deviceorientationabsolute';
+            } else if (lockedSensorSource !== currentType) {
+                return;
+            }
+
+            let heading = 0;
+            if (typeof e.webkitCompassHeading === 'number') {
+                heading = e.webkitCompassHeading;
+            } else if (e.alpha !== null) {
+                heading = (360 - e.alpha) % 360;
+            }
+            const pitch = e.beta || 0;
+            const roll = e.gamma || 0;
+            const src = e.absolute ? 'Compass Absolute' : 'Gyro Orientation';
+            processSensorData(heading, pitch, roll, src);
+        }
+
+        function handleMotionFallback(e) {
+            if (lockedSensorSource && lockedSensorSource !== 'devicemotion') return;
+            const acc = e.accelerationIncludingGravity;
+            if (!acc || acc.x === null) return;
+            lockedSensorSource = 'devicemotion';
+
+            const pitch = Math.atan2(acc.y, acc.z) * (180 / Math.PI);
+            const roll = Math.atan2(-acc.x, Math.sqrt(acc.y * acc.y + acc.z * acc.z)) * (180 / Math.PI);
+            processSensorData(rawSensor.az, pitch, roll, 'Accelerometer');
+        }
+
+        function processSensorData(az, pitch, roll, sourceName) {
+            rawSensor = { az, pitch, roll };
+
+            let calAz = (az - offsetSensor.az + 360) % 360;
+            let calPitch = pitch - offsetSensor.pitch;
+            let calRoll = roll - offsetSensor.roll;
+
+            let rawElev = Math.max(0, Math.min(90, Math.abs(calPitch)));
+
+            let diffAz = calAz - smoothedSensor.az;
+            if (diffAz > 180) diffAz -= 360;
+            if (diffAz < -180) diffAz += 360;
+            if (Math.abs(diffAz) > 0.25) {
+                smoothedSensor.az = (smoothedSensor.az + SMOOTHING_ALPHA * diffAz + 360) % 360;
+            }
+
+            const diffEl = rawElev - smoothedSensor.el;
+            if (Math.abs(diffEl) > 0.2) {
+                smoothedSensor.el = smoothedSensor.el + SMOOTHING_ALPHA * diffEl;
+            }
+
+            const diffPitch = calPitch - smoothedSensor.pitch;
+            if (Math.abs(diffPitch) > 0.2) {
+                smoothedSensor.pitch = smoothedSensor.pitch + SMOOTHING_ALPHA * diffPitch;
+            }
+
+            const diffRoll = calRoll - smoothedSensor.roll;
+            if (Math.abs(diffRoll) > 0.2) {
+                smoothedSensor.roll = smoothedSensor.roll + SMOOTHING_ALPHA * diffRoll;
+            }
+
+            updateWaterpassUI(sourceName);
+        }
+
+        function calibrateZeroOffset() {
+            offsetSensor = { ...rawSensor };
+            smoothedSensor = { az: 0, el: 0, pitch: 0, roll: 0 };
+            const calInfo = document.getElementById('calibration-info');
+            if (calInfo) {
+                calInfo.textContent = `Offset: ${offsetSensor.az.toFixed(1)}° / ${offsetSensor.pitch.toFixed(1)}°`;
+            }
+            updateWaterpassUI('Calibrated');
+            showToast('Kalibrasi Set Nol (0.0°) berhasil diterapkan!', 'success');
+        }
+
+        function updateWaterpassUI(sourceName) {
+            const azStr = smoothedSensor.az.toFixed(1) + '°';
+            const pitchStr = smoothedSensor.pitch.toFixed(1) + '°';
+            const rollStr = smoothedSensor.roll.toFixed(1) + '°';
+            const elStr = smoothedSensor.el.toFixed(1) + '°';
+
+            const azEl = document.getElementById('sensor-azimuth');
+            const pitchEl = document.getElementById('sensor-pitch');
+            const rollEl = document.getElementById('sensor-roll');
+            if (azEl) azEl.textContent = azStr;
+            if (pitchEl) pitchEl.textContent = pitchStr;
+            if (rollEl) rollEl.textContent = rollStr;
+
+            const liveAz = document.getElementById('live-auto-az');
+            const liveEl = document.getElementById('live-auto-el');
+            if (liveAz) liveAz.textContent = azStr;
+            if (liveEl) liveEl.textContent = elStr;
+
+            const diag = document.getElementById('sensor-source-diag');
+            if (diag && sourceName) {
+                diag.textContent = `Sumber: ${sourceName} (${azStr})`;
+            }
+
+            const bubble = document.getElementById('waterpass-bubble');
+            const levelText = document.getElementById('level-indicator-text');
+            if (bubble) {
+                const maxOffset = 34;
+                const dx = Math.max(-maxOffset, Math.min(maxOffset, smoothedSensor.roll * 1.6));
+                const dy = Math.max(-maxOffset, Math.min(maxOffset, smoothedSensor.pitch * 1.6));
+                bubble.style.transform = `translate(${dx}px, ${dy}px)`;
+
+                const tilt = Math.hypot(smoothedSensor.pitch, smoothedSensor.roll);
+                if (levelText) {
+                    if (tilt <= 2.5) {
+                        levelText.textContent = 'POSISI DATAR (LEVEL OK)';
+                        levelText.className = 'text-[11px] font-extrabold text-emerald-400 truncate';
+                    } else {
+                        levelText.textContent = `MIRING ${tilt.toFixed(1)}° — SESUAIKAN ALAT`;
+                        levelText.className = 'text-[11px] font-extrabold text-amber-400 truncate';
+                    }
+                }
+            }
+        }
+
+        // =========================================================================
+        // 8. STOPWATCH & AUTO-RECORD ENGINE (JEDA AWAL 01:30 / 90 DETIK)
+        // =========================================================================
+        function getFirstReadDelaySec() {
+            const sel = document.getElementById('first-read-delay');
+            return sel ? parseInt(sel.value, 10) || 90 : 90;
+        }
+
+        function formatSecToMMSS(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function getNextTargetInfo(currentElapsedSec) {
+            const firstDelay = getFirstReadDelaySec();
+            if (currentElapsedSec < firstDelay) {
+                return {
+                    readNumber: 1,
+                    targetSec: firstDelay,
+                    intervalDuration: firstDelay,
+                    secIntoInterval: currentElapsedSec
+                };
+            }
+            const extraSec = currentElapsedSec - firstDelay;
+            const completedAfterFirst = Math.floor(extraSec / 60);
+            const readNumber = 2 + completedAfterFirst;
+            const targetSec = firstDelay + (completedAfterFirst + 1) * 60;
+            return {
+                readNumber,
+                targetSec,
+                intervalDuration: 60,
+                secIntoInterval: extraSec % 60
+            };
+        }
+
+        function playBeep(freq = 880, duration = 0.15) {
+            if (!audioEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function toggleAudioMute() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('btn-audio-toggle');
+            if (audioEnabled) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high"></i><span>Beep</span>';
+                btn.className = 'text-[11px] bg-navy-950 border border-slate-700 px-2 py-0.5 rounded-lg text-emerald-400 font-bold flex items-center gap-1';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i><span>Mute</span>';
+                btn.className = 'text-[11px] bg-navy-950 border border-slate-700 px-2 py-0.5 rounded-lg text-slate-400 font-bold flex items-center gap-1';
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            onObserverNameCommit();
+            isTimerRunning = true;
+            isSessionCompleted = false;
+            requestScreenWakeLock(false);
+
+            document.getElementById('btn-timer-start').classList.add('hidden');
+            document.getElementById('btn-timer-pause').classList.remove('hidden');
+            document.getElementById('btn-timer-stop').classList.remove('hidden');
+
+            const statusEl = document.getElementById('timer-status-text');
+            statusEl.textContent = 'Balon Mengudara — Pengamatan Aktif';
+            statusEl.className = 'text-[11px] font-bold text-emerald-400 mt-0.5';
+
+            playBeep(1046, 0.2);
+
+            timerInterval = setInterval(() => {
+                const prevTarget = getNextTargetInfo(elapsedSeconds);
+                elapsedSeconds++;
+                updateTimerDisplay();
+
+                const timerBox = document.getElementById('timer-box');
+                const secRemaining = prevTarget.targetSec - elapsedSeconds;
+
+                if (secRemaining >= 1 && secRemaining <= 5) {
+                    statusEl.textContent = `PERSIAPAN BACAAN ${prevTarget.readNumber} (${secRemaining} DETIK LAGI)...`;
+                    statusEl.className = 'text-[11px] font-extrabold text-amber-400 mt-0.5';
+                    timerBox.classList.add('border-amber-500');
+                    playBeep(660, 0.08);
+                } else if (secRemaining === 0) {
+                    const reachedReadNum = prevTarget.readNumber;
+                    playBeep(1200, 0.35);
+                    timerBox.classList.remove('border-amber-500');
+                    timerBox.classList.add('border-emerald-500');
+
+                    if (recordMode === 'auto') {
+                        triggerAutoRecordNow(false, reachedReadNum);
+                    }
+
+                    statusEl.textContent = `PEMBACAAN KE-${reachedReadNum} TERCATAT!`;
+                    statusEl.className = 'text-[11px] font-extrabold text-emerald-400 mt-0.5';
+
+                    setTimeout(() => {
+                        if (isTimerRunning) {
+                            timerBox.classList.remove('border-emerald-500');
+                            statusEl.textContent = 'Balon Mengudara — Pengamatan Aktif';
+                            statusEl.className = 'text-[11px] font-bold text-emerald-400 mt-0.5';
+                        }
+                    }, 2200);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('btn-timer-pause').classList.add('hidden');
+            const startBtn = document.getElementById('btn-timer-start');
+            startBtn.classList.remove('hidden');
+            startBtn.innerHTML = '<i class="fa-solid fa-play"></i><span>LANJUT</span>';
+            document.getElementById('timer-status-text').textContent = 'Timer Dijeda (Paused)';
+            document.getElementById('timer-status-text').className = 'text-[11px] font-bold text-amber-400 mt-0.5';
+        }
+
+        function stopAndFinishObservation() {
+            openModal('Selesai Merekam', 'Akhiri pengamatan balon saat ini, simpan ke riwayat, dan lihat hasil Sandi PILOT?', () => {
+                onObserverNameCommit();
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                elapsedSeconds = 0;
+                updateTimerDisplay();
+
+                document.getElementById('btn-timer-pause').classList.add('hidden');
+                document.getElementById('btn-timer-stop').classList.add('hidden');
+                document.getElementById('btn-timer-start').classList.remove('hidden');
+                document.getElementById('btn-timer-start').innerHTML = '<i class="fa-solid fa-play"></i><span>LEPAS BALON</span>';
+                document.getElementById('timer-status-text').textContent = 'Pengamatan Selesai — Siap Sesi Baru';
+                document.getElementById('timer-status-text').className = 'text-[11px] font-bold text-sky-400 mt-0.5';
+                document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
+
+                if (readings.length > 0) {
+                    saveSessionToHistory();
+                }
+
+                isSessionCompleted = true;
+                saveToLocalStorage();
+                switchTab('report');
+                showToast('Pengamatan selesai & tersimpan ke riwayat!', 'success');
+            });
+        }
+
+        function resetTimerConfirm() {
+            openModal('Reset Timer', 'Kembalikan timer ke 00:00? Data tabel yang sudah direkam tidak akan terhapus.', () => {
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                elapsedSeconds = 0;
+                updateTimerDisplay();
+                document.getElementById('btn-timer-pause').classList.add('hidden');
+                document.getElementById('btn-timer-stop').classList.add('hidden');
+                const startBtn = document.getElementById('btn-timer-start');
+                startBtn.classList.remove('hidden');
+                startBtn.innerHTML = '<i class="fa-solid fa-play"></i><span>LEPAS BALON</span>';
+                document.getElementById('timer-status-text').textContent = 'Siap Lepas Balon';
+                document.getElementById('timer-status-text').className = 'text-[11px] font-semibold text-slate-400 mt-0.5';
+                document.getElementById('timer-box').classList.remove('border-amber-500', 'border-emerald-500');
+            });
+        }
+
+        function updateTimerDisplay() {
+            const disp = document.getElementById('stopwatch-display');
+            if (disp) disp.textContent = formatSecToMMSS(elapsedSeconds);
+
+            const targetInfo = getNextTargetInfo(elapsedSeconds);
+            const bar = document.getElementById('minute-progress-bar');
+            if (bar) {
+                const pct = Math.min(100, (targetInfo.secIntoInterval / targetInfo.intervalDuration) * 100);
+                bar.style.width = `${pct}%`;
+            }
+
+            const tLabel = document.getElementById('target-minute-label');
+            const tTimeLabel = document.getElementById('target-time-label');
+            const aBadge = document.getElementById('auto-next-min-badge');
+            const bNow = document.getElementById('btn-auto-now-min');
+            const bannerSub = document.getElementById('auto-banner-sub');
+
+            if (tLabel) tLabel.textContent = targetInfo.readNumber;
+            if (tTimeLabel) tTimeLabel.textContent = formatSecToMMSS(targetInfo.targetSec);
+            if (aBadge) aBadge.textContent = targetInfo.readNumber;
+            if (bNow) bNow.textContent = targetInfo.readNumber;
+            if (bannerSub) {
+                const firstStr = formatSecToMMSS(getFirstReadDelaySec());
+                bannerSub.textContent = `Bacaan 1 di ${firstStr}, lalu otomatis tiap 1 menit berikutnya.`;
+            }
+        }
+
+        // =========================================================================
+        // 9. RECORDING MODES (AUTO SENSOR & MANUAL NUMPAD)
+        // =========================================================================
+        function setRecordMode(mode) {
+            recordMode = mode;
+            const btnAuto = document.getElementById('mode-btn-auto');
+            const btnManual = document.getElementById('mode-btn-manual');
+            const panelAuto = document.getElementById('panel-mode-auto');
+            const panelManual = document.getElementById('panel-mode-manual');
+
+            if (mode === 'auto') {
+                btnAuto.className = 'py-2.5 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-navy-950 shadow-md';
+                btnManual.className = 'py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all text-slate-400 hover:bg-navy-800 hover:text-white';
+                panelAuto.classList.remove('hidden');
+                panelManual.classList.add('hidden');
+            } else {
+                btnManual.className = 'py-2.5 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-sky-500 text-navy-950 shadow-md';
+                btnAuto.className = 'py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all text-slate-400 hover:bg-navy-800 hover:text-white';
+                panelManual.classList.remove('hidden');
+                panelAuto.classList.add('hidden');
+            }
+        }
+
+        function skipFirstReading9999() {
+            upsertReading(1, 9999, 9999, true);
+            editingMinute = 2;
+            currentInputs = { azimuth: '', elevation: '' };
+            setActiveField('azimuth');
+            updateNumpadUI();
+            showToast('Pembacaan 1 diisi 9999 (dilewati sesuai BMKGSatu).', 'info');
+        }
+
+        function triggerAutoRecordNow(isManualTrigger = false, explicitMinute = null) {
+            const nextMin = explicitMinute || (readings.length > 0 ? Math.max(...readings.map(r => r.minute)) + 1 : 1);
+            const azVal = parseFloat(smoothedSensor.az.toFixed(1));
+            const elVal = parseFloat(Math.max(0.5, smoothedSensor.el).toFixed(1));
+
+            upsertReading(nextMin, azVal, elVal, false);
+            editingMinute = nextMin + 1;
+            updateNumpadUI();
+
+            if (isManualTrigger) {
+                playBeep(1100, 0.15);
+                showToast(`Pembacaan ke-${nextMin} direkam (Az: ${azVal}°, El: ${elVal}°).`, 'success');
+            }
+        }
+
+        function setActiveField(field) {
+            activeInputField = field;
+            const boxAz = document.getElementById('field-box-azimuth');
+            const boxEl = document.getElementById('field-box-elevation');
+            const curAz = document.getElementById('cursor-azimuth');
+            const curEl = document.getElementById('cursor-elevation');
+
+            if (field === 'azimuth') {
+                boxAz.className = 'cursor-pointer bg-navy-950 border-2 border-sky-500 rounded-xl p-2.5 transition';
+                boxEl.className = 'cursor-pointer bg-navy-950 border-2 border-slate-800 rounded-xl p-2.5 transition';
+                curAz.classList.remove('hidden');
+                curEl.classList.add('hidden');
+            } else {
+                boxEl.className = 'cursor-pointer bg-navy-950 border-2 border-sky-500 rounded-xl p-2.5 transition';
+                boxAz.className = 'cursor-pointer bg-navy-950 border-2 border-slate-800 rounded-xl p-2.5 transition';
+                curEl.classList.remove('hidden');
+                curAz.classList.add('hidden');
+            }
+        }
+
+        function switchActiveField() {
+            setActiveField(activeInputField === 'azimuth' ? 'elevation' : 'azimuth');
+        }
+
+        function numpadPress(char) {
+            let val = currentInputs[activeInputField];
+            if (char === '.' && val.includes('.')) return;
+            if (val.length >= 6) return;
+            currentInputs[activeInputField] = val + char;
+            updateNumpadUI();
+        }
+
+        function numpadBackspace() {
+            currentInputs[activeInputField] = currentInputs[activeInputField].slice(0, -1);
+            updateNumpadUI();
+        }
+
+        function numpadClear() {
+            currentInputs[activeInputField] = '';
+            updateNumpadUI();
+        }
+
+        function changeEditingMinute(delta) {
+            editingMinute = Math.max(1, editingMinute + delta);
+            const existing = readings.find(r => r.minute === editingMinute);
+            if (existing) {
+                currentInputs.azimuth = String(existing.azimuth);
+                currentInputs.elevation = String(existing.elevation);
+            } else {
+                currentInputs.azimuth = '';
+                currentInputs.elevation = '';
+            }
+            updateNumpadUI();
+        }
+
+        function updateNumpadUI() {
+            const badge = document.getElementById('input-minute-badge');
+            const saveNum = document.getElementById('btn-save-min-num');
+            const hPrev = document.getElementById('input-height-preview');
+            const valAz = document.getElementById('val-azimuth');
+            const valEl = document.getElementById('val-elevation');
+
+            if (badge) badge.textContent = editingMinute;
+            if (saveNum) saveNum.textContent = editingMinute;
+            if (hPrev) hPrev.textContent = `${editingMinute * ASCENT_RATE_FT} ft`;
+            if (valAz) valAz.textContent = currentInputs.azimuth;
+            if (valEl) valEl.textContent = currentInputs.elevation;
+        }
+
+        function saveMinuteReading() {
+            const az = parseFloat(currentInputs.azimuth);
+            const el = parseFloat(currentInputs.elevation);
+
+            if (az === 9999 && el === 9999) {
+                upsertReading(editingMinute, 9999, 9999, true);
+                showToast(`Pembacaan ke-${editingMinute} diisi 9999.`, 'info');
+                editingMinute++;
+                currentInputs = { azimuth: '', elevation: '' };
+                setActiveField('azimuth');
+                updateNumpadUI();
+                return;
+            }
+
+            if (isNaN(az) || az < 0 || az > 360) {
+                showToast('Masukkan sudut Azimuth valid (0 - 360°).', 'error');
+                setActiveField('azimuth');
+                return;
+            }
+            if (isNaN(el) || el <= 0 || el > 90) {
+                showToast('Masukkan sudut Elevasi valid (0.1 - 90°).', 'error');
+                setActiveField('elevation');
+                return;
+            }
+
+            upsertReading(editingMinute, az, el, false);
+            showToast(`Data Pembacaan ke-${editingMinute} disimpan.`, 'success');
+
+            editingMinute++;
+            currentInputs = { azimuth: '', elevation: '' };
+            setActiveField('azimuth');
+            updateNumpadUI();
+        }
+
+        function upsertReading(minute, azimuth, elevation, skipped = false) {
+            isSessionCompleted = false;
+            const idx = readings.findIndex(r => r.minute === minute);
+            const entry = { minute, azimuth, elevation, skipped: skipped || (azimuth === 9999 && elevation === 9999) };
+            if (idx >= 0) {
+                readings[idx] = entry;
+            } else {
+                readings.push(entry);
+            }
+            readings.sort((a, b) => a.minute - b.minute);
+            saveToLocalStorage();
+            recalculateAll();
+        }
+
+        function deleteReading(minute) {
+            readings = readings.filter(r => r.minute !== minute);
+            saveToLocalStorage();
+            recalculateAll();
+            showToast(`Pembacaan ke-${minute} dihapus.`, 'info');
+        }
+
+        function clearAllReadings() {
+            openModal('Hapus Semua Data', 'Hapus seluruh baris data pengamatan pada tabel ini?', () => {
+                readings = [];
+                editingMinute = 1;
+                currentInputs = { azimuth: '', elevation: '' };
+                saveToLocalStorage();
+                updateNumpadUI();
+                recalculateAll();
+                showToast('Semua data pengamatan dihapus.', 'info');
+            });
+        }
+
+        function loadSampleData() {
+            readings = [
+                { minute: 1, azimuth: 9999, elevation: 9999, skipped: true },
+                { minute: 2, azimuth: 348.4, elevation: 14.8, skipped: false },
+                { minute: 3, azimuth: 349.1, elevation: 14.9, skipped: false },
+                { minute: 4, azimuth: 349.9, elevation: 15.1, skipped: false },
+                { minute: 5, azimuth: 350.7, elevation: 15.8, skipped: false },
+                { minute: 6, azimuth: 352.6, elevation: 16.4, skipped: false },
+                { minute: 7, azimuth: 355.5, elevation: 17.7, skipped: false },
+                { minute: 8, azimuth: 358.3, elevation: 18.7, skipped: false },
+                { minute: 9, azimuth: 358.9, elevation: 19.3, skipped: false },
+                { minute: 10, azimuth: 0.5, elevation: 20.0, skipped: false },
+                { minute: 11, azimuth: 0.2, elevation: 20.7, skipped: false },
+                { minute: 12, azimuth: 35.1, elevation: 21.5, skipped: false },
+                { minute: 13, azimuth: 358.5, elevation: 22.2, skipped: false },
+                { minute: 14, azimuth: 355.1, elevation: 23.0, skipped: false },
+                { minute: 15, azimuth: 351.8, elevation: 22.1, skipped: false }
+            ];
+            document.getElementById('surface-dir').value = '170';
+            document.getElementById('surface-spd').value = '6';
+            editingMinute = 16;
+            isSessionCompleted = false;
+            saveToLocalStorage();
+            updateNumpadUI();
+            recalculateAll();
+            showToast('15 data pembacaan contoh (1.000 - 7.000 ft) dimuat.', 'success');
+        }
+
+        // =========================================================================
+        // 10. PIBAL TRIGONOMETRY & WIND CALCULATION ENGINE (STANDAR BMKGSATU)
+        // =========================================================================
+        function roundToNearest5(deg) {
+            let d = Math.round(deg / 5) * 5;
+            d = ((d % 360) + 360) % 360;
+            if (d === 0) d = 360;
+            return d;
+        }
+
+        function formatDDDFF(dirDeg, speedKt) {
+            const spd = Math.round(speedKt);
+            if (spd === 0) return '00000';
+            let ddd = roundToNearest5(dirDeg);
+            let ff = spd;
+            if (ff >= 100) {
+                ddd += 500;
+                ff -= 100;
+            }
+            return `${String(ddd).padStart(3, '0')}${String(ff).padStart(2, '0')}`;
+        }
+
+        function recalculateAll() {
+            const surfDir = parseFloat(document.getElementById('surface-dir')?.value) || 0;
+            const surfSpd = parseFloat(document.getElementById('surface-spd')?.value) || 0;
+
+            computedRows = [];
+            standardLayers = [];
+
+            const posByRead = {};
+            readings.forEach(r => {
+                const heightFt = r.minute * ASCENT_RATE_FT;
+                const heightM = r.minute * ASCENT_RATE_M;
+                const isSkipped = r.skipped || r.azimuth === 9999 || r.elevation === 9999;
+
+                if (!isSkipped && r.elevation > 0) {
+                    const elRad = (r.elevation * Math.PI) / 180;
+                    const azRad = (r.azimuth * Math.PI) / 180;
+                    const horizDistM = heightM / Math.tan(elRad);
+                    const x = horizDistM * Math.sin(azRad);
+                    const y = horizDistM * Math.cos(azRad);
+                    posByRead[r.minute] = { x, y, heightFt, heightM };
+                }
+
+                computedRows.push({
+                    minute: r.minute,
+                    azimuth: r.azimuth,
+                    elevation: r.elevation,
+                    skipped: isSkipped,
+                    heightFt,
+                    dir: null,
+                    speedKt: null,
+                    dddff: null
+                });
+            });
+
+            let prevAnchor = { x: 0, y: 0, minute: 0 };
+
+            computedRows.forEach(row => {
+                if (row.minute % 2 === 0 && posByRead[row.minute]) {
+                    const curr = posByRead[row.minute];
+                    const dtSec = (row.minute - prevAnchor.minute) * 60;
+                    const dx = curr.x - prevAnchor.x;
+                    const dy = curr.y - prevAnchor.y;
+
+                    const u = dx / dtSec;
+                    const v = dy / dtSec;
+                    const speedMs = Math.hypot(u, v);
+                    const speedKt = Math.round(speedMs * 1.94384);
+
+                    let dirDeg = (Math.atan2(-u, -v) * 180) / Math.PI;
+                    if (dirDeg < 0) dirDeg += 360;
+                    const roundedDir = speedKt === 0 ? 0 : roundToNearest5(dirDeg);
+                    const dddff = formatDDDFF(roundedDir, speedKt);
+
+                    row.dir = roundedDir;
+                    row.speedKt = speedKt;
+                    row.dddff = dddff;
+
+                    standardLayers.push({
+                        levelFt: row.heightFt,
+                        readPair: `${row.minute - 1} - ${row.minute}`,
+                        minute: row.minute,
+                        dir: roundedDir,
+                        speedKt,
+                        dddff
+                    });
+
+                    prevAnchor = { x: curr.x, y: curr.y, minute: row.minute };
+                }
+            });
+
+            renderPlottingTable();
+            generatePilotCodeAndLevels(surfDir, surfSpd);
+        }
+
+        function renderPlottingTable() {
+            const tbody = document.getElementById('plotting-table-body');
+            const countEl = document.getElementById('total-minutes-count');
+            if (countEl) countEl.textContent = computedRows.length;
+            if (!tbody) return;
+
+            if (computedRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-5 text-center text-slate-500 font-sans text-xs">Belum ada data terekam. Tekan LEPAS BALON untuk mulai.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = computedRows.map(row => {
+                const azDisp = row.skipped ? '9999' : `${row.azimuth.toFixed(1)}°`;
+                const elDisp = row.skipped ? '9999' : `${row.elevation.toFixed(1)}°`;
+                const dirDisp = row.dir !== null ? `${String(row.dir).padStart(3, '0')}°` : '<span class="text-slate-500">-</span>';
+                const spdDisp = row.speedKt !== null ? `${row.speedKt} kt` : '<span class="text-slate-500">-</span>';
+                const rowHighlight = row.dddff ? 'bg-sky-950/20' : '';
+
+                return `
+                    <tr class="hover:bg-navy-950/60 ${rowHighlight}">
+                        <td class="py-2 px-2 font-bold text-white">${row.minute}</td>
+                        <td class="py-2 px-2 text-sky-400 font-bold">${azDisp}</td>
+                        <td class="py-2 px-2 text-emerald-400 font-bold">${elDisp}</td>
+                        <td class="py-2 px-2 text-slate-300">${row.heightFt}ft</td>
+                        <td class="py-2 px-2 font-extrabold text-sky-400">${dirDisp}</td>
+                        <td class="py-2 px-2 font-extrabold text-amber-400">${spdDisp}</td>
+                        <td class="py-2 px-1.5 text-center">
+                            <button onclick="deleteReading(${row.minute})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generatePilotCodeAndLevels(surfDir, surfSpd) {
+            const wmo = document.getElementById('obs-wmo')?.value || '97270';
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-25';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const obsName = document.getElementById('obs-name')?.value || 'Observer';
+
+            const dayNum = parseInt(dateVal.split('-')[2] || '1', 10);
+            const DD = String(dayNum).padStart(2, '0');
+            const YY = String(dayNum + 50).padStart(2, '0');
+            const GG = hourVal;
+            const a4 = '1';
+
+            const surfRoundedDir = Math.round(surfSpd) === 0 ? 0 : roundToNearest5(surfDir);
+            const surfDDDFF = formatDDDFF(surfRoundedDir, surfSpd);
+
+            const levelsBody = document.getElementById('standard-levels-body');
+            let levelRowsHTML = `
+                <tr>
+                    <td class="py-2 px-2.5 font-bold text-white">Surface</td>
+                    <td class="py-2 px-2.5 text-slate-300">0 (Permukaan)</td>
+                    <td class="py-2 px-2.5 font-extrabold text-sky-400">${String(surfRoundedDir).padStart(3, '0')}°</td>
+                    <td class="py-2 px-2.5 font-extrabold text-amber-400">${Math.round(surfSpd)} kt</td>
+                    <td class="py-2 px-2.5 font-extrabold text-emerald-400">${surfDDDFF}</td>
+                </tr>
+            `;
+
+            standardLayers.forEach(l => {
+                levelRowsHTML += `
+                    <tr>
+                        <td class="py-2 px-2.5 font-bold text-white">${l.levelFt} ft</td>
+                        <td class="py-2 px-2.5 text-slate-300">Bacaan ${l.readPair}</td>
+                        <td class="py-2 px-2.5 font-extrabold text-sky-400">${String(l.dir).padStart(3, '0')}°</td>
+                        <td class="py-2 px-2.5 font-extrabold text-amber-400">${l.speedKt} kt</td>
+                        <td class="py-2 px-2.5 font-extrabold text-emerald-400">${l.dddff}</td>
+                    </tr>
+                `;
+            });
+
+            if (levelsBody) levelsBody.innerHTML = levelRowsHTML;
+
+            const layer5000 = standardLayers.find(l => l.levelFt === 5000);
+            const layer10000 = standardLayers.find(l => l.levelFt === 10000);
+
+            let ppaaLines = [
+                `UPID53 WADB ${DD}${GG}00`,
+                `PPAA ${YY}${GG}${a4} ${wmo}`
+            ];
+
+            if (layer5000 && layer10000) {
+                ppaaLines.push(`55185 ${layer5000.dddff} 55170 ${layer10000.dddff}`);
+            } else if (layer5000) {
+                ppaaLines.push(`55185 ${layer5000.dddff}`);
+            } else {
+                ppaaLines.push(`55/// /////`);
+            }
+            ppaaLines.push(`77999=`);
+
+            const levelMap = { 0: surfDDDFF };
+            standardLayers.forEach(l => {
+                const kFt = Math.round(l.levelFt / 1000);
+                levelMap[kFt] = l.dddff;
+            });
+
+            const maxKFt = standardLayers.length > 0 ? Math.max(...standardLayers.map(l => Math.round(l.levelFt / 1000))) : 0;
+            let ppbbGroups = [];
+
+            for (let base = 0; base <= maxKFt; base += 3) {
+                let indicatorDigits = '';
+                let dataWords = [];
+
+                for (let offset = 0; offset < 3; offset++) {
+                    const k = base + offset;
+                    if (k === 0) {
+                        indicatorDigits += '/';
+                        dataWords.push(levelMap[0]);
+                    } else if (levelMap[k]) {
+                        indicatorDigits += String(k % 10);
+                        dataWords.push(levelMap[k]);
+                    } else {
+                        indicatorDigits += '/';
+                    }
+                }
+                ppbbGroups.push(`90${indicatorDigits} ${dataWords.join(' ')}`);
+            }
+
+            let ppbbLines = [
+                `UGID53 WADB ${DD}${GG}00`,
+                `PPBB ${YY}${GG}${a4} ${wmo}`,
+                ...ppbbGroups
+            ];
+            ppbbLines[ppbbLines.length - 1] += '=';
+
+            const fullCode = `${ppaaLines.join('\n')}\n\n${ppbbLines.join('\n')}`;
+
+            const outArea = document.getElementById('pilot-code-output');
+            if (outArea) outArea.value = fullCode;
+
+            const printWmo = document.getElementById('print-wmo');
+            const printMeta = document.getElementById('print-meta-summary');
+            if (printWmo) printWmo.textContent = wmo;
+            if (printMeta) printMeta.textContent = `${dateVal} ${hourVal}:00 UTC | Observer: ${obsName}`;
+        }
+
+        // =========================================================================
+        // 11. VERTICAL WIND PROFILE CHART & EXPORTS (WA, CSV, PDF, BMKGSOFT WA SCRIPT)
+        // =========================================================================
+        function drawWindProfileChart() {
+            const canvas = document.getElementById('wind-profile-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            ctx.scale(2, 2);
+
+            const w = rect.width;
+            const h = rect.height;
+            const isDark = document.documentElement.classList.contains('dark');
+
+            ctx.clearRect(0, 0, w, h);
+
+            const padL = 48, padR = 24, padT = 16, padB = 28;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            const surfSpd = parseFloat(document.getElementById('surface-spd')?.value) || 0;
+            const surfDir = parseFloat(document.getElementById('surface-dir')?.value) || 0;
+            const pts = [
+                { heightFt: 0, speedKt: surfSpd, dir: surfDir },
+                ...standardLayers.map(l => ({ heightFt: l.levelFt, speedKt: l.speedKt, dir: l.dir }))
+            ];
+
+            if (pts.length <= 1) {
+                ctx.fillStyle = isDark ? '#64748b' : '#475569';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Rekam minimal 2 pembacaan (1.000 ft) untuk grafik angin', w / 2, h / 2);
+                return;
+            }
+
+            const maxH = Math.max(...pts.map(p => p.heightFt), 2000);
+            const maxSpd = Math.max(...pts.map(p => p.speedKt), 20) + 5;
+
+            ctx.strokeStyle = isDark ? '#1e293b' : '#cbd5e1';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH * i) / 4;
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(w - padR, y);
+                ctx.stroke();
+
+                const hLabel = Math.round(maxH * (1 - i / 4));
+                ctx.fillStyle = isDark ? '#94a3b8' : '#475569';
+                ctx.font = '10px JetBrains Mono, monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${hLabel}ft`, padL - 6, y + 3);
+            }
+
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            pts.forEach((p, idx) => {
+                const px = padL + (p.speedKt / maxSpd) * plotW;
+                const py = padT + plotH - (p.heightFt / maxH) * plotH;
+                if (idx === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            });
+            ctx.stroke();
+
+            pts.forEach(p => {
+                const px = padL + (p.speedKt / maxSpd) * plotW;
+                const py = padT + plotH - (p.heightFt / maxH) * plotH;
+
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = isDark ? '#e2e8f0' : '#0f172a';
+                ctx.font = 'bold 9px JetBrains Mono, monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${p.dir}°/${p.speedKt}kt`, px + 6, py + 3);
+            });
+        }
+
+        function copyToClipboardSafe(text, successMsg) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMsg, 'success');
+                }).catch(() => {
+                    fallbackCopyText(text, successMsg);
+                });
+            } else {
+                fallbackCopyText(text, successMsg);
+            }
+        }
+
+        function fallbackCopyText(text, successMsg) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg, 'success');
+            } catch (e) {
+                showToast('Gagal menyalin teks.', 'error');
+            }
+            document.body.removeChild(ta);
+        }
+
+        function copyPilotCode() {
+            const code = document.getElementById('pilot-code-output')?.value || '';
+            copyToClipboardSafe(code, 'Sandi PILOT (PPAA & PPBB) berhasil disalin!');
+        }
+
+        function shareToWhatsApp() {
+            const dateVal = document.getElementById('obs-date')?.value || '';
+            const hourVal = document.getElementById('obs-hour')?.value || '';
+            const obsName = document.getElementById('obs-name')?.value || 'Observer';
+            const surfDir = document.getElementById('surface-dir')?.value || '0';
+            const surfSpd = document.getElementById('surface-spd')?.value || '0';
+            const code = document.getElementById('pilot-code-output')?.value || '';
+
+            const azElLines = computedRows.map(r => {
+                const az = r.skipped ? '9999' : r.azimuth.toFixed(1);
+                const el = r.skipped ? '9999' : r.elevation.toFixed(1);
+                return `${String(r.minute).padStart(2, '0')}. Az: *${az}* | El: *${el}*`;
+            }).join('\n');
+
+            const msg = `*DATA PENGAMATAN PIBAL (BMKGSOFT)*\n` +
+                `Stamet Sultan Muhammad Salahuddin Bima\n` +
+                `Tanggal: ${dateVal} | Jam: ${hourVal} UTC\n` +
+                `Observer: ${obsName}\n` +
+                `Angin Permukaan: ${surfDir}° / ${surfSpd} kt\n\n` +
+                `*PEMBACAAN AZIMUTH & ELEVASI:*\n` +
+                `${azElLines || '(Belum ada data)'}\n\n` +
+                `*SANDI PILOT (PPAA & PPBB):*\n` +
+                `\`\`\`\n${code}\n\`\`\``;
+
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        async function exportToCSV() {
+            const wmo = document.getElementById('obs-wmo')?.value || '97270';
+            const dateStr = document.getElementById('obs-date')?.value || 'date';
+            const hourStr = document.getElementById('obs-hour')?.value || '00';
+            const fileName = `PIBAL-RM_BIMA_${wmo}_${dateStr}_${hourStr}UTC.csv`;
+
+            let csv = 'Pembacaan,Azimuth(deg),Elevasi(deg),Level(ft),ArahAngin(deg),Kecepatan(kt),Sandi_dddff\n';
+            computedRows.forEach(r => {
+                const az = r.skipped ? '9999' : r.azimuth;
+                const el = r.skipped ? '9999' : r.elevation;
+                const dir = r.dir !== null ? r.dir : '';
+                const spd = r.speedKt !== null ? r.speedKt : '';
+                const dddff = r.dddff || '';
+                csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
+            });
+
+            try {
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+                const link = document.createElement('a');
+                link.setAttribute('href', dataUri);
+                link.setAttribute('download', fileName);
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => document.body.removeChild(link), 500);
+            } catch (e) {}
+
+            try {
+                const file = new File([csv], fileName, { type: 'text/csv' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: fileName,
+                        files: [file]
+                    });
+                    showToast(`File ${fileName} berhasil dibagikan/disimpan.`, 'success');
+                    return;
+                }
+            } catch (err) {}
+
+            showToast(`File ${fileName} diunduh. Cek folder Download di File Manager HP.`, 'success');
+        }
+
+        function exportToPDF() {
+            const wmo = document.getElementById('obs-wmo')?.value || '97270';
+            const dateVal = document.getElementById('obs-date')?.value || '';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const obsName = document.getElementById('obs-name')?.value || 'Observer';
+            const surfDir = document.getElementById('surface-dir')?.value || '0';
+            const surfSpd = document.getElementById('surface-spd')?.value || '0';
+            const code = document.getElementById('pilot-code-output')?.value || '';
+            const fileName = `LAPORAN_PIBAL_BIMA_${wmo}_${dateVal}_${hourVal}UTC.pdf`;
+
+            if (typeof html2pdf === 'undefined') {
+                window.print();
+                return;
+            }
+
+            showToast('Menyiapkan dokumen PDF...', 'info');
+
+            const rowsHtml = computedRows.map(r => `
+                <tr>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.minute}</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.skipped ? '9999' : r.azimuth.toFixed(1) + '°'}</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.skipped ? '9999' : r.elevation.toFixed(1) + '°'}</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.heightFt} ft</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.dir !== null ? r.dir + '°' : '-'}</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;">${r.speedKt !== null ? r.speedKt + ' kt' : '-'}</td>
+                    <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:center;font-weight:bold;">${r.dddff || '-'}</td>
+                </tr>
+            `).join('');
+
+            const pdfWrapper = document.createElement('div');
+            pdfWrapper.style.padding = '16px';
+            pdfWrapper.style.background = '#ffffff';
+            pdfWrapper.style.color = '#0f172a';
+            pdfWrapper.style.fontFamily = 'Arial, sans-serif';
+            pdfWrapper.style.fontSize = '11px';
+            pdfWrapper.innerHTML = `
+                <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:10px;">
+                    <div style="font-size:10px;font-weight:bold;letter-spacing:1px;">BADAN METEOROLOGI, KLIMATOLOGI, DAN GEOFISIKA</div>
+                    <div style="font-size:14px;font-weight:bold;margin:2px 0;">STASIUN METEOROLOGI SULTAN MUHAMMAD SALAHUDDIN BIMA</div>
+                    <div style="font-size:9px;color:#334155;">Jl. Sultan Muhammad Salahuddin, Bandara Muhammad Salahuddin, Bima - NTB | WMO ID: ${wmo}</div>
+                </div>
+                <div style="margin-bottom:10px;display:flex;justify-content:space-between;font-size:10px;">
+                    <div>
+                        <b>Tanggal / Jam:</b> ${dateVal} / ${hourVal}:00 UTC<br>
+                        <b>Observer:</b> ${escapeHtml(obsName)}
+                    </div>
+                    <div style="text-align:right;">
+                        <b>Angin Permukaan:</b> ${surfDir}° / ${surfSpd} kt<br>
+                        <b>Alat:</b> 1 - Optical Theodolite
+                    </div>
+                </div>
+                <div style="font-weight:bold;margin-bottom:4px;">1. DATA PEMBACAAN &amp; LAPISAN ANGIN</div>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10px;">
+                    <thead>
+                        <tr style="background:#e2e8f0;">
+                            <th style="border:1px solid #94a3b8;padding:5px;">No</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Azimuth</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Elevasi</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Level</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Arah</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Kec</th>
+                            <th style="border:1px solid #94a3b8;padding:5px;">Sandi dddff</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+                <div style="font-weight:bold;margin-bottom:4px;">2. SANDI PILOT (FM 32)</div>
+                <pre style="background:#f1f5f9;border:1px solid #94a3b8;padding:8px;font-family:monospace;font-size:11px;white-space:pre-wrap;">${code}</pre>
+            `;
+
+            const opt = {
+                margin: 8,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(pdfWrapper).save().then(() => {
+                showToast(`File ${fileName} berhasil diunduh!`, 'success');
+            }).catch(() => {
+                window.print();
+            });
+        }
+
+        // Kirim Script Auto-Input BMKGSoft langsung ke WhatsApp (+ salin ke clipboard HP)
+        function sendBMKGSoftScriptToWA() {
+            if (computedRows.length === 0) {
+                showToast('Belum ada data pembacaan untuk dikirim.', 'error');
+                return;
+            }
+
+            const pairs = computedRows.map(r => [
+                r.skipped ? '9999' : String(r.azimuth),
+                r.skipped ? '9999' : String(r.elevation)
+            ]);
+
+            const script = `(function(){const d=${JSON.stringify(pairs)};const setVal=(el,val)=>{if(!el)return;const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};const rows=[];document.querySelectorAll('tr,.row,.grid,div').forEach(r=>{const ins=Array.from(r.querySelectorAll(':scope > td input, :scope > div input'));if(ins.length===2&&!rows.some(p=>p[0]===ins[0]))rows.push(ins);});d.forEach((v,i)=>{if(rows[i]){setVal(rows[i][0],v[0]);setVal(rows[i][1],v[1]);}});const btn=Array.from(document.querySelectorAll('button,input[type="button"],input[type="submit"]')).find(b=>(b.innerText||b.value||'').trim().toLowerCase()==='submit');if(btn)setTimeout(()=>btn.click(),300);})();`;
+
+            copyToClipboardSafe(script, 'Script disalin & membuka WhatsApp...');
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(script)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function copyAzElTabular() {
+            const lines = computedRows.map(r => {
+                const az = r.skipped ? '9999' : r.azimuth;
+                const el = r.skipped ? '9999' : r.elevation;
+                return `${r.minute}\t${az}\t${el}`;
+            }).join('\n');
+            copyToClipboardSafe(lines, 'Tabel Pembacaan, Azimuth & Elevasi berhasil disalin!');
+        }
+
+        // =========================================================================
+        // 12. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
+        // =========================================================================
+        function getSavedHistory() {
+            try {
+                const raw = localStorage.getItem('pibal_rm_bima_history');
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveSessionToHistory() {
+            try {
+                const history = getSavedHistory();
+                const entry = {
+                    id: Date.now(),
+                    wmo: document.getElementById('obs-wmo').value || '97270',
+                    name: document.getElementById('obs-name').value || 'Observer',
+                    date: document.getElementById('obs-date').value || '',
+                    hour: document.getElementById('obs-hour').value || '00',
+                    surfDir: document.getElementById('surface-dir').value || '0',
+                    surfSpd: document.getElementById('surface-spd').value || '0',
+                    readings: JSON.parse(JSON.stringify(readings)),
+                    pilotCode: document.getElementById('pilot-code-output').value || ''
+                };
+                history.unshift(entry);
+                const trimmed = history.slice(0, 3);
+                localStorage.setItem('pibal_rm_bima_history', JSON.stringify(trimmed));
+                renderHistoryList();
+            } catch (e) {}
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('history-list-container');
+            if (!container) return;
+            const history = getSavedHistory();
+
+            if (history.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">Belum ada riwayat sesi yang diselesaikan.</p>`;
+                return;
+            }
+
+            container.innerHTML = history.map((item, idx) => `
+                <div class="bg-navy-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-[10px] font-extrabold">#${idx + 1}</span>
+                            <span class="font-bold text-xs text-white truncate">${item.date} &bull; ${item.hour} UTC</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+                            ${item.readings.length} Bacaan &bull; Observer: ${escapeHtml(item.name)}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="restoreHistorySession(${item.id}, false)" title="Muat Data & Sandi" class="bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-bold text-[11px] py-2 px-2.5 rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Buka</span>
+                        </button>
+                        <button onclick="restoreHistorySession(${item.id}, true)" title="Unduh PDF Riwayat Ini" class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-[11px] py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreHistorySession(id, triggerPdf = false) {
+            const history = getSavedHistory();
+            const item = history.find(h => h.id === id);
+            if (!item) return;
+
+            document.getElementById('obs-wmo').value = item.wmo;
+            document.getElementById('obs-name').value = item.name;
+            document.getElementById('obs-date').value = item.date;
+            document.getElementById('obs-hour').value = item.hour;
+            document.getElementById('surface-dir').value = item.surfDir;
+            document.getElementById('surface-spd').value = item.surfSpd;
+
+            readings = JSON.parse(JSON.stringify(item.readings));
+            editingMinute = readings.length > 0 ? Math.max(...readings.map(r => r.minute)) + 1 : 1;
+            isSessionCompleted = false;
+
+            renderObserverChips();
+            recalculateAll();
+            drawWindProfileChart();
+            showToast(`Riwayat ${item.date} (${item.hour} UTC) dimuat.`, 'info');
+
+            if (triggerPdf) {
+                setTimeout(() => exportToPDF(), 250);
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const state = {
+                    wmo: document.getElementById('obs-wmo').value,
+                    name: document.getElementById('obs-name').value,
+                    firstReadDelay: document.getElementById('first-read-delay')?.value || '90',
+                    surfDir: document.getElementById('surface-dir').value,
+                    surfSpd: document.getElementById('surface-spd').value,
+                    readings,
+                    isSessionCompleted
+                };
+                localStorage.setItem('pibal_rm_bima_state', JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem('pibal_rm_bima_state');
+                if (!raw) return;
+                const state = JSON.parse(raw);
+                if (state.wmo) document.getElementById('obs-wmo').value = state.wmo;
+                if (state.name) {
+                    document.getElementById('obs-name').value = state.name;
+                    recordObserverName(state.name);
+                }
+                if (state.firstReadDelay && document.getElementById('first-read-delay')) {
+                    document.getElementById('first-read-delay').value = state.firstReadDelay;
+                }
+
+                if (state.isSessionCompleted) {
+                    readings = [];
+                    editingMinute = 1;
+                    isSessionCompleted = false;
+                    saveToLocalStorage();
+                } else {
+                    if (state.surfDir !== undefined) document.getElementById('surface-dir').value = state.surfDir;
+                    if (state.surfSpd !== undefined) document.getElementById('surface-spd').value = state.surfSpd;
+                    if (Array.isArray(state.readings)) {
+                        readings = state.readings;
+                        if (readings.length > 0) {
+                            editingMinute = Math.max(...readings.map(r => r.minute)) + 1;
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-950/95 border-emerald-500 text-emerald-200',
+                error: 'bg-rose-950/95 border-rose-500 text-rose-200',
+                warning: 'bg-amber-950/95 border-amber-500 text-amber-200',
+                info: 'bg-navy-900/95 border-sky-500 text-sky-200'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                info: 'fa-circle-info text-sky-400'
+            };
+            toast.className = `w-full px-3.5 py-2.5 rounded-xl border shadow-xl flex items-center gap-2.5 text-xs font-semibold backdrop-blur-md transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function openModal(title, message, onConfirm) {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            confirmBtn.onclick = () => {
+                closeModal();
+                onConfirm();
+            };
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
+</body>
+</html>
