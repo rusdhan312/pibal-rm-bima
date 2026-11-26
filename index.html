@@ -16,7 +16,7 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF untuk membuat PDF Vektor 3 Halaman (Ukuran kecil & anti pecah/rusak) -->
+    <!-- jsPDF untuk unduh PDF vektor langsung di Laptop/PC -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,6 +136,38 @@
         }
         html:not(.dark) .bg-gradient-to-br.from-sky-500.to-blue-700 i {
             color: #ffffff !important;
+        }
+
+        /* Print styles for native Android Save-as-PDF (window.print) */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            header, main, footer, #toast-container, #custom-modal, .no-print {
+                display: none !important;
+            }
+            #pdf-preview-modal {
+                position: static !important;
+                display: block !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #pdf-preview-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+            .pdf-page-break {
+                page-break-before: always;
+                break-before: page;
+            }
         }
     </style>
 </head>
@@ -582,26 +614,22 @@
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <button type="button" onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="copyPilotCode()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-copy"></i>
                         <span>Salin Sandi</span>
                     </button>
-                    <button type="button" onclick="shareToWhatsApp()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="shareToWhatsApp()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-brands fa-whatsapp text-sm"></i>
                         <span>WA Az &amp; El</span>
                     </button>
-                    <button type="button" onclick="exportToCSV()" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="handleCSVAction()" class="bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-csv"></i>
-                        <span>Unduh CSV</span>
+                        <span>Data CSV / WA</span>
                     </button>
-                    <button type="button" onclick="exportToPDF()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="handlePDFAction()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Unduh PDF</span>
-                    </button>
-                    <button type="button" onclick="sharePDFDirectly()" class="col-span-2 bg-navy-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/40 font-extrabold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-share-nodes"></i>
-                        <span>Kirim / Simpan File PDF (WA &amp; Files)</span>
+                        <span>Laporan PDF / WA</span>
                     </button>
                 </div>
             </div>
@@ -688,6 +716,80 @@
 
     </main>
 
+    <!-- ========================================================= -->
+    <!-- CRASH-PROOF 3-PAGE REPORT & PDF/WA MODAL FOR MOBILE & PC  -->
+    <!-- ========================================================= -->
+    <div id="pdf-preview-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm overflow-y-auto p-3 sm:p-5">
+        <div class="max-w-2xl mx-auto space-y-3 pb-10">
+            <!-- Sticky Action Bar (Anti-Crash on Android APK/WebView) -->
+            <div class="no-print sticky top-0 z-10 bg-navy-900 border border-slate-700 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-2">
+                <div class="min-w-0">
+                    <div class="text-xs font-extrabold text-white truncate" id="preview-modal-filename">2026112600_pibal.pdf</div>
+                    <div class="text-[10px] text-slate-400">Laporan 3 Halaman (Hasil, Tabel Hodograph &amp; Grafik)</div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="sendFullReportToWA()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Kirim ke WA</span>
+                    </button>
+                    <button type="button" onclick="saveReportAsPDFSafe()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Simpan PDF</span>
+                    </button>
+                    <button type="button" onclick="closePdfPreviewModal()" class="bg-navy-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2 px-2.5 rounded-xl border border-slate-700 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- White Paper Report Sheet (3 Pages) -->
+            <div id="pdf-preview-sheet" class="bg-white text-slate-900 rounded-2xl p-5 sm:p-7 shadow-2xl space-y-6 font-sans text-xs">
+                <!-- PAGE 1 -->
+                <div class="space-y-2">
+                    <h2 class="text-center font-extrabold text-sm tracking-wide uppercase">LAPORAN HASIL PENGAMATAN PIBAL</h2>
+                    <pre id="preview-page1-text" class="font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-slate-900"></pre>
+                </div>
+
+                <hr class="border-slate-300 no-print">
+
+                <!-- PAGE 2 -->
+                <div class="pdf-page-break space-y-2">
+                    <h3 class="font-extrabold text-sm">LAPORAN HODOGRAPH</h3>
+                    <pre id="preview-page2-meta" class="font-mono text-[10.5px] leading-relaxed whitespace-pre-wrap text-slate-900"></pre>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-slate-600 text-center font-mono text-[10px]">
+                            <thead>
+                                <tr class="bg-slate-100 font-bold">
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">No.</th>
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">Height</th>
+                                    <th colspan="2" class="border border-slate-600 py-1 px-1.5">Angin</th>
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">U</th>
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">V</th>
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">V/B</th>
+                                    <th rowspan="2" class="border border-slate-600 py-1 px-1.5">Adveksi</th>
+                                </tr>
+                                <tr class="bg-slate-100 font-bold">
+                                    <th class="border border-slate-600 py-1 px-1.5">Arah</th>
+                                    <th class="border border-slate-600 py-1 px-1.5">Kec.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-page2-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="border-slate-300 no-print">
+
+                <!-- PAGE 3 -->
+                <div class="pdf-page-break space-y-2">
+                    <div class="w-full h-72 bg-white border border-slate-300 rounded-lg p-1">
+                        <canvas id="preview-page3-canvas" class="w-full h-full block"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Confirmation Modal -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
@@ -717,12 +819,17 @@
     <!-- Application Logic -->
     <script>
         // =========================================================================
-        // 1. STATIC PWA SERVICE WORKER SETUP
+        // 1. STATIC PWA SERVICE WORKER & DEVICE DETECTION
         // =========================================================================
         function initPWA() {
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
             }
+        }
+
+        function isMobileOrWebView() {
+            const ua = navigator.userAgent || '';
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|wv/i.test(ua);
         }
 
         // =========================================================================
@@ -1916,7 +2023,7 @@
         }
 
         // =========================================================================
-        // 11. ON-SCREEN HODOGRAPH & WIND BARB PREVIEW CANVAS
+        // 11. HODOGRAPH & WIND BARB RENDERER (CANVAS & VECTOR PDF)
         // =========================================================================
         function drawWindBarbOnContext(ctx, cx, cy, dirDeg, speedKt, shaftLen = 28) {
             ctx.save();
@@ -2002,8 +2109,7 @@
             ctx.restore();
         }
 
-        function drawWindProfileChart() {
-            const canvas = document.getElementById('wind-profile-canvas');
+        function renderHodographToTargetCanvas(canvas) {
             if (!canvas) return;
             const rect = canvas.parentElement.getBoundingClientRect();
             const widthPx = Math.max(320, rect.width || 360);
@@ -2159,8 +2265,12 @@
             });
         }
 
+        function drawWindProfileChart() {
+            renderHodographToTargetCanvas(document.getElementById('wind-profile-canvas'));
+        }
+
         // =========================================================================
-        // 12. NATIVE VECTOR PDF BUILDER (3 HALAMAN, ANTI-CORRUPTION & TINY SIZE)
+        // 12. NATIVE VECTOR PDF BUILDER (FOR DESKTOP PC DIRECT DOWNLOAD)
         // =========================================================================
         function drawVectorWindBarbToPDF(doc, cx, cy, dirDeg, speedKt, shaftLenMm = 9.5) {
             doc.setDrawColor(15, 23, 42);
@@ -2339,14 +2449,13 @@
             });
         }
 
-        function buildPibalPDFDocument() {
+        function downloadDesktopVectorPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+                return;
+            }
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-                compress: true
-            });
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
 
             const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
             const hourVal = document.getElementById('obs-hour')?.value || '00';
@@ -2354,11 +2463,9 @@
             const mslVal = document.getElementById('obs-msl')?.value || '1.3';
             const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
             const parts = getPilotCodeParts();
+            const fileName = `${dateVal.replace(/-/g, '')}${hourVal}_pibal.pdf`;
 
-            const cleanDate = dateVal.replace(/-/g, '');
-            const fileName = `${cleanDate}${hourVal}_pibal.pdf`;
-
-            // HALAMAN 1: LAPORAN HASIL PENGAMATAN PIBAL
+            // Page 1
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(13);
             doc.text('LAPORAN HASIL PENGAMATAN PIBAL', 105, 18, { align: 'center' });
@@ -2370,15 +2477,10 @@
             doc.text(`MSL     : ${mslVal} M`, 18, y); y += 5.5;
             doc.text(`Tanggal : ${formatPdfDateLong(dateVal)} ${hourVal} UTC`, 18, y); y += 6;
             doc.text(`Record  :`, 18, y); y += 5.5;
-
-            doc.text(`0               -> ${parts.surfSlash}`, 18, y);
-            y += 5;
+            doc.text(`0               -> ${parts.surfSlash}`, 18, y); y += 5;
 
             computedRows.forEach(r => {
-                if (y > 250) {
-                    doc.addPage();
-                    y = 20;
-                }
+                if (y > 250) { doc.addPage(); y = 20; }
                 const noStr = String(r.minute).padEnd(3, ' ');
                 const azStr = r.skipped ? '9999 ' : r.azimuth.toFixed(1).padStart(5, '0');
                 const elStr = r.skipped ? '9999' : r.elevation.toFixed(1).padStart(4, '0');
@@ -2398,7 +2500,7 @@
             const ppbbLines = doc.splitTextToSize(parts.ppbbText, 175);
             doc.text(ppbbLines, 18, y);
 
-            // HALAMAN 2: LAPORAN HODOGRAPH & TABEL ANALISIS
+            // Page 2
             doc.addPage();
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
@@ -2425,22 +2527,16 @@
 
             const colX = [18, 29, 46, 61, 75, 93, 111, 134, 192];
             const hdrH = 12;
-
             doc.setDrawColor(40, 40, 40);
             doc.setLineWidth(0.25);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(8.5);
-
             doc.rect(colX[0], y2, colX[8] - colX[0], hdrH);
             for (let c = 1; c < 8; c++) {
-                if (c === 3) {
-                    doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
-                } else {
-                    doc.line(colX[c], y2, colX[c], y2 + hdrH);
-                }
+                if (c === 3) doc.line(colX[c], y2 + 6, colX[c], y2 + hdrH);
+                else doc.line(colX[c], y2, colX[c], y2 + hdrH);
             }
             doc.line(colX[2], y2 + 6, colX[4], y2 + 6);
-
             doc.text('No.', (colX[0] + colX[1]) / 2, y2 + 7.5, { align: 'center' });
             doc.text('Height', (colX[1] + colX[2]) / 2, y2 + 7.5, { align: 'center' });
             doc.text('Angin', (colX[2] + colX[4]) / 2, y2 + 4.2, { align: 'center' });
@@ -2455,17 +2551,10 @@
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8.5);
             const rowH = 7;
-
             hodographRows.forEach(r => {
-                if (y2 + rowH > 280) {
-                    doc.addPage();
-                    y2 = 20;
-                }
+                if (y2 + rowH > 280) { doc.addPage(); y2 = 20; }
                 doc.rect(colX[0], y2, colX[8] - colX[0], rowH);
-                for (let c = 1; c < 8; c++) {
-                    doc.line(colX[c], y2, colX[c], y2 + rowH);
-                }
-
+                for (let c = 1; c < 8; c++) doc.line(colX[c], y2, colX[c], y2 + rowH);
                 doc.text(String(r.no), (colX[0] + colX[1]) / 2, y2 + 4.8, { align: 'center' });
                 doc.text(String(r.heightFt), (colX[1] + colX[2]) / 2, y2 + 4.8, { align: 'center' });
                 doc.text(String(r.dir).padStart(3, '0'), (colX[2] + colX[3]) / 2, y2 + 4.8, { align: 'center' });
@@ -2474,31 +2563,19 @@
                 doc.text(r.v.toFixed(2), (colX[5] + colX[6]) / 2, y2 + 4.8, { align: 'center' });
                 doc.text(r.vb || '', (colX[6] + colX[7]) / 2, y2 + 4.8, { align: 'center' });
                 doc.text(r.adveksi || '', (colX[7] + colX[8]) / 2, y2 + 4.8, { align: 'center' });
-
                 y2 += rowH;
             });
 
-            // HALAMAN 3: GRAFIK VEKTOR HODOGRAPH & WIND BARB PROFILE
+            // Page 3
             doc.addPage();
             drawVectorHodographPageToPDF(doc);
-
-            return { doc, fileName };
+            doc.save(fileName);
+            showToast(`PDF ${fileName} berhasil diunduh ke PC!`, 'success');
         }
 
         // =========================================================================
-        // 13. EXPORTS (ANTI-.BIN DATA URI DOWNLOAD, SHARE PDF FILE, WA, CSV, SCRIPT)
+        // 13. CRASH-PROOF EXPORTS (WA HTTPS LINKS, PREVIEW MODAL & DESKTOP SAVE)
         // =========================================================================
-        function triggerDirectDataUriDownload(dataUri, fileName) {
-            const link = document.createElement('a');
-            link.href = dataUri;
-            link.download = fileName;
-            link.setAttribute('download', fileName);
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
         function copyToClipboardSafe(text, successMsg) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -2557,11 +2634,10 @@
                 `*SANDI PILOT (PPAA & PPBB):*\n` +
                 `\`\`\`\n${code}\n\`\`\``;
 
-            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function exportToCSV() {
+        function handleCSVAction() {
             const wmo = document.getElementById('obs-wmo')?.value || '97270';
             const dateStr = document.getElementById('obs-date')?.value || 'date';
             const hourStr = document.getElementById('obs-hour')?.value || '00';
@@ -2577,10 +2653,23 @@
                 csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
             });
 
-            // Menggunakan Data URI (bukan blob:) agar Android tidak mengubah ekstensi menjadi .bin
-            const csvDataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
-            triggerDirectDataUriDownload(csvDataUri, fileName);
-            showToast(`File ${fileName} diunduh!`, 'success');
+            if (isMobileOrWebView()) {
+                // Di HP/APK: Jangan picu DownloadManager (anti-crash), langsung salin & kirim ke WA
+                copyToClipboardSafe(csv, 'Data CSV disalin! Membuka WhatsApp...');
+                const msg = `*DATA CSV PIBAL (${fileName})*\n\`\`\`\n${csv}\n\`\`\``;
+                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            } else {
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                showToast(`File ${fileName} berhasil diunduh!`, 'success');
+            }
         }
 
         function formatPdfDateLong(dateStr) {
@@ -2600,55 +2689,132 @@
             return `${d}/${m}/${y}`;
         }
 
-        // Unduh PDF via clean Base64 Data URI (bukan blob:) agar di Android terbaca .pdf & nama terisi otomatis
-        function exportToPDF() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
-                return;
-            }
+        function buildPage1PlainText() {
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const obsName = (document.getElementById('obs-name')?.value || '').trim() || 'Observer';
+            const mslVal = document.getElementById('obs-msl')?.value || '1.3';
+            const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
+            const parts = getPilotCodeParts();
 
-            try {
-                const { doc, fileName } = buildPibalPDFDocument();
-                const rawDataUri = doc.output('datauristring');
-                const base64Only = rawDataUri.split(',')[1];
-                const cleanPdfDataUri = 'data:application/pdf;base64,' + base64Only;
+            let lines = [
+                `UPT     : bmkg bima`,
+                `MSL     : ${mslVal} M`,
+                `Tanggal : ${formatPdfDateLong(dateVal)} ${hourVal} UTC`,
+                `Record  :`,
+                `0               -> ${parts.surfSlash}`
+            ];
 
-                triggerDirectDataUriDownload(cleanPdfDataUri, fileName);
+            computedRows.forEach(r => {
+                const noStr = String(r.minute).padEnd(3, ' ');
+                const azStr = r.skipped ? '9999 ' : r.azimuth.toFixed(1).padStart(5, '0');
+                const elStr = r.skipped ? '9999' : r.elevation.toFixed(1).padStart(4, '0');
+                const arrowStr = r.dddSlashFf ? `  -> ${r.dddSlashFf}` : '';
+                lines.push(`${noStr} ${azStr}  ${elStr}${arrowStr}`);
+            });
 
-                const sizeKB = Math.max(1, Math.round((base64Only.length * 0.75) / 1024));
-                showToast(`PDF ${fileName} (${sizeKB} KB) diunduh!`, 'success');
-            } catch (err) {
-                console.error(err);
-                showToast('Gagal membuat file PDF: ' + err.message, 'error');
-            }
+            lines.push(`Alasan: ${reasonVal}`);
+            lines.push(`Observer: ${obsName}`);
+            lines.push(``);
+            lines.push(parts.ppaaText);
+            lines.push(``);
+            lines.push(parts.ppbbText);
+
+            return lines.join('\n');
         }
 
-        // Bagikan / Simpan langsung objek File PDF (untuk PWA / WhatsApp / Files Android & iOS)
-        async function sharePDFDirectly() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+        // Handler utama tombol Laporan PDF / WA (100% bebas crash di HP APK maupun PC)
+        function handlePDFAction() {
+            if (!isMobileOrWebView()) {
+                // Di Laptop / PC: langsung unduh file PDF 3 halaman YYYYMMDDHH_pibal.pdf
+                downloadDesktopVectorPDF();
+                return;
+            }
+
+            // Di HP / Android APK: buka pratinjau laporan 3 halaman yang bersih dengan tombol Kirim ke WA & Simpan PDF
+            openPdfPreviewModal();
+        }
+
+        function openPdfPreviewModal() {
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const obsName = (document.getElementById('obs-name')?.value || '').trim() || 'Observer';
+            const parts = getPilotCodeParts();
+            const fileName = `${dateVal.replace(/-/g, '')}${hourVal}_pibal.pdf`;
+
+            const titleEl = document.getElementById('preview-modal-filename');
+            if (titleEl) titleEl.textContent = fileName;
+
+            const p1El = document.getElementById('preview-page1-text');
+            if (p1El) p1El.textContent = buildPage1PlainText();
+
+            const p2Meta = document.getElementById('preview-page2-meta');
+            if (p2Meta) {
+                p2Meta.textContent = `bmkg bima\nPengamatan Pilot Balon (BBS)\nTanggal: ${formatPdfDateSlash(dateVal)}\nJam: ${hourVal}Z\nObs: ${obsName}\n\n${parts.ppaaSingleLine}\n${parts.ppbbSingleLine}`;
+            }
+
+            const p2Tbody = document.getElementById('preview-page2-tbody');
+            if (p2Tbody) {
+                p2Tbody.innerHTML = hodographRows.map(r => `
+                    <tr>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.no}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.heightFt}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${String(r.dir).padStart(3, '0')}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${String(r.speedKt).padStart(2, '0')}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.u.toFixed(2)}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.v.toFixed(2)}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.vb || ''}</td>
+                        <td class="border border-slate-600 py-1 px-1.5">${r.adveksi || ''}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const modal = document.getElementById('pdf-preview-modal');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                renderHodographToTargetCanvas(document.getElementById('preview-page3-canvas'));
+            }, 60);
+        }
+
+        function closePdfPreviewModal() {
+            const modal = document.getElementById('pdf-preview-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function sendFullReportToWA() {
+            const p1Text = buildPage1PlainText();
+            const hodoLines = hodographRows.map(r =>
+                `${r.no}. ${r.heightFt}ft | ${String(r.dir).padStart(3, '0')}/${String(r.speedKt).padStart(2, '0')} | U:${r.u.toFixed(2)} V:${r.v.toFixed(2)}${r.vb ? ' | ' + r.vb + ' (' + r.adveksi + ')' : ''}`
+            ).join('\n');
+
+            const fullMsg = `*LAPORAN HASIL PENGAMATAN PIBAL*\n` +
+                `\`\`\`\n${p1Text}\n\`\`\`\n` +
+                `*TABEL HODOGRAPH (BBS):*\n` +
+                `\`\`\`\n${hodoLines}\n\`\`\``;
+
+            window.open(`https://wa.me/?text=${encodeURIComponent(fullMsg)}`, '_blank');
+        }
+
+        function saveReportAsPDFSafe() {
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const fileName = `${dateVal.replace(/-/g, '')}${hourVal}_pibal.pdf`;
+            const origTitle = document.title;
+            document.title = fileName.replace('.pdf', '');
+
+            if (!isMobileOrWebView()) {
+                downloadDesktopVectorPDF();
+                document.title = origTitle;
                 return;
             }
 
             try {
-                const { doc, fileName } = buildPibalPDFDocument();
-                const pdfArrayBuf = doc.output('arraybuffer');
-                const pdfFile = new File([pdfArrayBuf], fileName, { type: 'application/pdf' });
-
-                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                    await navigator.share({
-                        title: fileName,
-                        files: [pdfFile]
-                    });
-                    showToast(`File ${fileName} berhasil dibagikan/disimpan!`, 'success');
-                } else {
-                    exportToPDF();
-                }
-            } catch (err) {
-                if (err && err.name !== 'AbortError') {
-                    exportToPDF();
-                }
+                window.print();
+            } catch (e) {
+                showToast('Gunakan tombol Kirim ke WA untuk membuka & simpan PDF di PC.', 'info');
             }
+            setTimeout(() => { document.title = origTitle; }, 1500);
         }
 
         // Kirim Script Auto-Input BMKGSoft v2 langsung ke WhatsApp (+ salin ke clipboard HP)
@@ -2668,8 +2834,7 @@
             const script = `(function(){const sd=${JSON.stringify(surfDir)},ss=${JSON.stringify(surfSpd)},d=${JSON.stringify(pairs)};const setVal=(el,val)=>{if(!el)return;el.focus();const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.blur();};const vis=Array.from(document.querySelectorAll('input')).filter(i=>!i.disabled&&!i.readOnly&&i.type!=='hidden'&&i.offsetParent!==null);const hRect=(rx)=>{const els=Array.from(document.querySelectorAll('th,td,div,span,label,p,b,strong')).filter(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);return els.length?els[0].getBoundingClientRect():null;};const azR=hRect(/^azimu[th]?$/i),elR=hRect(/^eleva[st]i(on)?$/i);if(azR&&elR){const azCx=azR.left+azR.width/2,elCx=elR.left+elR.width/2;const azIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>azR.bottom-5&&Math.abs((r.left+r.width/2)-azCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);const elIn=vis.filter(i=>{const r=i.getBoundingClientRect();return r.top>elR.bottom-5&&Math.abs((r.left+r.width/2)-elCx)<55;}).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);d.forEach((v,idx)=>{if(azIn[idx])setVal(azIn[idx],v[0]);if(elIn[idx])setVal(elIn[idx],v[1]);});}const fillLbl=(rx,val)=>{if(!val)return;const lbl=Array.from(document.querySelectorAll('label,div,span')).find(el=>el.children.length===0&&rx.test((el.textContent||'').trim())&&el.offsetParent!==null);if(!lbl)return;const lr=lbl.getBoundingClientRect();const t=vis.find(i=>{const r=i.getBoundingClientRect();return Math.abs(r.top-lr.top)<35&&r.left>lr.left;});if(t&&!t.value)setVal(t,val);};fillLbl(/arah angin perm/i,sd);fillLbl(/kec angin perm/i,ss);const dt=document.querySelector('input[type="date"]');const okDt=dt?Boolean(dt.value):true;const btn=Array.from(document.querySelectorAll('button,input[type="button"],input[type="submit"]')).find(b=>(b.innerText||b.value||'').trim().toLowerCase()==='submit');if(btn&&okDt){setTimeout(()=>btn.click(),350);console.log('Azimut & Elevasi terisi + Submit diklik! Cek sandi lalu klik Send manual.');}else{console.log('Azimut & Elevasi terisi! Pilih Observer, Tanggal & Jam terlebih dahulu lalu klik Submit.');}})();`;
 
             copyToClipboardSafe(script, 'Script disalin & membuka WhatsApp...');
-            const waUrl = `https://wa.me/?text=${encodeURIComponent(script)}`;
-            window.open(waUrl, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(script)}`, '_blank');
         }
 
         function copyAzElTabular() {
@@ -2682,7 +2847,7 @@
         }
 
         // =========================================================================
-        // 14. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
+        // 14. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF/WA)
         // =========================================================================
         function getSavedHistory() {
             try {
@@ -2742,7 +2907,7 @@
                             <i class="fa-solid fa-eye"></i>
                             <span>Buka</span>
                         </button>
-                        <button type="button" onclick="restoreHistorySession(${item.id}, true)" title="Unduh PDF Riwayat Ini" class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-[11px] py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1">
+                        <button type="button" onclick="restoreHistorySession(${item.id}, true)" title="Buka Laporan PDF / WA" class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-extrabold text-[11px] py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1">
                             <i class="fa-solid fa-file-pdf"></i>
                             <span>PDF</span>
                         </button>
@@ -2774,7 +2939,7 @@
             showToast(`Riwayat ${item.date} (${item.hour} UTC) dimuat.`, 'info');
 
             if (triggerPdf) {
-                setTimeout(() => exportToPDF(), 250);
+                handlePDFAction();
             }
         }
 
