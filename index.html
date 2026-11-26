@@ -16,7 +16,7 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF untuk membuat PDF 3 Halaman (Laporan Hasil, Tabel Hodograph & Grafik Hodograph/Wind Barb) langsung di HP -->
+    <!-- jsPDF untuk membuat PDF Vektor 3 Halaman (Ukuran kecil & anti pecah/rusak) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -684,7 +684,7 @@
 
     </main>
 
-    <!-- Custom Confirmation Modal (Mendukung pilihan Alasan Selesai saat mengakhiri pengamatan) -->
+    <!-- Custom Confirmation Modal -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
             <h3 id="modal-title" class="text-base font-extrabold text-white">Konfirmasi</h3>
@@ -1912,7 +1912,7 @@
         }
 
         // =========================================================================
-        // 11. HODOGRAPH & WIND BARB RENDERER (SHARED BY ON-SCREEN CANVAS & PDF PAGE 3)
+        // 11. ON-SCREEN HODOGRAPH & WIND BARB PREVIEW CANVAS
         // =========================================================================
         function drawWindBarbOnContext(ctx, cx, cy, dirDeg, speedKt, shaftLen = 28) {
             ctx.save();
@@ -1940,7 +1940,6 @@
             ctx.lineTo(tipX, tipY);
             ctx.stroke();
 
-            // Sisi Belahan Bumi Selatan (BBS)
             const perpX = -dy;
             const perpY = dx;
 
@@ -1999,7 +1998,14 @@
             ctx.restore();
         }
 
-        function renderHodographAndBarbsToCanvas(canvas, widthPx, heightPx, dpr = 2) {
+        function drawWindProfileChart() {
+            const canvas = document.getElementById('wind-profile-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const widthPx = Math.max(320, rect.width || 360);
+            const heightPx = Math.max(250, rect.height || 270);
+            const dpr = 2;
+
             canvas.width = widthPx * dpr;
             canvas.height = heightPx * dpr;
             const ctx = canvas.getContext('2d');
@@ -2149,18 +2155,215 @@
             });
         }
 
-        function drawWindProfileChart() {
-            const canvas = document.getElementById('wind-profile-canvas');
-            if (!canvas) return;
-            const rect = canvas.parentElement.getBoundingClientRect();
-            const w = Math.max(320, rect.width || 360);
-            const h = Math.max(250, rect.height || 270);
-            renderHodographAndBarbsToCanvas(canvas, w, h, 2);
+        // =========================================================================
+        // 12. NATIVE VECTOR PDF PAGE 3 GENERATOR (ANTI-CORRUPTION & TINY FILE SIZE)
+        // =========================================================================
+        function drawVectorWindBarbToPDF(doc, cx, cy, dirDeg, speedKt, shaftLenMm = 9.5) {
+            doc.setDrawColor(15, 23, 42);
+            doc.setFillColor(15, 23, 42);
+            doc.setLineWidth(0.32);
+
+            if (speedKt === 0) {
+                doc.circle(cx, cy, 1.1, 'S');
+                return;
+            }
+
+            const rad = (dirDeg * Math.PI) / 180;
+            const dx = Math.sin(rad);
+            const dy = -Math.cos(rad);
+
+            const tipX = cx + dx * shaftLenMm;
+            const tipY = cy + dy * shaftLenMm;
+
+            doc.line(cx, cy, tipX, tipY);
+
+            // Sisi Belahan Bumi Selatan (BBS)
+            const perpX = -dy;
+            const perpY = dx;
+
+            let rem = Math.round(speedKt / 5) * 5;
+            let pos = 0;
+            const barbLen = 3.2;
+            const step = 1.45;
+
+            while (rem >= 50) {
+                const bx1 = tipX - dx * pos;
+                const by1 = tipY - dy * pos;
+                const bx2 = tipX - dx * (pos + 1.9);
+                const by2 = tipY - dy * (pos + 1.9);
+                const px = bx1 + perpX * (barbLen + 0.4) + dx * 0.7;
+                const py = by1 + perpY * (barbLen + 0.4) + dy * 0.7;
+
+                doc.triangle(bx1, by1, px, py, bx2, by2, 'F');
+
+                rem -= 50;
+                pos += 2.6;
+            }
+
+            while (rem >= 10) {
+                const bx = tipX - dx * pos;
+                const by = tipY - dy * pos;
+                const px = bx + perpX * barbLen + dx * 0.85;
+                const py = by + perpY * barbLen + dy * 0.85;
+
+                doc.line(bx, by, px, py);
+
+                rem -= 10;
+                pos += step;
+            }
+
+            if (rem >= 5) {
+                if (pos === 0) pos = step;
+                const bx = tipX - dx * pos;
+                const by = tipY - dy * pos;
+                const px = bx + perpX * (barbLen * 0.55) + dx * 0.48;
+                const py = by + perpY * (barbLen * 0.55) + dy * 0.48;
+
+                doc.line(bx, by, px, py);
+            }
+        }
+
+        function drawVectorHodographPageToPDF(doc) {
+            // Halaman 3 menggunakan koordinat mm langsung (A4 portrait: 210 x 297 mm)
+            // Tanpa canvas bitmap -> 100% anti gambar hancur/bergaris di semua HP & ukuran file super kecil!
+            const boxX = 16;
+            const boxY = 22;
+            const boxSize = 128; // Kotak Hodograph 128 x 128 mm
+            const midX = boxX + boxSize / 2;
+            const midY = boxY + boxSize / 2;
+
+            const maxAbsUV = Math.max(
+                45,
+                ...hodographRows.map(r => Math.max(Math.abs(r.u), Math.abs(r.v)))
+            );
+            const stepVal = Math.max(11, Math.ceil(maxAbsUV / 5 / 11) * 11);
+            const maxAxis = stepVal * 5;
+
+            doc.setDrawColor(15, 23, 42);
+            doc.setLineWidth(0.35);
+            doc.rect(boxX, boxY, boxSize, boxSize);
+
+            // Sumbu U (horizontal) & Sumbu V (vertikal)
+            doc.line(boxX, midY, boxX + boxSize, midY);
+            doc.line(midX, boxY, midX, boxY + boxSize);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(15, 23, 42);
+
+            for (let i = -5; i <= 5; i++) {
+                const val = i * stepVal;
+                const px = midX + (i / 5) * (boxSize / 2);
+                const py = midY - (i / 5) * (boxSize / 2);
+
+                doc.line(px, midY - 1, px, midY + 1);
+                doc.line(midX - 1, py, midX + 1, py);
+
+                if (i !== 0 && Math.abs(i) < 5) {
+                    doc.text(String(val), px, midY + 4.2, { align: 'center' });
+                    doc.text(String(val), midX - 2, py + 1, { align: 'right' });
+                } else if (i === 0) {
+                    doc.text('0', midX - 1.8, midY + 3.8, { align: 'right' });
+                }
+            }
+
+            // Label HODOGRAPH di bawah kotak
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('HODOGRAPH', midX, boxY + boxSize + 7, { align: 'center' });
+
+            // Plot titik & garis penghubung Hodograph (U, V) dengan warna biru
+            if (hodographRows.length > 0) {
+                doc.setDrawColor(59, 130, 246);
+                doc.setLineWidth(0.45);
+                for (let idx = 1; idx < hodographRows.length; idx++) {
+                    const p1 = hodographRows[idx - 1];
+                    const p2 = hodographRows[idx];
+                    const x1 = midX + (p1.u / maxAxis) * (boxSize / 2);
+                    const y1 = midY - (p1.v / maxAxis) * (boxSize / 2);
+                    const x2 = midX + (p2.u / maxAxis) * (boxSize / 2);
+                    const y2 = midY - (p2.v / maxAxis) * (boxSize / 2);
+                    doc.line(x1, y1, x2, y2);
+                }
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                hodographRows.forEach(pt => {
+                    const px = midX + (pt.u / maxAxis) * (boxSize / 2);
+                    const py = midY - (pt.v / maxAxis) * (boxSize / 2);
+
+                    doc.setFillColor(59, 130, 246);
+                    doc.circle(px, py, 1.05, 'F');
+
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(String(pt.no), px, py - 1.8, { align: 'center' });
+                });
+            }
+
+            // =====================================================================
+            // Panel Kanan: Skala Vertikal KM (0..6) & FT (x1000) (0..20) + Wind Barbs
+            // =====================================================================
+            const axisX = boxX + boxSize + 15;
+            const axisTop = boxY + 5;
+            const axisBottom = boxY + boxSize;
+            const axisH = axisBottom - axisTop;
+            const maxFtScale = Math.max(20000, ...hodographRows.map(r => r.heightFt));
+            const maxKmScale = maxFtScale * 0.0003048;
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(6.8);
+            doc.setTextColor(15, 23, 42);
+            doc.text('KM', axisX - 3.5, boxY + 1, { align: 'center' });
+            doc.text('FT (x1000)', axisX + 1.5, boxY + 1, { align: 'left' });
+
+            doc.setDrawColor(15, 23, 42);
+            doc.setLineWidth(0.3);
+            doc.line(axisX, axisTop, axisX, axisBottom);
+
+            // Ticks FT (x1000) dari 0 sampai 20
+            const maxK = Math.round(maxFtScale / 1000);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            for (let k = 0; k <= maxK; k++) {
+                const py = axisBottom - (k / maxK) * axisH;
+                doc.line(axisX, py, axisX + 1.2, py);
+                doc.text(String(k), axisX + 2, py + 0.9, { align: 'left' });
+            }
+
+            // Ticks KM dari 0 sampai 6
+            const maxKmInt = Math.floor(maxKmScale);
+            for (let km = 0; km <= maxKmInt; km++) {
+                const ftEq = km / 0.0003048;
+                const py = axisBottom - (ftEq / maxFtScale) * axisH;
+                doc.line(axisX - 1.4, py, axisX, py);
+                doc.text(String(km), axisX - 2.2, py + 0.9, { align: 'right' });
+            }
+
+            // Wind Barbs di sisi kanan skala FT
+            const barbColX = axisX + 22;
+            hodographRows.forEach(pt => {
+                const py = axisBottom - (pt.heightFt / maxFtScale) * axisH;
+                drawVectorWindBarbToPDF(doc, barbColX, py, pt.dir, pt.speedKt, 9.2);
+            });
         }
 
         // =========================================================================
-        // 12. EXPORTS (CLIPBOARD, WA, CSV, PDF 3 HALAMAN PERSIS CONTOH, BMKGSOFT SCRIPT)
+        // 13. EXPORTS (DIRECT AUTO-NAMED FILE DOWNLOAD, WA, CSV, PDF, BMKGSOFT SCRIPT)
         // =========================================================================
+        function triggerDirectBlobDownload(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.setAttribute('download', fileName);
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            // Tunda revoke agar Download Manager Android selesai membaca atribut nama file otomatis
+            setTimeout(() => URL.revokeObjectURL(url), 15000);
+        }
+
         function copyToClipboardSafe(text, successMsg) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -2223,7 +2426,7 @@
             window.open(waUrl, '_blank');
         }
 
-        async function exportToCSV() {
+        function exportToCSV() {
             const wmo = document.getElementById('obs-wmo')?.value || '97270';
             const dateStr = document.getElementById('obs-date')?.value || 'date';
             const hourStr = document.getElementById('obs-hour')?.value || '00';
@@ -2239,30 +2442,9 @@
                 csv += `${r.minute},${az},${el},${r.heightFt},${dir},${spd},${dddff}\n`;
             });
 
-            try {
-                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
-                const link = document.createElement('a');
-                link.setAttribute('href', dataUri);
-                link.setAttribute('download', fileName);
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                setTimeout(() => document.body.removeChild(link), 500);
-            } catch (e) {}
-
-            try {
-                const file = new File([csv], fileName, { type: 'text/csv' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: fileName,
-                        files: [file]
-                    });
-                    showToast(`File ${fileName} berhasil dibagikan/disimpan.`, 'success');
-                    return;
-                }
-            } catch (err) {}
-
-            showToast(`File ${fileName} diunduh. Cek folder Download di File Manager HP.`, 'success');
+            const csvBlob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            triggerDirectBlobDownload(csvBlob, fileName);
+            showToast(`File ${fileName} otomatis diunduh!`, 'success');
         }
 
         function formatPdfDateLong(dateStr) {
@@ -2282,8 +2464,8 @@
             return `${d}/${m}/${y}`;
         }
 
-        // Generator PDF Native jsPDF 3 Halaman Persis Seperti 2026112600_pibal.pdf
-        async function exportToPDF() {
+        // Generator PDF Vektor 3 Halaman (Ukuran kecil ~18KB, grafik tajam anti-rusak, auto-nama YYYYMMDDHH_pibal.pdf)
+        function exportToPDF() {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
                 return;
@@ -2291,11 +2473,16 @@
 
             try {
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
 
                 const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
                 const hourVal = document.getElementById('obs-hour')?.value || '00';
-                const obsName = document.getElementById('obs-name')?.value || 'Observer';
+                const obsName = (document.getElementById('obs-name')?.value || '').trim() || 'Observer';
                 const mslVal = document.getElementById('obs-msl')?.value || '1.3';
                 const reasonVal = document.getElementById('obs-reason')?.value || 'BB';
                 const parts = getPilotCodeParts();
@@ -2374,7 +2561,7 @@
                 doc.text(ppbb2, 18, y2);
                 y2 += ppbb2.length * 4.5 + 5;
 
-                const colX = [18, 30, 48, 64, 78, 96, 114, 138, 192];
+                const colX = [18, 29, 46, 61, 75, 93, 111, 134, 192];
                 const hdrH = 12;
 
                 doc.setDrawColor(40, 40, 40);
@@ -2430,16 +2617,18 @@
                 });
 
                 // =================================================================
-                // HALAMAN 3: GRAFIK HODOGRAPH & WIND BARB PROFILE (KM / FT x1000)
+                // HALAMAN 3: GRAFIK VEKTOR HODOGRAPH & WIND BARB PROFILE
                 // =================================================================
                 doc.addPage();
-                const offCanvas = document.createElement('canvas');
-                renderHodographAndBarbsToCanvas(offCanvas, 900, 650, 2);
-                const chartImgData = offCanvas.toDataURL('image/png');
-                doc.addImage(chartImgData, 'PNG', 12, 20, 186, 134);
+                drawVectorHodographPageToPDF(doc);
 
-                doc.save(fileName);
-                showToast(`PDF ${fileName} (3 halaman) berhasil dibuat & diunduh!`, 'success');
+                // Unduh langsung sebagai application/pdf dengan nama otomatis YYYYMMDDHH_pibal.pdf
+                const pdfArrayBuf = doc.output('arraybuffer');
+                const pdfBlob = new Blob([pdfArrayBuf], { type: 'application/pdf' });
+                triggerDirectBlobDownload(pdfBlob, fileName);
+
+                const sizeKB = Math.max(1, Math.round(pdfBlob.size / 1024));
+                showToast(`PDF ${fileName} (${sizeKB} KB) otomatis diunduh!`, 'success');
             } catch (err) {
                 console.error(err);
                 showToast('Gagal membuat file PDF: ' + err.message, 'error');
@@ -2477,7 +2666,7 @@
         }
 
         // =========================================================================
-        // 13. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
+        // 14. SESSION HISTORY (LAST 3 COMPLETED OBSERVATIONS + PDF)
         // =========================================================================
         function getSavedHistory() {
             try {
