@@ -2675,6 +2675,41 @@
         // Simpan Blob PDF ke perangkat dengan nama file yang benar.
         // Chrome Android & PWA terpasang: <a download> dengan blob URL (URL tidak langsung dicabut,
         // karena Android butuh waktu untuk menyalin file -> penyebab gagal unduh sebelumnya).
+        // Pastikan nama file selalu berakhiran .pdf (bukan .bin)
+        function ensurePdfFileName(name) {
+            let n = String(name || 'pibal').replace(/[\\/:*?"<>|]+/g, '_').trim();
+            if (!/\.pdf$/i.test(n)) n += '.pdf';
+            return n;
+        }
+
+        // Pastikan Blob bertipe application/pdf (tipe kosong = Android menyimpan sebagai .bin)
+        function asPdfBlob(blob) {
+            if (blob && blob.type === 'application/pdf') return blob;
+            return new Blob([blob], { type: 'application/pdf' });
+        }
+
+        // Android: unduh via data:application/pdf;base64,... (bukan blob:).
+        // Banyak WebView/APK & pengelola unduhan Android tidak bisa membaca blob: URL,
+        // sehingga file tersimpan sebagai .bin tanpa tipe. Data URI membawa tipe PDF di dalamnya.
+        async function triggerPdfDownload(blob, fileName) {
+            const pdfBlob = asPdfBlob(blob);
+            const name = ensurePdfFileName(fileName);
+            if (!isAndroidDevice()) {
+                triggerBlobDownload(pdfBlob, name);
+                return;
+            }
+            let dataUrl = String(await blobToDataURL(pdfBlob));
+            dataUrl = dataUrl.replace(/^data:[^;,]*/, 'data:application/pdf');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = name;
+            link.type = 'application/pdf';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => { if (link.parentNode) link.parentNode.removeChild(link); }, 1500);
+        }
+
         function triggerBlobDownload(blob, fileName) {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -2709,7 +2744,8 @@
             let doc, fileName, blob;
             try {
                 ({ doc, fileName } = buildPibalPDFDocument());
-                blob = doc.output('blob');
+                fileName = ensurePdfFileName(fileName);
+                blob = new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
             } catch (e) {
                 showToast('Gagal membuat PDF: ' + (e && e.message ? e.message : e), 'error');
                 return;
@@ -2736,7 +2772,7 @@
             }
 
             try {
-                triggerBlobDownload(blob, fileName);
+                await triggerPdfDownload(blob, fileName);
                 showToast(isMobileOrWebView()
                     ? `PDF ${fileName} diunduh. Cek notifikasi / folder Download.`
                     : `PDF ${fileName} berhasil diunduh!`, 'success');
