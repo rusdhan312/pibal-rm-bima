@@ -1,6 +1,6 @@
 // PIBAL-RM BIMA Service Worker
-// v17: library jsPDF ikut disimpan agar unduh PDF tetap jalan saat offline di Android
-const CACHE_NAME = 'pibal-rm-bima-v17';
+// v18: library jsPDF ikut disimpan agar unduh PDF tetap jalan saat offline di Android
+const CACHE_NAME = 'pibal-rm-bima-v18';
 
 const ASSETS_TO_CACHE = [
   './',

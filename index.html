@@ -2767,7 +2767,7 @@
             try {
                 const pdfFile = new File([blob], fileName, { type: 'application/pdf', lastModified: Date.now() });
                 if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                    await navigator.share({ files: [pdfFile], title: fileName });
+                    await navigator.share({ files: [pdfFile] });
                     return 'shared';
                 }
             } catch (e) {
@@ -2866,6 +2866,11 @@
             // Di HP (Android / iOS): tampilkan pilihan cara simpan. Tiap tombol = ketukan langsung,
             // sehingga Share & unduhan tidak diblokir browser / APK.
             if (isMobileOrWebView()) {
+                // Sama seperti versi web (netlify): langsung buka menu Share Android dengan file PDF asli.
+                // Pilih "Simpan ke File/Drive" atau WhatsApp. Jika Share tidak tersedia, tampilkan pilihan lain.
+                const res = await sharePdfFile(blob, fileName);
+                if (res === 'shared') { showToast(`File ${fileName} berhasil dibagikan / disimpan!`, 'success'); return; }
+                if (res === 'aborted') return;
                 openPdfSaveModal(blob, fileName);
                 return;
             }
