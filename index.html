@@ -2779,6 +2779,8 @@
         // Fungsi utama: UNDUH file PDF (HP Android, PWA, WebView APK & PC)
         // ---- Pilihan simpan PDF di Android ----
         let pendingPdf = null; // { blob, fileName }
+        // Alamat web publik aplikasi (dipakai APK WebIntoApp untuk membuka Chrome & mengunduh PDF)
+        const PUBLIC_APP_URL = 'https://pibalstametbima.netlify.app/';
 
         function detectEnvLabel() {
             const ua = navigator.userAgent || '';
@@ -2865,6 +2867,18 @@
 
             // Di HP (Android / iOS): tampilkan pilihan cara simpan. Tiap tombol = ketukan langsung,
             // sehingga Share & unduhan tidak diblokir browser / APK.
+            if (isAndroidWebView()) {
+                // APK WebIntoApp / WebView: unduhan & Share file diblokir oleh WebView.
+                // Langsung buka Chrome dengan data terisi, lalu PDF dibuat & disimpan di Chrome.
+                pendingPdf = { blob, fileName };
+                showToast('Membuka Chrome untuk menyimpan PDF...', 'info');
+                openInChromeForFileShare();
+                setTimeout(() => {
+                    if (document.visibilityState === 'visible') openPdfSaveModal(blob, fileName);
+                }, 3500);
+                return;
+            }
+
             if (isMobileOrWebView()) {
                 // Sama seperti versi web (netlify): langsung buka menu Share Android dengan file PDF asli.
                 // Pilih "Simpan ke File/Drive" atau WhatsApp. Jika Share tidak tersedia, tampilkan pilihan lain.
@@ -3095,9 +3109,8 @@
             } catch (err) {}
 
             if (isAndroidWebView()) {
-                // WebView APK tanpa izin share file: tampilkan pratinjau + tombol Unduh / Buka di Chrome
-                openPdfPreviewModal();
-                showToast('APK membatasi lampiran file. Ketuk "Kirim File PDF (via Chrome)" atau "Unduh PDF" di atas.', 'info');
+                // APK WebIntoApp: buka Chrome (data otomatis terbawa) untuk kirim file PDF ke WA
+                await downloadPdfFile();
                 return;
             }
 
@@ -3223,9 +3236,23 @@
                 p: readings.map(r => [r.minute, r.azimuth, r.elevation])
             };
             const encoded = encodePayloadBase64Url(payload);
-            const hostAndPath = window.location.host + window.location.pathname;
-            const intentUrl = `intent://${hostAndPath}?autopdf=${encoded}#Intent;scheme=https;package=com.android.chrome;end`;
+            // Di APK (WebIntoApp dll.) halaman bisa dimuat dari file lokal, jadi pakai alamat web publik.
+            let httpsBase;
+            if (window.location.protocol === 'https:') {
+                httpsBase = window.location.origin + window.location.pathname;
+            } else {
+                httpsBase = PUBLIC_APP_URL;
+            }
+            const httpsUrl = `${httpsBase}?autopdf=${encoded}`;
+            const hostAndPath = httpsBase.replace(/^https:\/\//, '');
+            const intentUrl = `intent://${hostAndPath}?autopdf=${encoded}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
             window.location.href = intentUrl;
+            // Cadangan: jika APK tidak meneruskan intent://, coba buka sebagai link eksternal
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    try { window.open(httpsUrl, '_blank'); } catch (e) {}
+                }
+            }, 1500);
         }
 
         function openPdfPreviewModal() {
