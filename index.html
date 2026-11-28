@@ -628,13 +628,9 @@
                         <i class="fa-solid fa-file-csv"></i>
                         <span>Data CSV / WA</span>
                     </button>
-                    <button type="button" onclick="handlePDFAction()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="downloadPdfFile()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Kirim PDF ke WA</span>
-                    </button>
-                    <button type="button" onclick="downloadPdfFile()" class="col-span-2 bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Unduh File PDF (HP / PC)</span>
+                        <span>PDF (Simpan / WA)</span>
                     </button>
                 </div>
             </div>
@@ -733,13 +729,9 @@
                     <div class="text-[10px] text-slate-400">Laporan 3 Halaman (Hasil, Tabel Hodograph &amp; Grafik)</div>
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="downloadPdfFile()" class="bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Unduh PDF</span>
-                    </button>
-                    <button type="button" onclick="openInChromeForFileShare()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
-                        <i class="fa-brands fa-whatsapp text-sm"></i>
-                        <span>Kirim File PDF (via Chrome)</span>
+                    <button type="button" onclick="downloadPdfFile()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>PDF (Simpan / WA)</span>
                     </button>
                     <button type="button" onclick="copyFullReportText()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2 px-2.5 rounded-xl shadow flex items-center gap-1 transition">
                         <i class="fa-solid fa-copy"></i>
@@ -811,13 +803,9 @@
                 <p id="chrome-ready-summary" class="text-[11px] text-slate-300 leading-relaxed pt-1">Seluruh data pembacaan &amp; grafik 3 halaman sudah otomatis terisi.</p>
             </div>
             <div class="space-y-2 pt-1">
-                <button type="button" onclick="triggerNativePdfFileShare()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 transition">
-                    <i class="fa-brands fa-whatsapp text-base"></i>
-                    <span>Kirim File PDF ke WhatsApp</span>
-                </button>
-                <button type="button" onclick="downloadPdfFile()" class="w-full py-2.5 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Unduh File PDF ke HP</span>
+                <button type="button" onclick="downloadPdfFile()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-file-pdf text-base"></i>
+                    <span>Simpan / Kirim PDF</span>
                 </button>
                 <button type="button" onclick="closeChromeReadyModal()" class="w-full py-2 px-3 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition">
                     Lihat Hasil di Layar
@@ -826,41 +814,24 @@
         </div>
     </div>
 
-    <!-- Pilihan Simpan PDF untuk Android (semua cara dalam satu tempat, tanpa aplikasi tambahan) -->
-    <div id="pdf-save-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm items-center justify-center p-4">
-        <div class="bg-navy-900 border-2 border-amber-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-center">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-xl">
-                <i class="fa-solid fa-file-pdf"></i>
+    <!-- APK (WebIntoApp / WebView): Salin Link PDF lalu buka di Chrome -->
+    <div id="pdf-link-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-emerald-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-link"></i>
             </div>
-            <div class="space-y-1">
-                <h3 class="text-base font-extrabold text-white">Simpan File PDF</h3>
-                <p id="pdf-save-filename" class="font-mono text-xs font-bold text-sky-400">pibal.pdf</p>
-                <p class="text-[11px] text-slate-300 leading-relaxed">Coba cara 1 dulu. Jika gagal, coba cara berikutnya.</p>
-            </div>
-            <div class="space-y-2 pt-1 text-left">
-                <button type="button" onclick="pdfSaveViaShare()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
-                    <i class="fa-solid fa-share-nodes text-base"></i>
-                    <span>1. Bagikan / Simpan (pilih "File", "Drive" atau WA)</span>
-                </button>
-                <button type="button" onclick="pdfSaveViaDataUrl()" class="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs shadow flex items-center gap-2 transition">
-                    <i class="fa-solid fa-download text-base"></i>
-                    <span>2. Unduh ke folder Download</span>
-                </button>
-                <button type="button" onclick="pdfSaveViaBlob()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-download text-base"></i>
-                    <span>3. Unduh (cara alternatif)</span>
-                </button>
-                <button type="button" onclick="pdfSaveViaOpen()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-up-right-from-square text-base"></i>
-                    <span>4. Buka PDF di tab baru</span>
-                </button>
-                <button type="button" onclick="openInChromeForFileShare()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
-                    <i class="fa-brands fa-chrome text-base"></i>
-                    <span>5. Buka di Chrome (jika dari aplikasi APK)</span>
-                </button>
-            </div>
-            <p id="pdf-save-env" class="text-[10px] text-slate-500 font-mono break-all"></p>
-            <button type="button" onclick="closePdfSaveModal()" class="w-full py-2 px-3 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition">Tutup</button>
+            <h3 class="text-base font-extrabold text-white">Link PDF Sudah Disalin</h3>
+            <ol class="text-left text-[12px] text-slate-200 leading-relaxed list-decimal pl-5 space-y-0.5">
+                <li>Buka aplikasi <b>Chrome</b></li>
+                <li>Tekan lama kolom alamat &rarr; <b>Tempel</b> &rarr; buka</li>
+                <li>Ketuk <b>Simpan / Kirim PDF</b></li>
+            </ol>
+            <textarea id="pdf-link-text" readonly rows="3" onclick="this.select()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-[10px] font-mono text-sky-300 break-all"></textarea>
+            <button type="button" onclick="copyPdfLinkAgain()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-copy"></i>
+                <span>Salin Link Lagi</span>
+            </button>
+            <button type="button" onclick="closePdfLinkModal()" class="w-full py-2 px-3 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition">Tutup</button>
         </div>
     </div>
 
@@ -2777,73 +2748,54 @@
         }
 
         // Fungsi utama: UNDUH file PDF (HP Android, PWA, WebView APK & PC)
-        // ---- Pilihan simpan PDF di Android ----
-        let pendingPdf = null; // { blob, fileName }
-        // Alamat web publik aplikasi (dipakai APK WebIntoApp untuk membuka Chrome & mengunduh PDF)
+        // Alamat web publik aplikasi (dibuka di Chrome dari APK WebIntoApp)
         const PUBLIC_APP_URL = 'https://pibalstametbima.netlify.app/';
 
-        function detectEnvLabel() {
-            const ua = navigator.userAgent || '';
-            const standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-            let env = 'Browser';
-            if (isAndroidWebView()) env = 'Aplikasi APK (WebView)';
-            else if (standalone) env = 'Aplikasi terpasang (PWA)';
-            else if (/Chrome\//.test(ua)) env = 'Chrome';
-            const m = ua.match(/(Android [\d.]+)/);
-            return `Terdeteksi: ${env}${m ? ' • ' + m[1] : ''}`;
+        function buildPdfLinkForChrome() {
+            saveToLocalStorage();
+            const payload = {
+                w: document.getElementById('obs-wmo')?.value || '97270',
+                n: document.getElementById('obs-name')?.value || 'Observer',
+                d: document.getElementById('obs-date')?.value || '',
+                h: document.getElementById('obs-hour')?.value || '00',
+                m: document.getElementById('obs-msl')?.value || '1.3',
+                r: document.getElementById('obs-reason')?.value || 'BB',
+                sd: document.getElementById('surface-dir')?.value || '0',
+                ss: document.getElementById('surface-spd')?.value || '0',
+                p: readings.map(r => [r.minute, r.azimuth, r.elevation])
+            };
+            return `${PUBLIC_APP_URL}?autopdf=${encodePayloadBase64Url(payload)}`;
         }
 
-        function openPdfSaveModal(blob, fileName) {
-            pendingPdf = { blob, fileName };
-            const fn = document.getElementById('pdf-save-filename');
-            if (fn) fn.textContent = fileName;
-            const env = document.getElementById('pdf-save-env');
-            if (env) env.textContent = detectEnvLabel();
-            const m = document.getElementById('pdf-save-modal');
+        function showPdfLinkModal() {
+            const link = buildPdfLinkForChrome();
+            const ta = document.getElementById('pdf-link-text');
+            if (ta) ta.value = link;
+            copyToClipboardSafe(link, 'Link PDF disalin! Tempel di Chrome.');
+            const m = document.getElementById('pdf-link-modal');
             if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
 
-        function closePdfSaveModal() {
-            const m = document.getElementById('pdf-save-modal');
+        function copyPdfLinkAgain() {
+            const ta = document.getElementById('pdf-link-text');
+            if (ta && ta.value) copyToClipboardSafe(ta.value, 'Link PDF disalin! Tempel di Chrome.');
+        }
+
+        function closePdfLinkModal() {
+            const m = document.getElementById('pdf-link-modal');
             if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
         }
 
-        async function pdfSaveViaShare() {
-            if (!pendingPdf) return;
-            const res = await sharePdfFile(pendingPdf.blob, pendingPdf.fileName);
-            if (res === 'shared') { closePdfSaveModal(); showToast('PDF berhasil dibagikan / disimpan.', 'success'); }
-            else if (res === 'unsupported') showToast('Bagikan file tidak didukung di sini. Coba cara 2.', 'error');
-        }
-
-        async function pdfSaveViaDataUrl() {
-            if (!pendingPdf) return;
-            try {
-                let dataUrl = String(await blobToDataURL(pendingPdf.blob)).replace(/^data:[^;,]*/, 'data:application/pdf');
-                const a = document.createElement('a');
-                a.href = dataUrl; a.download = pendingPdf.fileName; a.type = 'application/pdf';
-                a.style.display = 'none'; document.body.appendChild(a); a.click();
-                setTimeout(() => a.remove(), 1500);
-                showToast('Cek notifikasi / folder Download. Jika gagal, coba cara 3.', 'info');
-            } catch (e) { showToast('Cara 2 gagal, coba cara 3.', 'error'); }
-        }
-
-        function pdfSaveViaBlob() {
-            if (!pendingPdf) return;
-            try {
-                triggerBlobDownload(pendingPdf.blob, pendingPdf.fileName);
-                showToast('Cek notifikasi / folder Download. Jika gagal, coba cara 4.', 'info');
-            } catch (e) { showToast('Cara 3 gagal, coba cara 4.', 'error'); }
-        }
-
-        function pdfSaveViaOpen() {
-            if (!pendingPdf) return;
-            const url = URL.createObjectURL(pendingPdf.blob);
-            const w = window.open(url, '_blank');
-            if (!w) window.location.href = url;
-            setTimeout(() => URL.revokeObjectURL(url), 300000);
-        }
-
+        // ===== SATU TOMBOL PDF =====
+        // - APK WebIntoApp (WebView): salin link -> tempel di Chrome -> PDF dibuat di Chrome
+        // - HP (Chrome / PWA): menu Share Android dengan file PDF (pilih WA / Simpan ke File)
+        // - PC: langsung unduh file PDF
         async function downloadPdfFile() {
+            // WebView APK, atau Android yang tidak punya Share file (biasanya juga WebView)
+            if (isAndroidWebView() || (isAndroidDevice() && !navigator.canShare)) {
+                showPdfLinkModal();
+                return;
+            }
             if (!(await ensureJsPDF())) return;
             let doc, fileName, blob;
             try {
@@ -2855,55 +2807,24 @@
                 return;
             }
 
-            // Jembatan opsional untuk APK WebView (jika APK menyediakan JavascriptInterface "AndroidPdf")
-            if (window.AndroidPdf && typeof window.AndroidPdf.saveBase64Pdf === 'function') {
-                try {
-                    const dataUrl = await blobToDataURL(blob);
-                    window.AndroidPdf.saveBase64Pdf(String(dataUrl).split(',')[1], fileName);
-                    showToast(`PDF ${fileName} disimpan ke folder Download.`, 'success');
-                    return;
-                } catch (e) {}
-            }
-
-            // Di HP (Android / iOS): tampilkan pilihan cara simpan. Tiap tombol = ketukan langsung,
-            // sehingga Share & unduhan tidak diblokir browser / APK.
-            if (isAndroidWebView()) {
-                // APK WebIntoApp / WebView: unduhan & Share file diblokir oleh WebView.
-                // Langsung buka Chrome dengan data terisi, lalu PDF dibuat & disimpan di Chrome.
-                pendingPdf = { blob, fileName };
-                showToast('Membuka Chrome untuk menyimpan PDF...', 'info');
-                openInChromeForFileShare();
-                setTimeout(() => {
-                    if (document.visibilityState === 'visible') openPdfSaveModal(blob, fileName);
-                }, 3500);
-                return;
-            }
-
             if (isMobileOrWebView()) {
-                // Sama seperti versi web (netlify): langsung buka menu Share Android dengan file PDF asli.
-                // Pilih "Simpan ke File/Drive" atau WhatsApp. Jika Share tidak tersedia, tampilkan pilihan lain.
                 const res = await sharePdfFile(blob, fileName);
-                if (res === 'shared') { showToast(`File ${fileName} berhasil dibagikan / disimpan!`, 'success'); return; }
+                if (res === 'shared') {
+                    closeChromeReadyModal();
+                    showToast(`File ${fileName} berhasil dibagikan / disimpan!`, 'success');
+                    return;
+                }
                 if (res === 'aborted') return;
-                openPdfSaveModal(blob, fileName);
-                return;
             }
 
             try {
                 await triggerPdfDownload(blob, fileName);
+                closeChromeReadyModal();
                 showToast(isMobileOrWebView()
-                    ? `PDF ${fileName} diunduh. Cek notifikasi / folder Download.`
+                    ? `PDF ${fileName} diunduh. Cek folder Download.`
                     : `PDF ${fileName} berhasil diunduh!`, 'success');
             } catch (e) {
-                // Cadangan: buka PDF di tab baru (Chrome Android otomatis menawarkan unduh)
-                try {
-                    const url = URL.createObjectURL(blob);
-                    const w = window.open(url, '_blank');
-                    if (!w) window.location.href = url;
-                } catch (e2) {
-                    const res = await sharePdfFile(blob, fileName);
-                    if (res === 'unsupported') showToast('Browser ini tidak mendukung unduh PDF.', 'error');
-                }
+                showToast('Gagal menyimpan PDF di browser ini.', 'error');
             }
         }
 
@@ -3084,39 +3005,9 @@
             return lines.join('\n');
         }
 
-        // Handler utama tombol Kirim PDF ke WA:
-        // - Di PC: langsung mengunduh file vector PDF YYYYMMDDHH_pibal.pdf
-        // - Di HP (Chrome / TWA): membuka menu Share Android dengan lampiran FILE .pdf asli untuk dikirim ke WA
-        // - Di WebView APK lama yang memblokir share file: membuka Pratinjau 3 Halaman + tombol Buka di Chrome (tanpa crash!)
-        async function handlePDFAction() {
-            if (!(await ensureJsPDF())) return;
-
-            if (!isMobileOrWebView()) {
-                downloadPdfFile();
-                return;
-            }
-
-            let fileName = '';
-            try {
-                const built = buildPibalPDFDocument();
-                fileName = built.fileName;
-                const res = await sharePdfFile(built.doc.output('blob'), fileName);
-                if (res === 'shared') {
-                    showToast(`File ${fileName} berhasil dikirim!`, 'success');
-                    return;
-                }
-                if (res === 'aborted') return;
-            } catch (err) {}
-
-            if (isAndroidWebView()) {
-                // APK WebIntoApp: buka Chrome (data otomatis terbawa) untuk kirim file PDF ke WA
-                await downloadPdfFile();
-                return;
-            }
-
-            // Chrome / PWA tanpa dukungan share file: unduh PDF, lalu lampirkan manual di WA
-            await downloadPdfFile();
-            showToast('PDF diunduh. Lampirkan dari folder Download di WhatsApp.', 'info');
+        // Tombol lama (riwayat dll.) memakai satu cara yang sama
+        function handlePDFAction() {
+            return downloadPdfFile();
         }
 
         function encodePayloadBase64Url(obj) {
@@ -3201,20 +3092,8 @@
             }
         }
 
-        async function triggerNativePdfFileShare() {
-            if (!(await ensureJsPDF())) return;
-            try {
-                const { doc, fileName } = buildPibalPDFDocument();
-                const res = await sharePdfFile(doc.output('blob'), fileName);
-                if (res === 'shared') {
-                    closeChromeReadyModal();
-                    showToast(`File ${fileName} berhasil dikirim!`, 'success');
-                    return;
-                }
-                if (res === 'aborted') return;
-            } catch (e) {}
-            await downloadPdfFile();
-            closeChromeReadyModal();
+        function triggerNativePdfFileShare() {
+            return downloadPdfFile();
         }
 
         function copyFullReportText() {
@@ -3223,36 +3102,7 @@
         }
 
         function openInChromeForFileShare() {
-            saveToLocalStorage();
-            const payload = {
-                w: document.getElementById('obs-wmo')?.value || '97270',
-                n: document.getElementById('obs-name')?.value || 'Observer',
-                d: document.getElementById('obs-date')?.value || '',
-                h: document.getElementById('obs-hour')?.value || '00',
-                m: document.getElementById('obs-msl')?.value || '1.3',
-                r: document.getElementById('obs-reason')?.value || 'BB',
-                sd: document.getElementById('surface-dir')?.value || '0',
-                ss: document.getElementById('surface-spd')?.value || '0',
-                p: readings.map(r => [r.minute, r.azimuth, r.elevation])
-            };
-            const encoded = encodePayloadBase64Url(payload);
-            // Di APK (WebIntoApp dll.) halaman bisa dimuat dari file lokal, jadi pakai alamat web publik.
-            let httpsBase;
-            if (window.location.protocol === 'https:') {
-                httpsBase = window.location.origin + window.location.pathname;
-            } else {
-                httpsBase = PUBLIC_APP_URL;
-            }
-            const httpsUrl = `${httpsBase}?autopdf=${encoded}`;
-            const hostAndPath = httpsBase.replace(/^https:\/\//, '');
-            const intentUrl = `intent://${hostAndPath}?autopdf=${encoded}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
-            window.location.href = intentUrl;
-            // Cadangan: jika APK tidak meneruskan intent://, coba buka sebagai link eksternal
-            setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    try { window.open(httpsUrl, '_blank'); } catch (e) {}
-                }
-            }, 1500);
+            showPdfLinkModal();
         }
 
         function openPdfPreviewModal() {
