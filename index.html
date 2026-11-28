@@ -826,6 +826,44 @@
         </div>
     </div>
 
+    <!-- Pilihan Simpan PDF untuk Android (semua cara dalam satu tempat, tanpa aplikasi tambahan) -->
+    <div id="pdf-save-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-amber-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-base font-extrabold text-white">Simpan File PDF</h3>
+                <p id="pdf-save-filename" class="font-mono text-xs font-bold text-sky-400">pibal.pdf</p>
+                <p class="text-[11px] text-slate-300 leading-relaxed">Coba cara 1 dulu. Jika gagal, coba cara berikutnya.</p>
+            </div>
+            <div class="space-y-2 pt-1 text-left">
+                <button type="button" onclick="pdfSaveViaShare()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
+                    <i class="fa-solid fa-share-nodes text-base"></i>
+                    <span>1. Bagikan / Simpan (pilih "File", "Drive" atau WA)</span>
+                </button>
+                <button type="button" onclick="pdfSaveViaDataUrl()" class="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs shadow flex items-center gap-2 transition">
+                    <i class="fa-solid fa-download text-base"></i>
+                    <span>2. Unduh ke folder Download</span>
+                </button>
+                <button type="button" onclick="pdfSaveViaBlob()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-download text-base"></i>
+                    <span>3. Unduh (cara alternatif)</span>
+                </button>
+                <button type="button" onclick="pdfSaveViaOpen()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-up-right-from-square text-base"></i>
+                    <span>4. Buka PDF di tab baru</span>
+                </button>
+                <button type="button" onclick="openInChromeForFileShare()" class="w-full py-3 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition">
+                    <i class="fa-brands fa-chrome text-base"></i>
+                    <span>5. Buka di Chrome (jika dari aplikasi APK)</span>
+                </button>
+            </div>
+            <p id="pdf-save-env" class="text-[10px] text-slate-500 font-mono break-all"></p>
+            <button type="button" onclick="closePdfSaveModal()" class="w-full py-2 px-3 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition">Tutup</button>
+        </div>
+    </div>
+
     <!-- Custom Confirmation Modal -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
@@ -2739,6 +2777,70 @@
         }
 
         // Fungsi utama: UNDUH file PDF (HP Android, PWA, WebView APK & PC)
+        // ---- Pilihan simpan PDF di Android ----
+        let pendingPdf = null; // { blob, fileName }
+
+        function detectEnvLabel() {
+            const ua = navigator.userAgent || '';
+            const standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+            let env = 'Browser';
+            if (isAndroidWebView()) env = 'Aplikasi APK (WebView)';
+            else if (standalone) env = 'Aplikasi terpasang (PWA)';
+            else if (/Chrome\//.test(ua)) env = 'Chrome';
+            const m = ua.match(/(Android [\d.]+)/);
+            return `Terdeteksi: ${env}${m ? ' • ' + m[1] : ''}`;
+        }
+
+        function openPdfSaveModal(blob, fileName) {
+            pendingPdf = { blob, fileName };
+            const fn = document.getElementById('pdf-save-filename');
+            if (fn) fn.textContent = fileName;
+            const env = document.getElementById('pdf-save-env');
+            if (env) env.textContent = detectEnvLabel();
+            const m = document.getElementById('pdf-save-modal');
+            if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        }
+
+        function closePdfSaveModal() {
+            const m = document.getElementById('pdf-save-modal');
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        }
+
+        async function pdfSaveViaShare() {
+            if (!pendingPdf) return;
+            const res = await sharePdfFile(pendingPdf.blob, pendingPdf.fileName);
+            if (res === 'shared') { closePdfSaveModal(); showToast('PDF berhasil dibagikan / disimpan.', 'success'); }
+            else if (res === 'unsupported') showToast('Bagikan file tidak didukung di sini. Coba cara 2.', 'error');
+        }
+
+        async function pdfSaveViaDataUrl() {
+            if (!pendingPdf) return;
+            try {
+                let dataUrl = String(await blobToDataURL(pendingPdf.blob)).replace(/^data:[^;,]*/, 'data:application/pdf');
+                const a = document.createElement('a');
+                a.href = dataUrl; a.download = pendingPdf.fileName; a.type = 'application/pdf';
+                a.style.display = 'none'; document.body.appendChild(a); a.click();
+                setTimeout(() => a.remove(), 1500);
+                showToast('Cek notifikasi / folder Download. Jika gagal, coba cara 3.', 'info');
+            } catch (e) { showToast('Cara 2 gagal, coba cara 3.', 'error'); }
+        }
+
+        function pdfSaveViaBlob() {
+            if (!pendingPdf) return;
+            try {
+                triggerBlobDownload(pendingPdf.blob, pendingPdf.fileName);
+                showToast('Cek notifikasi / folder Download. Jika gagal, coba cara 4.', 'info');
+            } catch (e) { showToast('Cara 3 gagal, coba cara 4.', 'error'); }
+        }
+
+        function pdfSaveViaOpen() {
+            if (!pendingPdf) return;
+            const url = URL.createObjectURL(pendingPdf.blob);
+            const w = window.open(url, '_blank');
+            if (!w) window.location.href = url;
+            setTimeout(() => URL.revokeObjectURL(url), 300000);
+        }
+
         async function downloadPdfFile() {
             if (!(await ensureJsPDF())) return;
             let doc, fileName, blob;
@@ -2761,13 +2863,10 @@
                 } catch (e) {}
             }
 
-            if (isAndroidWebView()) {
-                // WebView APK tidak bisa mengunduh blob: -> coba menu Share Android (Simpan ke Files / Drive / WA)
-                const res = await sharePdfFile(blob, fileName);
-                if (res === 'shared' || res === 'aborted') return;
-                // Terakhir: buka di Chrome (data otomatis terbawa), lalu tekan "Unduh File PDF ke HP" di sana
-                showToast('APK ini membatasi unduhan. Membuka Chrome untuk mengunduh PDF...', 'info');
-                setTimeout(openInChromeForFileShare, 900);
+            // Di HP (Android / iOS): tampilkan pilihan cara simpan. Tiap tombol = ketukan langsung,
+            // sehingga Share & unduhan tidak diblokir browser / APK.
+            if (isMobileOrWebView()) {
+                openPdfSaveModal(blob, fileName);
                 return;
             }
 
