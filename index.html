@@ -16,8 +16,9 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF untuk unduh PDF vektor langsung di Laptop/PC -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF: membuat file PDF langsung di HP/PC (tanpa window.print) -->
+    <!-- crossorigin="anonymous" agar Service Worker bisa menyimpannya untuk mode offline -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -631,6 +632,10 @@
                         <i class="fa-solid fa-file-pdf"></i>
                         <span>Kirim PDF ke WA</span>
                     </button>
+                    <button type="button" onclick="downloadPdfFile()" class="col-span-2 bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-3 px-3 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Unduh File PDF (HP / PC)</span>
+                    </button>
                 </div>
             </div>
 
@@ -727,14 +732,18 @@
                     <div class="text-xs font-extrabold text-white truncate" id="preview-modal-filename">2026112600_pibal.pdf</div>
                     <div class="text-[10px] text-slate-400">Laporan 3 Halaman (Hasil, Tabel Hodograph &amp; Grafik)</div>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="openInChromeForFileShare()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
-                        <i class="fa-brands fa-chrome text-sm"></i>
-                        <span>Buka di Chrome (File PDF)</span>
+                <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="downloadPdfFile()" class="bg-amber-500 hover:bg-amber-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Unduh PDF</span>
                     </button>
-                    <button type="button" onclick="saveReportAsPDFSafe()" class="bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>Simpan PDF</span>
+                    <button type="button" onclick="openInChromeForFileShare()" class="bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs py-2 px-3 rounded-xl shadow flex items-center gap-1.5 transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Kirim File PDF (via Chrome)</span>
+                    </button>
+                    <button type="button" onclick="copyFullReportText()" class="bg-sky-500 hover:bg-sky-400 text-navy-950 font-extrabold text-xs py-2 px-2.5 rounded-xl shadow flex items-center gap-1 transition">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Salin Teks</span>
                     </button>
                     <button type="button" onclick="closePdfPreviewModal()" class="bg-navy-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2 px-2.5 rounded-xl border border-slate-700 transition">
                         <i class="fa-solid fa-xmark"></i>
@@ -790,6 +799,33 @@
         </div>
     </div>
 
+    <!-- Chrome PDF Ready Modal (Muncul otomatis saat dibuka dari APK dengan data lengkap terisi) -->
+    <div id="chrome-pdf-ready-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-emerald-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-base font-extrabold text-white">File PDF Siap Dikirim</h3>
+                <p id="chrome-ready-filename" class="font-mono text-xs font-bold text-sky-400">2026112600_pibal.pdf</p>
+                <p id="chrome-ready-summary" class="text-[11px] text-slate-300 leading-relaxed pt-1">Seluruh data pembacaan &amp; grafik 3 halaman sudah otomatis terisi.</p>
+            </div>
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="triggerNativePdfFileShare()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Kirim File PDF ke WhatsApp</span>
+                </button>
+                <button type="button" onclick="downloadPdfFile()" class="w-full py-2.5 px-4 rounded-xl bg-navy-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Unduh File PDF ke HP</span>
+                </button>
+                <button type="button" onclick="closeChromeReadyModal()" class="w-full py-2 px-3 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition">
+                    Lihat Hasil di Layar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Confirmation Modal -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4">
@@ -830,6 +866,16 @@
         function isMobileOrWebView() {
             const ua = navigator.userAgent || '';
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|wv/i.test(ua);
+        }
+
+        function isAndroidDevice() {
+            return /Android/i.test(navigator.userAgent || '');
+        }
+
+        // WebView di dalam APK (bukan Chrome / PWA terpasang). WebView tidak bisa mengunduh blob: URL.
+        function isAndroidWebView() {
+            const ua = navigator.userAgent || '';
+            return /Android/i.test(ua) && (/; wv\)/i.test(ua) || /Version\/[\d.]+ Chrome\/[\d.]+ Mobile/i.test(ua));
         }
 
         // =========================================================================
@@ -978,6 +1024,7 @@
             initTheme();
             initDateTime();
             loadFromLocalStorage();
+            const hasIncomingPayload = applyIncomingUrlPayload();
             renderObserverChips();
             renderHistoryList();
             setRecordMode('auto');
@@ -986,6 +1033,10 @@
             recalculateAll();
             startClocks();
             requestScreenWakeLock(false);
+            if (hasIncomingPayload) {
+                switchTab('report');
+                openChromeReadyModal();
+            }
         };
 
         // =========================================================================
@@ -2568,14 +2619,143 @@
             return { doc, fileName };
         }
 
-        function downloadDesktopVectorPDF() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
+        // ---- Pemuat jsPDF dengan cadangan CDN (jika CDN utama gagal / offline) ----
+        const JSPDF_FALLBACK_URLS = [
+            'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
+            'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'
+        ];
+        let jsPdfLoadingPromise = null;
+
+        function isJsPdfReady() {
+            return !!(window.jspdf && window.jspdf.jsPDF);
+        }
+
+        function loadScriptOnce(url) {
+            return new Promise((resolve, reject) => {
+                const sc = document.createElement('script');
+                sc.src = url;
+                sc.crossOrigin = 'anonymous';
+                sc.async = true;
+                sc.onload = () => resolve();
+                sc.onerror = () => { sc.remove(); reject(new Error('gagal memuat ' + url)); };
+                document.head.appendChild(sc);
+            });
+        }
+
+        async function ensureJsPDF() {
+            if (isJsPdfReady()) return true;
+            if (!jsPdfLoadingPromise) {
+                jsPdfLoadingPromise = (async () => {
+                    for (const url of JSPDF_FALLBACK_URLS) {
+                        try {
+                            await loadScriptOnce(url);
+                            if (isJsPdfReady()) return true;
+                        } catch (e) {}
+                    }
+                    return isJsPdfReady();
+                })();
+            }
+            const ok = await jsPdfLoadingPromise;
+            if (!ok) {
+                jsPdfLoadingPromise = null;
+                showToast('Library PDF belum termuat. Buka aplikasi sekali saat online agar tersimpan untuk offline.', 'error');
+            }
+            return ok;
+        }
+
+        function blobToDataURL(blob) {
+            return new Promise((resolve, reject) => {
+                const fr = new FileReader();
+                fr.onload = () => resolve(fr.result);
+                fr.onerror = () => reject(fr.error);
+                fr.readAsDataURL(blob);
+            });
+        }
+
+        // Simpan Blob PDF ke perangkat dengan nama file yang benar.
+        // Chrome Android & PWA terpasang: <a download> dengan blob URL (URL tidak langsung dicabut,
+        // karena Android butuh waktu untuk menyalin file -> penyebab gagal unduh sebelumnya).
+        function triggerBlobDownload(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.rel = 'noopener';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                if (link.parentNode) link.parentNode.removeChild(link);
+            }, 1000);
+            setTimeout(() => URL.revokeObjectURL(url), 120000);
+        }
+
+        async function sharePdfFile(blob, fileName) {
+            try {
+                const pdfFile = new File([blob], fileName, { type: 'application/pdf', lastModified: Date.now() });
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    await navigator.share({ files: [pdfFile], title: fileName });
+                    return 'shared';
+                }
+            } catch (e) {
+                if (e && e.name === 'AbortError') return 'aborted';
+            }
+            return 'unsupported';
+        }
+
+        // Fungsi utama: UNDUH file PDF (HP Android, PWA, WebView APK & PC)
+        async function downloadPdfFile() {
+            if (!(await ensureJsPDF())) return;
+            let doc, fileName, blob;
+            try {
+                ({ doc, fileName } = buildPibalPDFDocument());
+                blob = doc.output('blob');
+            } catch (e) {
+                showToast('Gagal membuat PDF: ' + (e && e.message ? e.message : e), 'error');
                 return;
             }
-            const { doc, fileName } = buildPibalPDFDocument();
-            doc.save(fileName);
-            showToast(`PDF ${fileName} berhasil diunduh ke PC!`, 'success');
+
+            // Jembatan opsional untuk APK WebView (jika APK menyediakan JavascriptInterface "AndroidPdf")
+            if (window.AndroidPdf && typeof window.AndroidPdf.saveBase64Pdf === 'function') {
+                try {
+                    const dataUrl = await blobToDataURL(blob);
+                    window.AndroidPdf.saveBase64Pdf(String(dataUrl).split(',')[1], fileName);
+                    showToast(`PDF ${fileName} disimpan ke folder Download.`, 'success');
+                    return;
+                } catch (e) {}
+            }
+
+            if (isAndroidWebView()) {
+                // WebView APK tidak bisa mengunduh blob: -> coba menu Share Android (Simpan ke Files / Drive / WA)
+                const res = await sharePdfFile(blob, fileName);
+                if (res === 'shared' || res === 'aborted') return;
+                // Terakhir: buka di Chrome (data otomatis terbawa), lalu tekan "Unduh File PDF ke HP" di sana
+                showToast('APK ini membatasi unduhan. Membuka Chrome untuk mengunduh PDF...', 'info');
+                setTimeout(openInChromeForFileShare, 900);
+                return;
+            }
+
+            try {
+                triggerBlobDownload(blob, fileName);
+                showToast(isMobileOrWebView()
+                    ? `PDF ${fileName} diunduh. Cek notifikasi / folder Download.`
+                    : `PDF ${fileName} berhasil diunduh!`, 'success');
+            } catch (e) {
+                // Cadangan: buka PDF di tab baru (Chrome Android otomatis menawarkan unduh)
+                try {
+                    const url = URL.createObjectURL(blob);
+                    const w = window.open(url, '_blank');
+                    if (!w) window.location.href = url;
+                } catch (e2) {
+                    const res = await sharePdfFile(blob, fileName);
+                    if (res === 'unsupported') showToast('Browser ini tidak mendukung unduh PDF.', 'error');
+                }
+            }
+        }
+
+        // Nama lama tetap dipertahankan agar semua tombol lama tetap berfungsi
+        function downloadDesktopVectorPDF() {
+            return downloadPdfFile();
         }
 
         // =========================================================================
@@ -2755,46 +2935,156 @@
         // - Di HP (Chrome / TWA): membuka menu Share Android dengan lampiran FILE .pdf asli untuk dikirim ke WA
         // - Di WebView APK lama yang memblokir share file: membuka Pratinjau 3 Halaman + tombol Buka di Chrome (tanpa crash!)
         async function handlePDFAction() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                showToast('Library PDF belum termuat, pastikan koneksi internet aktif.', 'error');
-                return;
-            }
+            if (!(await ensureJsPDF())) return;
 
             if (!isMobileOrWebView()) {
-                downloadDesktopVectorPDF();
+                downloadPdfFile();
                 return;
             }
 
+            let fileName = '';
             try {
-                const { doc, fileName } = buildPibalPDFDocument();
-                const pdfBlob = doc.output('blob');
-                const pdfFile = new File([pdfBlob], fileName, {
-                    type: 'application/pdf',
-                    lastModified: Date.now()
-                });
-
-                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                    await navigator.share({
-                        files: [pdfFile]
-                    });
+                const built = buildPibalPDFDocument();
+                fileName = built.fileName;
+                const res = await sharePdfFile(built.doc.output('blob'), fileName);
+                if (res === 'shared') {
                     showToast(`File ${fileName} berhasil dikirim!`, 'success');
                     return;
                 }
-            } catch (err) {
-                if (err && err.name === 'AbortError') {
-                    return;
-                }
+                if (res === 'aborted') return;
+            } catch (err) {}
+
+            if (isAndroidWebView()) {
+                // WebView APK tanpa izin share file: tampilkan pratinjau + tombol Unduh / Buka di Chrome
+                openPdfPreviewModal();
+                showToast('APK membatasi lampiran file. Ketuk "Kirim File PDF (via Chrome)" atau "Unduh PDF" di atas.', 'info');
+                return;
             }
 
-            // Fallback aman jika dibuka dari WebView APK yang tidak memiliki izin share file:
-            openPdfPreviewModal();
-            showToast('WebView APK membatasi lampiran file. Ketuk "Buka di Chrome (File PDF)" di atas untuk mengirim file PDF ke WA.', 'info');
+            // Chrome / PWA tanpa dukungan share file: unduh PDF, lalu lampirkan manual di WA
+            await downloadPdfFile();
+            showToast('PDF diunduh. Lampirkan dari folder Download di WhatsApp.', 'info');
+        }
+
+        function encodePayloadBase64Url(obj) {
+            const jsonStr = JSON.stringify(obj);
+            const bytes = new TextEncoder().encode(jsonStr);
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decodePayloadBase64Url(b64url) {
+            let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+            while (b64.length % 4) b64 += '=';
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            const jsonStr = new TextDecoder().decode(bytes);
+            return JSON.parse(jsonStr);
+        }
+
+        function applyIncomingUrlPayload() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const encoded = params.get('autopdf');
+                if (!encoded) return false;
+                const data = decodePayloadBase64Url(encoded);
+                if (!data || !Array.isArray(data.p)) return false;
+
+                if (data.w) document.getElementById('obs-wmo').value = data.w;
+                if (data.n) {
+                    document.getElementById('obs-name').value = data.n;
+                    recordObserverName(data.n);
+                }
+                if (data.d) document.getElementById('obs-date').value = data.d;
+                if (data.h) document.getElementById('obs-hour').value = data.h;
+                if (data.m && document.getElementById('obs-msl')) document.getElementById('obs-msl').value = data.m;
+                if (data.r && document.getElementById('obs-reason')) document.getElementById('obs-reason').value = data.r;
+                if (data.sd !== undefined) document.getElementById('surface-dir').value = data.sd;
+                if (data.ss !== undefined) document.getElementById('surface-spd').value = data.ss;
+
+                readings = data.p.map(item => ({
+                    minute: Number(item[0]),
+                    azimuth: Number(item[1]),
+                    elevation: Number(item[2]),
+                    skipped: Number(item[1]) === 9999 || Number(item[2]) === 9999
+                }));
+                if (readings.length > 0) {
+                    editingMinute = Math.max(...readings.map(r => r.minute)) + 1;
+                }
+                saveToLocalStorage();
+
+                // Bersihkan parameter URL agar tampilan rapi
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function openChromeReadyModal() {
+            const dateVal = document.getElementById('obs-date')?.value || '2026-11-26';
+            const hourVal = document.getElementById('obs-hour')?.value || '00';
+            const fileName = `${dateVal.replace(/-/g, '')}${hourVal}_pibal.pdf`;
+            const fnEl = document.getElementById('chrome-ready-filename');
+            const sumEl = document.getElementById('chrome-ready-summary');
+            if (fnEl) fnEl.textContent = fileName;
+            if (sumEl) sumEl.textContent = `${readings.length} pembacaan (${standardLayers.length} lapisan) & grafik 3 halaman sudah otomatis dimuat.`;
+            const modal = document.getElementById('chrome-pdf-ready-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeChromeReadyModal() {
+            const modal = document.getElementById('chrome-pdf-ready-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        async function triggerNativePdfFileShare() {
+            if (!(await ensureJsPDF())) return;
+            try {
+                const { doc, fileName } = buildPibalPDFDocument();
+                const res = await sharePdfFile(doc.output('blob'), fileName);
+                if (res === 'shared') {
+                    closeChromeReadyModal();
+                    showToast(`File ${fileName} berhasil dikirim!`, 'success');
+                    return;
+                }
+                if (res === 'aborted') return;
+            } catch (e) {}
+            await downloadPdfFile();
+            closeChromeReadyModal();
+        }
+
+        function copyFullReportText() {
+            const p1 = buildPage1PlainText();
+            copyToClipboardSafe(p1, 'Teks laporan lengkap berhasil disalin!');
         }
 
         function openInChromeForFileShare() {
             saveToLocalStorage();
+            const payload = {
+                w: document.getElementById('obs-wmo')?.value || '97270',
+                n: document.getElementById('obs-name')?.value || 'Observer',
+                d: document.getElementById('obs-date')?.value || '',
+                h: document.getElementById('obs-hour')?.value || '00',
+                m: document.getElementById('obs-msl')?.value || '1.3',
+                r: document.getElementById('obs-reason')?.value || 'BB',
+                sd: document.getElementById('surface-dir')?.value || '0',
+                ss: document.getElementById('surface-spd')?.value || '0',
+                p: readings.map(r => [r.minute, r.azimuth, r.elevation])
+            };
+            const encoded = encodePayloadBase64Url(payload);
             const hostAndPath = window.location.host + window.location.pathname;
-            const intentUrl = `intent://${hostAndPath}#Intent;scheme=https;package=com.android.chrome;end`;
+            const intentUrl = `intent://${hostAndPath}?autopdf=${encoded}#Intent;scheme=https;package=com.android.chrome;end`;
             window.location.href = intentUrl;
         }
 
@@ -2852,18 +3142,9 @@
             const origTitle = document.title;
             document.title = fileName.replace('.pdf', '');
 
-            if (!isMobileOrWebView()) {
-                downloadDesktopVectorPDF();
-                document.title = origTitle;
-                return;
-            }
-
-            try {
-                window.print();
-            } catch (e) {
-                openInChromeForFileShare();
-            }
-            setTimeout(() => { document.title = origTitle; }, 1500);
+            // window.print() tidak berfungsi di Android (Chrome PWA / WebView APK),
+            // jadi PDF selalu dibuat langsung dengan jsPDF lalu diunduh.
+            downloadPdfFile().finally(() => { document.title = origTitle; });
         }
 
         // Kirim Script Auto-Input BMKGSoft v2 langsung ke WhatsApp (+ salin ke clipboard HP)
